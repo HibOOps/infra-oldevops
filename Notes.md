@@ -1,5 +1,7 @@
 **23.05**
+
 _Interface réseau_
+
 il est necessaire de creer manuellement l'interface vmbr1 dans ```/etc/network/interfaces```
 
 ```
