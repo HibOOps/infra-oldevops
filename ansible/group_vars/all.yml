@@ -1,0 +1,2 @@
+vars_files:
+  - /vault/secrets.yml
