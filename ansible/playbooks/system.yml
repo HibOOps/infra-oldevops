@@ -1,0 +1,35 @@
+---
+- hosts: all
+  vars_files:
+    - "./vars/default.yml"
+    - "./vars/default_vault.yml"
+    - "./vars/{{ inventory_hostname }}.yml"
+    - "./vars/{{ inventory_hostname }}_vault.yml"
+  roles:
+# Rôles de base
+    - users
+#    - bind9
+#    - hostname
+#    - locales
+#    - logrotate
+#    - motd
+#    - nodejs
+#    - openssh
+#    - rbenv
+#    - timesyncd
+
+
+# Sécurité et Monitorin
+#    - certbot 
+#    - crowdsec
+#    - host
+#    - ip
+#    - netfilter
+#    - filebeat
+#    - zabbix-agent
+
+# Outils système
+#    - btop
+#    - dust
+#    - fd-find
+#    - zstd
