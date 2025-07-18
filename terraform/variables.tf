@@ -45,7 +45,8 @@ variable "proxmox_node" {
 variable "debian_template" {
   description = "Name of the Debian template to use for LXC containers"
   type        = string
-  default     = "local:vztmpl/debian-12-standard_12.0-1_amd64.tar.zst"
+  default     = "local:vztmpl/debian-12-standard_12.7-1_amd64.tar.zst"
+
 }
 
 variable "container_password" {
