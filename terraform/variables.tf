@@ -1,9 +1,10 @@
 # Proxmox Configuration
 variable "proxmox_host" {
-  description = "Proxmox hostname or IP address"
+  description = "Proxmox hostname or IP address (use local IP for LAN access)"
   type        = string
-  default     = "proxmox.oldevops.fr"
+  default     = "192.168.0.10"  # Remplacez par l'IP locale de votre serveur Proxmox
 }
+
 
 variable "proxmox_username" {
   description = "Proxmox API username"
@@ -17,10 +18,27 @@ variable "proxmox_password" {
   sensitive   = true
 }
 
-variable "proxmox_node" {
-  description = "Name of the Proxmox node"
+# Provider and Node Configuration
+variable "proxmox_api_url" {
+  description = "URL de l'API Proxmox (ex: https://192.168.0.10:8006/api2/json)"
   type        = string
-  default     = "proxmox"
+}
+
+variable "proxmox_api_token_id" {
+  description = "ID du token API Proxmox (ex: root@pam!terraform)"
+  type        = string
+}
+
+variable "proxmox_api_token_secret" {
+  description = "Secret du token API Proxmox"
+  type        = string
+  sensitive   = true
+}
+
+variable "proxmox_node" {
+  description = "Name of the Proxmox node to use"
+  type        = string
+  default     = "pveIA"
 }
 
 # Container Configuration
@@ -61,7 +79,7 @@ variable "domain" {
 variable "email" {
   description = "Email address for Let's Encrypt"
   type        = string
-  default     = "admin@oldevops.fr"
+  default     = "olivier.labe@oldevops.fr"
 }
 
 # Resource Defaults
