@@ -38,7 +38,7 @@ variable "proxmox_api_token_secret" {
 variable "proxmox_node" {
   description = "Name of the Proxmox node to use"
   type        = string
-  default     = "pveIA"
+  default     = "pve2"
 }
 
 # Container Configuration
