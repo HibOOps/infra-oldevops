@@ -54,6 +54,12 @@ variable "start_on_create" {
   type        = bool
   default     = true
 }
+
+variable "ssh_public_keys" {
+  description = "List of SSH public keys to add to the container"
+  type        = list(string)
+  default     = []
+}
 variable "description" {
   description = "Description for the container"
   type        = string
@@ -64,8 +70,4 @@ variable "tags" {
   type        = string
   default     = "managed-by:terraform"
 }
-variable "ssh_public_keys" {
-  description = "SSH public keys to inject (optional)"
-  type        = string
-  default     = ""
-}
+

@@ -30,7 +30,7 @@ module "reverse_proxy" {
 module "uptime_kuma" {
   source      = "./modules/lxc_container"
   vmid        = 210
-  hostname    = "status.${var.domain}"
+  hostname    = "uptimekuma.${var.domain}"
   target_node = var.proxmox_node
   template    = var.debian_template
   password    = var.container_password
@@ -51,7 +51,7 @@ module "uptime_kuma" {
 module "snipeit" {
   source      = "./modules/lxc_container"
   vmid        = 220
-  hostname    = "inventory.${var.domain}"
+  hostname    = "snipe.${var.domain}"
   target_node = var.proxmox_node
   template    = var.debian_template
   password    = var.container_password

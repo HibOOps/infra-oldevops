@@ -8,6 +8,7 @@ resource "proxmox_lxc" "this" {
   onboot       = var.start_on_boot
   start        = var.start_on_create
   description  = var.description
+  ssh_public_keys = join("\n", var.ssh_public_keys)
 
   # CPU and Memory
   cores  = var.cores

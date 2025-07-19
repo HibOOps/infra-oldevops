@@ -56,11 +56,17 @@ variable "container_password" {
   default     = "" # Should be set via environment variable or .tfvars
 }
 
+variable "ssh_public_keys" {
+  description = "List of SSH public keys to add to all containers"
+  type        = list(string)
+  default     = []
+}
+
 # Network Configuration
 variable "lxc_bridge" {
   description = "Bridge interface for LXC containers"
   type        = string
-  default     = "vmbr1"
+  default     = "vmbr0"
 }
 
 variable "storage_pool" {
