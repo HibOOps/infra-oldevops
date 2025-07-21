@@ -15,4 +15,20 @@ iface vmbr1 inet static
 ```
 recharger les interfaces ```ifreload -a``` et verifier ip ```ip a show vmbr1```
 
+---
+
+**21.07.2025**
+
+_Backend Terraform S3 & profil AWS_
+
+Pour que Terraform utilise des credentials AWS spécifiques à ce projet (et non le profil `default`), il est indispensable d'ajouter la ligne suivante dans le bloc backend S3 du fichier `backup.tf` :
+
+```hcl
+profile = "oldevops"
+```
+
+Cela permet de référencer la section `[oldevops]` du fichier `~/.aws/credentials`.
+
+---
+
 

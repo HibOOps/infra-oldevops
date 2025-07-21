@@ -86,7 +86,9 @@ Après le déploiement, configurez vos enregistrements DNS pour pointer vers l'I
 
 ### Sauvegardes
 
-Des sauvegardes automatiques sont configurées pour tous les conteneurs via Proxmox Backup Server.
+Des sauvegardes automatiques sont configurées pour tous les conteneurs via Proxmox Backup Server (work in progress).
+
+Le fichier d'état Terraform (`tfstate`) est également synchronisé automatiquement dans un bucket S3 OVH pour garantir la pérennité et la restauration de l'infrastructure.
 
 ### Mises à jour
 
