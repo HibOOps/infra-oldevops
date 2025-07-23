@@ -1,0 +1,30 @@
+- name: Installer les dépendances
+  apt:
+    name:
+      - curl
+      - sudo
+      - docker.io
+      - docker-compose
+    state: present
+    update_cache: yes
+
+- name: Créer le dossier de la stack NPM
+  file:
+    path: /opt/npm
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Copier le docker-compose.yml
+  copy:
+    src: docker-compose.yml
+    dest: /opt/npm/docker-compose.yml
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Lancer Nginx Proxy Manager
+  shell: docker-compose up -d
+  args:
+    chdir: /opt/npm

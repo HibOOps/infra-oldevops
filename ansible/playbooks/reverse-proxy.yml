@@ -1,0 +1,4 @@
+- hosts: npm
+  become: yes
+  roles:
+    - npm
