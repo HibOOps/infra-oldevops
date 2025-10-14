@@ -43,3 +43,6 @@ ansible/vault/*
 
 # General
 *.log
+
+# Claude Code configuration
+.claude/
