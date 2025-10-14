@@ -32,7 +32,7 @@ variable "bridge" {
   type        = string
 }
 variable "ip" {
-  description = "IP address with CIDR for the container (e.g., 172.20.0.2/24)"
+  description = "IP address with CIDR for the container (e.g., 10.0.0.2/24)"
   type        = string
 }
 variable "gateway" {

@@ -1,0 +1,19 @@
+[Unit]
+Description=Listing aws S3 backups
+After=local-fs.target network.target
+After=syslog.target
+StartLimitIntervalSec=500
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=root
+Group=root
+SyslogIdentifier=awsbackupS3list
+PIDFile=/var/run/awsbackupS3list.pid
+ExecStart=/usr/local/bin/awsbackupS3list
+StandardError=journal
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

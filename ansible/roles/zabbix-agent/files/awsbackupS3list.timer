@@ -1,0 +1,9 @@
+[Unit]
+Description=Timer to run Listing aws S3 backups
+
+[Timer]
+OnCalendar=*:0/15
+Persistent=true
+
+[Install]
+WantedBy=timers.target

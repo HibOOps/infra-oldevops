@@ -10,18 +10,18 @@ Infrastructure-as-Code pour le déploiement des services internes sur un serveur
 
 | Service | URL | IP | Description |
 |---------|-----|----|-------------|
-| Reverse Proxy | https://proxy.oldevops.fr | 172.20.0.2 | Nginx Proxy Manager pour le routage et la gestion des certificats |
-| Uptime Kuma | https://status.oldevops.fr | 172.20.0.10 | Surveillance des services et temps de réponse |
-| Snipe-IT | https://inventory.oldevops.fr | 172.20.0.20 | Gestion de parc informatique |
-| Vaultwarden | https://vault.oldevops.fr | 172.20.0.30 | Gestionnaire de mots de passe auto-hébergé |
-| Zabbix | https://monitoring.oldevops.fr | 172.20.0.40 | Surveillance avancée des serveurs et services |
+| Reverse Proxy | https://proxy.oldevops.fr | 10.0.0.2 | Nginx Proxy Manager pour le routage et la gestion des certificats |
+| Uptime Kuma | https://status.oldevops.fr | 10.0.0.10 | Surveillance des services et temps de réponse |
+| Snipe-IT | https://inventory.oldevops.fr | 10.0.0.20 | Gestion de parc informatique |
+| Vaultwarden | https://vault.oldevops.fr | 10.0.0.30 | Gestionnaire de mots de passe auto-hébergé |
+| Zabbix | https://monitoring.oldevops.fr | 10.0.0.40 | Surveillance avancée des serveurs et services |
 
 ## 🛠️ Stack Technique
 
 - **Infrastructure**
   - Proxmox VE (Virtualisation)
   - LXC (Conteneurs légers)
-  - Réseau privé 172.20.0.0/24
+  - Réseau privé 10.0.0.0/24
 
 - **Outils**
   - Terraform (Déploiement d'infrastructure)

@@ -21,8 +21,8 @@ module "reverse_proxy" {
 
   # Réseau
   bridge      = var.lxc_bridge
-  ip          = "172.20.0.2/24"
-  gateway     = "172.20.0.1"
+  ip          = "10.0.0.2/24"
+  gateway     = "10.0.0.1"
 }
 
 
@@ -44,8 +44,8 @@ module "uptime_kuma" {
 
   # Réseau
   bridge      = var.lxc_bridge
-  ip          = "172.20.0.10/24"
-  gateway     = "172.20.0.1"
+  ip          = "10.0.0.10/24"
+  gateway     = "10.0.0.1"
 }
 
 module "snipeit" {
@@ -65,8 +65,8 @@ module "snipeit" {
 
   # Réseau
   bridge      = var.lxc_bridge
-  ip          = "172.20.0.20/24"
-  gateway     = "172.20.0.1"
+  ip          = "10.0.0.20/24"
+  gateway     = "10.0.0.1"
 }
 
 module "vaultwarden" {
@@ -86,8 +86,8 @@ module "vaultwarden" {
 
   # Réseau
   bridge      = var.lxc_bridge
-  ip          = "172.20.0.30/24"
-  gateway     = "172.20.0.1"
+  ip          = "10.0.0.30/24"
+  gateway     = "10.0.0.1"
 }
 
 module "zabbix" {
@@ -107,7 +107,7 @@ module "zabbix" {
 
   # Réseau
   bridge      = var.lxc_bridge
-  ip          = "172.20.0.40/24"
-  gateway     = "172.20.0.1"
+  ip          = "10.0.0.40/24"
+  gateway     = "10.0.0.1"
 }
 # dans leurs fichiers respectifs dans les dossiers containers/ et vm/

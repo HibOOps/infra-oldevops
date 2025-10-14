@@ -1,0 +1,51 @@
+---
+- name: Include role snmp
+  include_role:
+    name: snmp
+
+- name: Install Debian 11 Zabbix Server instructions
+  block:
+    - name: Install Zabbix repository
+      ansible.builtin.apt:
+        deb: https://repo.zabbix.com/zabbix/6.2/debian/pool/main/z/zabbix-release/zabbix-release_6.2-4+debian11_all.deb
+    
+    - name: Update repos and install zabbix server and nmap
+      ansible.builtin.apt:
+        name:
+          - nmap=7.91+dfsg1+really7.80+dfsg1-2
+          - zabbix-apache-conf=1:6.2.9-1+debian11
+          - zabbix-frontend-php=1:6.2.9-1+debian11
+          - zabbix-server-mysql=1:6.2.9-1+debian11
+          - zabbix-sql-scripts=1:6.2.9-1+debian11
+        state: present
+        install_recommends: yes
+        update_cache: yes
+      notify:
+       - restart Zabbix-server
+  when: ansible_distribution_release == 'bullseye'
+
+- name: Add usr bin nmap to zabbix user
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: 'zabbix  ALL=(root) NOPASSWD: /usr/bin/nmap'
+    line: 'zabbix  ALL=(root) NOPASSWD: /usr/bin/nmap'
+    validate: /usr/sbin/visudo -cf %s
+
+- name: Set /etc/zabbix/web/zabbix.conf.php file
+  ansible.builtin.template:
+    src: zabbix.conf.php.j2
+    dest: /etc/zabbix/web/zabbix.conf.php
+    owner: www-data
+    group: www-data
+    mode: 0644
+
+- name: Set /etc/zabbix/zabbix_server.conf file
+  ansible.builtin.template:
+    src: zabbix_server.conf.j2
+    dest: /etc/zabbix/zabbix_server.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+   - restart Zabbix-server

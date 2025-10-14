@@ -1,0 +1,23 @@
+---
+
+- name: Include role JQ
+  include_role:
+    name: jq
+  when: zabbix_server_use|bool
+
+- name: Include role AWSCLI
+  include_role:
+    name: awscli
+  when: zabbix_server_use|bool
+
+- name: Include role boap
+  include_role:
+    name: boap
+  when: zabbix_server_use|bool
+
+- name: include main generic task for zabbix-agent
+  ansible.builtin.import_tasks: generic.yml
+
+- name: include aws specific task when the server is a zabbix-server
+  ansible.builtin.import_tasks: zabbix-server-specific-checks.yml
+  when: zabbix_server_use|bool
