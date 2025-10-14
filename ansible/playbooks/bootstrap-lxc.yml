@@ -1,0 +1,59 @@
+---
+# Bootstrap playbook - Initial SSH setup via Proxmox pct exec
+# Run this FIRST when containers don't have SSH configured yet
+
+- name: Bootstrap SSH on LXC containers via Proxmox
+  hosts: proxmox
+  gather_facts: no
+
+  vars:
+    containers:
+      - { id: 200, name: "reverse-proxy" }
+      - { id: 210, name: "uptime-kuma" }
+      - { id: 220, name: "snipeit" }
+      - { id: 230, name: "vaultwarden" }
+      - { id: 240, name: "zabbix" }
+
+    ssh_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPxEdycH87BRihJ6kqCKSbAI955PxN9m9aKWNpI6CdQC olabe@Oliviers-Mini"
+
+  tasks:
+    - name: Check if container is running
+      shell: "pct status {{ item.id }} | grep -q running"
+      loop: "{{ containers }}"
+      register: container_status
+      changed_when: false
+      failed_when: false
+
+    - name: Install OpenSSH server in containers
+      shell: |
+        pct exec {{ item.item.id }} -- bash -c "apt update && apt install -y openssh-server"
+      loop: "{{ container_status.results }}"
+      when: item.rc == 0
+      changed_when: true
+
+    - name: Create .ssh directory in containers
+      shell: |
+        pct exec {{ item.item.id }} -- bash -c "mkdir -p /root/.ssh && chmod 700 /root/.ssh"
+      loop: "{{ container_status.results }}"
+      when: item.rc == 0
+      changed_when: true
+
+    - name: Deploy SSH key to containers
+      shell: |
+        pct exec {{ item.item.id }} -- bash -c "echo '{{ ssh_key }}' >> /root/.ssh/authorized_keys && chmod 600 /root/.ssh/authorized_keys && sort -u /root/.ssh/authorized_keys -o /root/.ssh/authorized_keys"
+      loop: "{{ container_status.results }}"
+      when: item.rc == 0
+      changed_when: true
+
+    - name: Enable and start SSH service
+      shell: |
+        pct exec {{ item.item.id }} -- bash -c "systemctl enable ssh && systemctl start ssh"
+      loop: "{{ container_status.results }}"
+      when: item.rc == 0
+      changed_when: true
+
+    - name: Display bootstrap results
+      debug:
+        msg: "Bootstrapped SSH on container {{ item.item.id }} ({{ item.item.name }})"
+      loop: "{{ container_status.results }}"
+      when: item.rc == 0

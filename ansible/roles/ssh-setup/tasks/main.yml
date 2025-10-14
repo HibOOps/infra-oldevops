@@ -1,0 +1,57 @@
+---
+# SSH Setup Role - Configure SSH access on LXC containers
+
+- name: Install OpenSSH server
+  apt:
+    name: openssh-server
+    state: present
+    update_cache: yes
+  tags: ssh
+
+- name: Ensure SSH service is enabled and started
+  systemd:
+    name: ssh
+    enabled: yes
+    state: started
+  tags: ssh
+
+- name: Create .ssh directory for root
+  file:
+    path: /root/.ssh
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+  tags: ssh
+
+- name: Deploy authorized SSH keys for root
+  authorized_key:
+    user: root
+    key: "{{ item }}"
+    state: present
+  loop: "{{ ssh_public_keys }}"
+  when: ssh_public_keys is defined
+  tags: ssh
+
+- name: Configure SSH daemon for security
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+  loop:
+    - { regexp: '^#?PermitRootLogin', line: 'PermitRootLogin prohibit-password' }
+    - { regexp: '^#?PasswordAuthentication', line: 'PasswordAuthentication no' }
+    - { regexp: '^#?PubkeyAuthentication', line: 'PubkeyAuthentication yes' }
+    - { regexp: '^#?X11Forwarding', line: 'X11Forwarding no' }
+  notify: restart ssh
+  tags: ssh
+
+- name: Allow SSH through UFW if enabled
+  ufw:
+    rule: allow
+    port: '22'
+    proto: tcp
+  when: ansible_facts.packages['ufw'] is defined
+  ignore_errors: yes
+  tags: ssh

@@ -1,0 +1,17 @@
+---
+# Playbook to configure SSH on all LXC containers
+# This should be run first to ensure all containers are accessible via SSH
+
+- name: Configure SSH on all LXC containers
+  hosts: lxc_containers
+  gather_facts: yes
+  become: yes
+
+  tasks:
+    - name: Apply SSH configuration role
+      include_role:
+        name: ssh-setup
+
+    - name: Display SSH connection info
+      debug:
+        msg: "SSH configured on {{ inventory_hostname }} ({{ ansible_host }})"

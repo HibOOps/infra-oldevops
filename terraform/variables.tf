@@ -66,7 +66,7 @@ variable "ssh_public_keys" {
 variable "lxc_bridge" {
   description = "Bridge interface for LXC containers"
   type        = string
-  default     = "vmbr0"
+  default     = "vmbr1"
 }
 
 variable "storage_pool" {
