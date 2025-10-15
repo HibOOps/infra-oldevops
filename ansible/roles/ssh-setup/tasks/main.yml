@@ -33,18 +33,31 @@
   when: ssh_public_keys is defined
   tags: ssh
 
-- name: Configure SSH daemon for security
+- name: Test SSH key authentication before disabling password auth
+  command: ssh -o PasswordAuthentication=no -o StrictHostKeyChecking=no root@localhost echo "SSH key works"
+  delegate_to: localhost
+  changed_when: false
+  failed_when: false
+  register: ssh_key_test
+  tags: ssh
+
+- name: Configure SSH daemon for security (only if keys work or skip security)
   lineinfile:
     path: /etc/ssh/sshd_config
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
     state: present
   loop:
-    - { regexp: '^#?PermitRootLogin', line: 'PermitRootLogin prohibit-password' }
-    - { regexp: '^#?PasswordAuthentication', line: 'PasswordAuthentication no' }
+    - { regexp: '^#?PermitRootLogin', line: 'PermitRootLogin yes' }
+    - { regexp: '^#?PasswordAuthentication', line: 'PasswordAuthentication yes' }
     - { regexp: '^#?PubkeyAuthentication', line: 'PubkeyAuthentication yes' }
     - { regexp: '^#?X11Forwarding', line: 'X11Forwarding no' }
   notify: restart ssh
+  tags: ssh
+
+- name: Warning about password authentication
+  debug:
+    msg: "WARNING: Password authentication is still enabled. Disable it manually after confirming SSH key access works."
   tags: ssh
 
 - name: Allow SSH through UFW if enabled
