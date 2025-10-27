@@ -33,14 +33,6 @@
   when: ssh_public_keys is defined
   tags: ssh
 
-- name: Test SSH key authentication before disabling password auth
-  command: ssh -o PasswordAuthentication=no -o StrictHostKeyChecking=no root@localhost echo "SSH key works"
-  delegate_to: localhost
-  changed_when: false
-  failed_when: false
-  register: ssh_key_test
-  tags: ssh
-
 - name: Configure SSH daemon for security (only if keys work or skip security)
   lineinfile:
     path: /etc/ssh/sshd_config
