@@ -1,23 +1,33 @@
 ---
+- name: Install Zabbix repository for Debian 12
+  apt:
+    deb: https://repo.zabbix.com/zabbix/7.0/debian/pool/main/z/zabbix-release/zabbix-release_latest%2Bdebian12_all.deb
+    state: present
 
-- name: Include role JQ
-  include_role:
-    name: jq
-  when: zabbix_server_use|bool
+- name: Update apt cache
+  apt:
+    update_cache: yes
 
-- name: Include role AWSCLI
-  include_role:
-    name: awscli
-  when: zabbix_server_use|bool
+- name: Install Zabbix Agent 2
+  apt:
+    name:
+      - zabbix-agent2
+      - zabbix-agent2-plugin-*
+    state: present
 
-- name: Include role boap
-  include_role:
-    name: boap
-  when: zabbix_server_use|bool
+- name: Configure Zabbix Agent 2
+  lineinfile:
+    path: /etc/zabbix/zabbix_agent2.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - { regexp: '^Server=', line: 'Server=10.0.0.40' }
+    - { regexp: '^ServerActive=', line: 'ServerActive=10.0.0.40' }
+    - { regexp: '^Hostname=', line: 'Hostname={{ inventory_hostname }}' }
+  notify: restart zabbix-agent
 
-- name: include main generic task for zabbix-agent
-  ansible.builtin.import_tasks: generic.yml
-
-- name: include aws specific task when the server is a zabbix-server
-  ansible.builtin.import_tasks: zabbix-server-specific-checks.yml
-  when: zabbix_server_use|bool
+- name: Start and enable Zabbix Agent 2
+  service:
+    name: zabbix-agent2
+    state: started
+    enabled: yes

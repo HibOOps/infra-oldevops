@@ -1,6 +1,6 @@
 ---
-- hosts: vault
+- hosts: snipe
   become: yes
   roles:
     - common
-    - vaultwarden
+    - snipeit

@@ -7,7 +7,7 @@
     - "./vars/{{ inventory_hostname }}_vault.yml"
   roles:
 # Rôles de base
-    - users
+#    - users
 #    - bind9
 #    - hostname
 #    - locales

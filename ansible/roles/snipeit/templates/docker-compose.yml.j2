@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  snipeit:
+    image: snipe/snipe-it:latest
+    container_name: snipeit
+    env_file: .env
+    ports:
+      - "80:80"
+    depends_on:
+      - db
+    restart: always
+
+  db:
+    image: mysql:8.0
+    container_name: snipeit-db
+    env_file: .env
+    volumes:
+      - ./db-data:/var/lib/mysql
+    restart: always

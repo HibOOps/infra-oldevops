@@ -1,0 +1,21 @@
+---
+- name: Create app directory
+  file:
+    path: /opt/uptime-kuma
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Copy docker-compose.yml
+  template:
+    src: docker-compose.yml.j2
+    dest: /opt/uptime-kuma/docker-compose.yml
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Start Uptime Kuma
+  shell: docker compose up -d
+  args:
+    chdir: /opt/uptime-kuma

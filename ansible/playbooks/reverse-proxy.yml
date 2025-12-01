@@ -1,4 +1,6 @@
+---
 - hosts: npm
   become: yes
   roles:
+    - common
     - npm

@@ -1,7 +1,7 @@
 ---
 - name: Create app directory
   file:
-    path: /opt/zabbix
+    path: /opt/snipeit
     state: directory
     owner: root
     group: root
@@ -10,7 +10,7 @@
 - name: Copy docker-compose.yml
   template:
     src: docker-compose.yml.j2
-    dest: /opt/zabbix/docker-compose.yml
+    dest: /opt/snipeit/docker-compose.yml
     owner: root
     group: root
     mode: '0644'
@@ -18,12 +18,12 @@
 - name: Copy .env file
   template:
     src: .env.j2
-    dest: /opt/zabbix/.env
+    dest: /opt/snipeit/.env
     owner: root
     group: root
     mode: '0644'
 
-- name: Start Zabbix
+- name: Start Snipe-IT
   shell: docker compose up -d
   args:
-    chdir: /opt/zabbix
+    chdir: /opt/snipeit
