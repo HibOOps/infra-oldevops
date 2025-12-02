@@ -33,7 +33,7 @@ recharger les interfaces ```ifreload -a``` et verifier ip ```ip a show vmbr1```
 
 ---
 
-**21.07.2025**
+**01.12.2024**
 
 _Backend Terraform S3 & profil AWS_
 
@@ -44,6 +44,21 @@ profile = "oldevops"
 ```
 
 Cela permet de référencer la section `[oldevops]` du fichier `~/.aws/credentials`.
+
+---
+
+**02.12.2024**
+
+_Standardisation des rôles Ansible_
+
+Le projet a été restructuré pour utiliser une architecture basée sur des rôles Ansible :
+
+- **Rôle `common`** : Créé pour centraliser l'installation de Docker, Docker Compose et des dépendances système. Ce rôle est utilisé par tous les services.
+- **Rôles de services** : Chaque service (npm, uptime-kuma, snipeit, vaultwarden, zabbix-server, zabbix-agent) dispose de son propre rôle.
+- **Playbooks refactorisés** : Tous les playbooks ont été mis à jour pour utiliser les rôles au lieu de tâches inline.
+- **Script de déploiement** : Le script `deploy.sh` orchestre automatiquement le déploiement complet (Terraform + Ansible).
+
+Cette standardisation améliore la maintenabilité, la réutilisabilité et la cohérence du code d'infrastructure.
 
 ---
 

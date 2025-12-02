@@ -34,6 +34,34 @@ Infrastructure-as-Code pour le déploiement des services internes sur un serveur
   - Vault (Gestion des secrets)
   - .env (Variables d'environnement)
 
+## 📦 Architecture Ansible
+
+Le projet utilise une architecture basée sur des rôles Ansible pour standardiser et simplifier le déploiement des services.
+
+### Rôles disponibles
+
+| Rôle | Description |
+|------|-------------|
+| `common` | Installation de Docker, Docker Compose et dépendances système (utilisé par tous les services) |
+| `npm` | Déploiement de Nginx Proxy Manager |
+| `uptime-kuma` | Déploiement d'Uptime Kuma pour la surveillance |
+| `snipeit` | Déploiement de Snipe-IT pour la gestion d'inventaire |
+| `vaultwarden` | Déploiement de Vaultwarden (gestionnaire de mots de passe) |
+| `zabbix-server` | Déploiement du serveur Zabbix |
+| `zabbix-agent` | Installation de l'agent Zabbix sur tous les conteneurs |
+| `ssh-setup` | Configuration sécurisée de SSH |
+
+### Playbooks
+
+Chaque service dispose de son propre playbook qui orchestre les rôles nécessaires :
+- `reverse-proxy.yml` - Déploie Nginx Proxy Manager
+- `uptime-kuma.yml` - Déploie Uptime Kuma
+- `snipeit.yml` - Déploie Snipe-IT
+- `vaultwarden.yml` - Déploie Vaultwarden
+- `zabbix.yml` - Déploie Zabbix (serveur + agents)
+- `bootstrap-lxc.yml` - Bootstrap initial des conteneurs LXC
+- `ssh-setup.yml` - Configuration SSH sécurisée
+
 ## 🚀 Déploiement
 
 ### Prérequis
@@ -60,7 +88,28 @@ Infrastructure-as-Code pour le déploiement des services internes sur un serveur
    email = "votre-email@oldevops.fr"
    ```
 
-### Déploiement avec Terraform
+### Déploiement automatisé (recommandé)
+
+Le script `deploy.sh` orchestre automatiquement le déploiement complet (Terraform + Ansible) :
+
+```bash
+# Rendre le script exécutable
+chmod +x deploy.sh
+
+# Lancer le déploiement complet
+./deploy.sh
+```
+
+Ce script effectue les étapes suivantes :
+1. Déploiement de l'infrastructure avec Terraform
+2. Attente de la disponibilité des conteneurs
+3. Bootstrap SSH sur les conteneurs
+4. Configuration sécurisée de SSH
+5. Test de connectivité
+
+### Déploiement manuel avec Terraform
+
+Si vous préférez déployer manuellement :
 
 ```bash
 cd terraform
@@ -73,6 +122,21 @@ terraform plan -out=tfplan
 
 # Appliquer les changements
 terraform apply "tfplan"
+```
+
+### Déploiement des services avec Ansible
+
+Après le déploiement Terraform, configurez les services :
+
+```bash
+cd ansible
+
+# Déployer tous les services
+ansible-playbook -i inventory.ini playbooks/reverse-proxy.yml
+ansible-playbook -i inventory.ini playbooks/uptime-kuma.yml
+ansible-playbook -i inventory.ini playbooks/snipeit.yml
+ansible-playbook -i inventory.ini playbooks/vaultwarden.yml
+ansible-playbook -i inventory.ini playbooks/zabbix.yml
 ```
 
 ### Configuration DNS
