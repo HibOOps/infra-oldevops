@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    restart: always
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - proxy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    environment:
+      - OVH_ENDPOINT={{ ovh_endpoint }}
+      - OVH_APPLICATION_KEY={{ ovh_application_key }}
+      - OVH_APPLICATION_SECRET={{ ovh_application_secret }}
+      - OVH_CONSUMER_KEY={{ ovh_consumer_key }}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./acme.json:/etc/traefik/acme.json
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`proxy.{{ domain_name }}`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls.certresolver=ovh"
+
+networks:
+  proxy:
+    external: true

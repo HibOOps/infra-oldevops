@@ -27,6 +27,15 @@ services:
       - mysql-server
       - zabbix-server
     restart: always
+    networks:
+      - proxy
+      - default
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.zabbix.rule=Host(`monitoring.oldevops.fr`)"
+      - "traefik.http.routers.zabbix.entrypoints=websecure"
+      - "traefik.http.routers.zabbix.tls.certresolver=ovh"
+      - "traefik.http.services.zabbix.loadbalancer.server.port=8080"
 
   mysql-server:
     image: mysql:8.0
@@ -37,3 +46,9 @@ services:
     env_file:
       - .env
     restart: always
+
+networks:
+  proxy:
+    external: true
+  default:
+    driver: bridge

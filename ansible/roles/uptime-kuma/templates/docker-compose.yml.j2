@@ -9,3 +9,15 @@ services:
     ports:
       - 3001:3001
     restart: always
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.uptimekuma.rule=Host(`status.oldevops.fr`)"
+      - "traefik.http.routers.uptimekuma.entrypoints=websecure"
+      - "traefik.http.routers.uptimekuma.tls.certresolver=ovh"
+      - "traefik.http.services.uptimekuma.loadbalancer.server.port=3001"
+
+networks:
+  proxy:
+    external: true

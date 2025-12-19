@@ -5,11 +5,18 @@ services:
     image: snipe/snipe-it:latest
     container_name: snipeit
     env_file: .env
-    ports:
-      - "80:80"
     depends_on:
       - db
     restart: always
+    networks:
+      - proxy
+      - default
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.snipeit.rule=Host(`inventory.oldevops.fr`)"
+      - "traefik.http.routers.snipeit.entrypoints=websecure"
+      - "traefik.http.routers.snipeit.tls.certresolver=ovh"
+      - "traefik.http.services.snipeit.loadbalancer.server.port=80"
 
   db:
     image: mysql:8.0
@@ -18,3 +25,9 @@ services:
     volumes:
       - ./db-data:/var/lib/mysql
     restart: always
+
+networks:
+  proxy:
+    external: true
+  default:
+    driver: bridge
