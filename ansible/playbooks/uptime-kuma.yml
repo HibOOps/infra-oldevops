@@ -1,6 +1,0 @@
----
-- hosts: uptime
-  become: yes
-  roles:
-    - common
-    - uptime-kuma

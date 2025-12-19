@@ -1,6 +1,6 @@
-api:
-  dashboard: true
-  insecure: true
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
 
 entryPoints:
   web:
@@ -10,7 +10,6 @@ entryPoints:
         entryPoint:
           to: websecure
           scheme: https
-
   websecure:
     address: ":443"
 
@@ -19,14 +18,14 @@ providers:
     endpoint: "unix:///var/run/docker.sock"
     exposedByDefault: false
   file:
-    filename: "/etc/traefik/traefik.yml"
+    filename: /etc/traefik/dynamic_conf.yml
     watch: true
 
 certificatesResolvers:
   ovh:
     acme:
-      email: "{{ email_address }}"
-      storage: "/etc/traefik/acme.json"
+      email: {{ email_address }}
+      storage: /etc/traefik/acme.json
       dnsChallenge:
         provider: ovh
         delayBeforeCheck: 0

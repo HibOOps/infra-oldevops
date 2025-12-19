@@ -1,0 +1,70 @@
+http:
+  routers:
+    vaultwarden:
+      rule: "Host(`vault.{{ domain_name }}`)"
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: ovh
+      service: vaultwarden
+    snipeit:
+      rule: "Host(`inventory.{{ domain_name }}`)"
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: ovh
+      service: snipeit
+    uptimekuma:
+      rule: "Host(`status.{{ domain_name }}`)"
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: ovh
+      service: uptimekuma
+    zabbix:
+      rule: "Host(`monitoring.{{ domain_name }}`)"
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: ovh
+      service: zabbix
+    prometheus:
+      rule: "Host(`prometheus.{{ domain_name }}`)"
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: ovh
+      service: prometheus
+    grafana:
+      rule: "Host(`grafana.{{ domain_name }}`)"
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: ovh
+      service: grafana
+
+  services:
+    vaultwarden:
+      loadBalancer:
+        servers:
+          - url: "http://10.0.0.20:8082"
+    snipeit:
+      loadBalancer:
+        servers:
+          - url: "http://10.0.0.20:8081"
+    uptimekuma:
+      loadBalancer:
+        servers:
+          - url: "http://10.0.0.40:3001"
+    zabbix:
+      loadBalancer:
+        servers:
+          - url: "http://10.0.0.40:8083"
+    prometheus:
+      loadBalancer:
+        servers:
+          - url: "http://10.0.0.40:9090"
+    grafana:
+      loadBalancer:
+        servers:
+          - url: "http://10.0.0.40:3000"

@@ -9,6 +9,8 @@ services:
       - proxy
     volumes:
       - ./vw-data:/data
+    ports:
+      - "8082:80"
     environment:
       - WEBSOCKET_ENABLED=true
     labels:

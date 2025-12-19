@@ -16,6 +16,12 @@
     dest: /opt/traefik/traefik.yml
     mode: '0644'
 
+- name: Deploy Traefik dynamic configuration
+  template:
+    src: dynamic_conf.yml.j2
+    dest: /opt/traefik/dynamic_conf.yml
+    mode: '0644'
+
 - name: Create acme.json file
   file:
     path: /opt/traefik/acme.json

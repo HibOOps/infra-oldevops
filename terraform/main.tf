@@ -3,8 +3,8 @@ locals {
   common_tags = "managed-by:terraform,environment:production"
 }
 
-# Reverse Proxy (Traefik)
-module "reverse_proxy" {
+# 1. Conteneur Proxy (Traefik)
+module "proxy" {
   source      = "./modules/lxc_container"
   vmid        = 200
   hostname    = "proxy"
@@ -12,7 +12,8 @@ module "reverse_proxy" {
   template    = var.debian_template
   password    = var.container_password
   storage     = var.storage_pool
-  tags        = local.common_tags
+  tags            = local.common_tags
+  ssh_public_keys = var.ssh_public_keys
 
   # Resources
   cores       = 2
@@ -26,45 +27,23 @@ module "reverse_proxy" {
   gateway     = "10.0.0.1"
 }
 
-# Uptime Kuma
-module "uptime_kuma" {
-  source      = "./modules/lxc_container"
-  vmid        = 210
-  hostname    = "uptime-kuma"
-  target_node = var.proxmox_node
-  template    = var.debian_template
-  password    = var.container_password
-  storage     = var.storage_pool
-  tags        = local.common_tags
-
-  # Resources
-  cores       = 1
-  memory      = 512
-  swap        = 512
-  disk        = 4
-
-  # Réseau
-  bridge      = var.lxc_bridge
-  ip          = "10.0.0.10/24"
-  gateway     = "10.0.0.1"
-}
-
-# Snipe-IT
-module "snipeit" {
+# 2. Conteneur Utilities (Snipe-IT, Vaultwarden)
+module "utilities" {
   source      = "./modules/lxc_container"
   vmid        = 220
-  hostname    = "snipe-it"
+  hostname    = "utilities"
   target_node = var.proxmox_node
   template    = var.debian_template
   password    = var.container_password
   storage     = var.storage_pool
-  tags        = local.common_tags
+  tags            = "${local.common_tags},role:utilities"
+  ssh_public_keys = var.ssh_public_keys
 
   # Resources
-  cores       = 2
-  memory      = 2048
-  swap        = 512
-  disk        = 8
+  cores       = 4
+  memory      = 4096
+  swap        = 1024
+  disk        = 20
 
   # Réseau
   bridge      = var.lxc_bridge
@@ -72,45 +51,23 @@ module "snipeit" {
   gateway     = "10.0.0.1"
 }
 
-# Vaultwarden
-module "vaultwarden" {
-  source      = "./modules/lxc_container"
-  vmid        = 230
-  hostname    = "vaultwarden"
-  target_node = var.proxmox_node
-  template    = var.debian_template
-  password    = var.container_password
-  storage     = var.storage_pool
-  tags        = local.common_tags
-
-  # Resources
-  cores       = 2
-  memory      = 1024
-  swap        = 512
-  disk        = 8
-
-  # Réseau
-  bridge      = var.lxc_bridge
-  ip          = "10.0.0.30/24"
-  gateway     = "10.0.0.1"
-}
-
-# Zabbix
-module "zabbix" {
+# 3. Conteneur Monitoring (Zabbix, Uptime Kuma, Prometheus, Grafana)
+module "monitoring" {
   source      = "./modules/lxc_container"
   vmid        = 240
-  hostname    = "zabbix-server"
+  hostname    = "monitoring"
   target_node = var.proxmox_node
   template    = var.debian_template
   password    = var.container_password
   storage     = var.storage_pool
-  tags        = local.common_tags
+  tags            = "${local.common_tags},role:monitoring"
+  ssh_public_keys = var.ssh_public_keys
 
   # Resources
-  cores       = 2
-  memory      = 2048
-  swap        = 512
-  disk        = 8
+  cores       = 4
+  memory      = 6144
+  swap        = 2048
+  disk        = 50
 
   # Réseau
   bridge      = var.lxc_bridge

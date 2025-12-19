@@ -4,6 +4,8 @@ services:
   snipeit:
     image: snipe/snipe-it:latest
     container_name: snipeit
+    ports:
+      - "8081:80"
     env_file: .env
     depends_on:
       - db

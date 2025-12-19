@@ -49,3 +49,8 @@
     name: docker
     state: started
     enabled: yes
+
+- name: Create external proxy network
+  docker_network:
+    name: proxy
+    state: present

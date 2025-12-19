@@ -6,6 +6,9 @@
   roles:
     - common
     - zabbix-server
+    - uptime-kuma
+    - prometheus
+    - grafana
 
 - hosts: all
   become: yes

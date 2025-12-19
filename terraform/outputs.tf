@@ -1,21 +1,22 @@
-output "reverse_proxy_ip" {
-  description = "IP address of the reverse proxy container"
-  value       = module.reverse_proxy.ip_address
-}
-
-output "reverse_proxy_hostname" {
-  description = "Hostname of the reverse proxy"
-  value       = "proxy.${var.domain}"
+output "container_ips" {
+  description = "IP addresses of the consolidated containers"
+  value = {
+    "Proxy"      = module.proxy.ip_address
+    "Utilities"  = module.utilities.ip_address
+    "Monitoring" = module.monitoring.ip_address
+  }
 }
 
 output "services" {
   description = "List of deployed services with their access URLs"
   value = {
     "Reverse Proxy (Traefik)" = "https://proxy.${var.domain}"
-    "Uptime Kuma"            = "https://status.${var.domain}"
-    "Snipe-IT"               = "https://inventory.${var.domain}"
     "Vaultwarden"            = "https://vault.${var.domain}"
+    "Snipe-IT"               = "https://inventory.${var.domain}"
+    "Uptime Kuma"            = "https://status.${var.domain}"
     "Zabbix"                 = "https://monitoring.${var.domain}"
+    "Grafana"                = "https://grafana.${var.domain}"
+    "Prometheus"             = "https://prometheus.${var.domain}"
   }
 }
 
@@ -24,21 +25,14 @@ output "next_steps" {
   value = <<EOT
 
 Next steps:
-1. Configure DNS records on OVH:
-   - A record: proxy.${var.domain} -> [YOUR_PUBLIC_IP]
-   - CNAME records: *.${var.domain} -> proxy.${var.domain}
+1. Apply consolidated infrastructure:
+   cd terraform
+   terraform apply
 
-2. Deploy Infrastructure:
-   terraform init
-   terraform apply "tfplan"
-
-3. Deploy Services with Ansible:
+2. Update Ansible inventory and deploy:
    cd ../ansible
-   # Encrypt secrets if not done: ansible-vault encrypt vault/secrets.yml
    ansible-playbook -i inventory.ini playbooks/traefik.yml --ask-vault-pass
-   ansible-playbook -i inventory.ini playbooks/uptime-kuma.yml
-   ansible-playbook -i inventory.ini playbooks/vaultwarden.yml
-   ansible-playbook -i inventory.ini playbooks/snipeit.yml
-   ansible-playbook -i inventory.ini playbooks/zabbix.yml
+   ansible-playbook -i inventory.ini playbooks/utilities.yml --ask-vault-pass
+   ansible-playbook -i inventory.ini playbooks/monitoring.yml --ask-vault-pass
 EOT
 }
