@@ -42,6 +42,13 @@ http:
       tls:
         certResolver: ovh
       service: grafana
+    netbox:
+      rule: "Host(`netbox.{{ domain_name }}`)"
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: ovh
+      service: netbox
 
   services:
     vaultwarden:
@@ -68,3 +75,7 @@ http:
       loadBalancer:
         servers:
           - url: "http://10.0.0.40:3000"
+    netbox:
+      loadBalancer:
+        servers:
+          - url: "http://10.0.0.20:8084"

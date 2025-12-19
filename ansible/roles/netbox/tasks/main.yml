@@ -1,0 +1,35 @@
+---
+- name: Create NetBox directory
+  file:
+    path: /opt/netbox
+    state: directory
+    mode: '0755'
+
+- name: Create configuration directory
+  file:
+    path: /opt/netbox/configuration
+    state: directory
+    mode: '0755'
+
+- name: Copy base configuration files
+  copy:
+    src: configuration/
+    dest: /opt/netbox/configuration/
+    mode: '0644'
+
+- name: Deploy .env file
+  template:
+    src: .env.j2
+    dest: /opt/netbox/.env
+    mode: '0600'
+
+- name: Deploy docker-compose.yml
+  template:
+    src: docker-compose.yml.j2
+    dest: /opt/netbox/docker-compose.yml
+    mode: '0644'
+
+- name: Launch NetBox
+  shell: docker compose up -d
+  args:
+    chdir: /opt/netbox

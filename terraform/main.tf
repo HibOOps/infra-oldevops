@@ -40,10 +40,10 @@ module "utilities" {
   ssh_public_keys = var.ssh_public_keys
 
   # Resources
-  cores       = 4
-  memory      = 4096
+  cores       = 6
+  memory      = 8192
   swap        = 1024
-  disk        = 20
+  disk        = 40
 
   # Réseau
   bridge      = var.lxc_bridge
