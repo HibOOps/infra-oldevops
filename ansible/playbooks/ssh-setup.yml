@@ -3,7 +3,7 @@
 # This should be run first to ensure all containers are accessible via SSH
 
 - name: Configure SSH on all LXC containers
-  hosts: lxc_containers
+  hosts: all
   gather_facts: yes
   become: yes
 
