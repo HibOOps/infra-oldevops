@@ -1,16 +1,16 @@
 # Infra-oldevops
 
-Infrastructure-as-Code pour le déploiement des services internes sur un serveur Proxmox derrière un routeur Free, utilisant le domaine `oldevops.fr`.
+Infrastructure-as-Code pour le déploiement des services internes sur un serveur Proxmox derrière un routeur Bouygues, utilisant le domaine `oldevops.fr`.
 
 ## 🌐 Architecture Globale
 
-![Architecture Diagram](architecture.excalidraw)
+
 
 ### Services Principaux
 
 | Service | URL | IP | Description |
 |---------|-----|----|-------------|
-| Reverse Proxy | https://proxy.oldevops.fr | 10.0.0.2 | Nginx Proxy Manager pour le routage et la gestion des certificats |
+| Reverse Proxy | https://proxy.oldevops.fr | 10.0.0.2 | Traefik v3 pour le routage et SSL (DNS-01) |
 | Uptime Kuma | https://status.oldevops.fr | 10.0.0.10 | Surveillance des services et temps de réponse |
 | Snipe-IT | https://inventory.oldevops.fr | 10.0.0.20 | Gestion de parc informatique |
 | Vaultwarden | https://vault.oldevops.fr | 10.0.0.30 | Gestionnaire de mots de passe auto-hébergé |
@@ -29,9 +29,9 @@ Infrastructure-as-Code pour le déploiement des services internes sur un serveur
   - Git (Versioning du code)
 
 - **Sécurité**
-  - Nginx Proxy Manager (Reverse Proxy + SSL)
-  - Let's Encrypt (Certificats SSL)
-  - Vault (Gestion des secrets)
+  - Traefik v3 (Reverse Proxy + SSL)
+  - OVH DNS-01 (Certificats SSL Let's Encrypt)
+  - Ansible Vault (Gestion des secrets)
   - .env (Variables d'environnement)
 
 ## 📦 Architecture Ansible
@@ -43,7 +43,7 @@ Le projet utilise une architecture basée sur des rôles Ansible pour standardis
 | Rôle | Description |
 |------|-------------|
 | `common` | Installation de Docker, Docker Compose et dépendances système (utilisé par tous les services) |
-| `npm` | Déploiement de Nginx Proxy Manager |
+| `traefik` | Déploiement de Traefik v3 avec challenge DNS OVH |
 | `uptime-kuma` | Déploiement d'Uptime Kuma pour la surveillance |
 | `snipeit` | Déploiement de Snipe-IT pour la gestion d'inventaire |
 | `vaultwarden` | Déploiement de Vaultwarden (gestionnaire de mots de passe) |
@@ -54,7 +54,7 @@ Le projet utilise une architecture basée sur des rôles Ansible pour standardis
 ### Playbooks
 
 Chaque service dispose de son propre playbook qui orchestre les rôles nécessaires :
-- `reverse-proxy.yml` - Déploie Nginx Proxy Manager
+- `traefik.yml` - Déploie Traefik (remplace NPM)
 - `uptime-kuma.yml` - Déploie Uptime Kuma
 - `snipeit.yml` - Déploie Snipe-IT
 - `vaultwarden.yml` - Déploie Vaultwarden
@@ -132,7 +132,7 @@ Après le déploiement Terraform, configurez les services :
 cd ansible
 
 # Déployer tous les services
-ansible-playbook -i inventory.ini playbooks/reverse-proxy.yml
+ansible-playbook -i inventory.ini playbooks/traefik.yml --ask-vault-pass
 ansible-playbook -i inventory.ini playbooks/uptime-kuma.yml
 ansible-playbook -i inventory.ini playbooks/snipeit.yml
 ansible-playbook -i inventory.ini playbooks/vaultwarden.yml

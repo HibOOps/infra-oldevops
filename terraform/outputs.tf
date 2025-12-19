@@ -11,11 +11,11 @@ output "reverse_proxy_hostname" {
 output "services" {
   description = "List of deployed services with their access URLs"
   value = {
-    "Reverse Proxy" = "https://proxy.${var.domain}"
-    "Uptime Kuma"  = "https://status.${var.domain}"
-    "Snipe-IT"     = "https://inventory.${var.domain}"
-    "Vaultwarden"  = "https://vault.${var.domain}"
-    "Zabbix"       = "https://monitoring.${var.domain}"
+    "Reverse Proxy (Traefik)" = "https://proxy.${var.domain}"
+    "Uptime Kuma"            = "https://status.${var.domain}"
+    "Snipe-IT"               = "https://inventory.${var.domain}"
+    "Vaultwarden"            = "https://vault.${var.domain}"
+    "Zabbix"                 = "https://monitoring.${var.domain}"
   }
 }
 
@@ -24,23 +24,21 @@ output "next_steps" {
   value = <<EOT
 
 Next steps:
-1. Configure DNS records to point to your Proxmox host's public IP:
+1. Configure DNS records on OVH:
    - A record: proxy.${var.domain} -> [YOUR_PUBLIC_IP]
    - CNAME records: *.${var.domain} -> proxy.${var.domain}
 
-2. Initialize Terraform:
+2. Deploy Infrastructure:
    terraform init
-
-3. Create a terraform.tfvars file with your variables:
-   proxmox_username = "your_username@pve"
-   proxmox_password = "your_password"
-   container_password = "secure_password"
-   email = "your.email@example.com"
-
-4. Plan and apply the configuration:
-   terraform plan -out=tfplan
    terraform apply "tfplan"
 
-5. After applying, configure the reverse proxy with the provided IPs.
+3. Deploy Services with Ansible:
+   cd ../ansible
+   # Encrypt secrets if not done: ansible-vault encrypt vault/secrets.yml
+   ansible-playbook -i inventory.ini playbooks/traefik.yml --ask-vault-pass
+   ansible-playbook -i inventory.ini playbooks/uptime-kuma.yml
+   ansible-playbook -i inventory.ini playbooks/vaultwarden.yml
+   ansible-playbook -i inventory.ini playbooks/snipeit.yml
+   ansible-playbook -i inventory.ini playbooks/zabbix.yml
 EOT
 }

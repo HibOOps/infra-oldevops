@@ -1,17 +1,18 @@
 # Configuration des tags communs
 locals {
-  common_tags = ["managed-by:terraform", "environment:production"]
+  common_tags = "managed-by:terraform,environment:production"
 }
 
-# Reverse Proxy (Nginx Proxy Manager)
+# Reverse Proxy (Traefik)
 module "reverse_proxy" {
   source      = "./modules/lxc_container"
   vmid        = 200
-  hostname    = "proxy.${var.domain}"
+  hostname    = "proxy"
   target_node = var.proxmox_node
   template    = var.debian_template
   password    = var.container_password
   storage     = var.storage_pool
+  tags        = local.common_tags
 
   # Resources
   cores       = 2
@@ -25,16 +26,16 @@ module "reverse_proxy" {
   gateway     = "10.0.0.1"
 }
 
-
-# Import other container configurations
+# Uptime Kuma
 module "uptime_kuma" {
   source      = "./modules/lxc_container"
   vmid        = 210
-  hostname    = "uptimekuma.${var.domain}"
+  hostname    = "uptime-kuma"
   target_node = var.proxmox_node
   template    = var.debian_template
   password    = var.container_password
   storage     = var.storage_pool
+  tags        = local.common_tags
 
   # Resources
   cores       = 1
@@ -48,14 +49,16 @@ module "uptime_kuma" {
   gateway     = "10.0.0.1"
 }
 
+# Snipe-IT
 module "snipeit" {
   source      = "./modules/lxc_container"
   vmid        = 220
-  hostname    = "snipe.${var.domain}"
+  hostname    = "snipe-it"
   target_node = var.proxmox_node
   template    = var.debian_template
   password    = var.container_password
   storage     = var.storage_pool
+  tags        = local.common_tags
 
   # Resources
   cores       = 2
@@ -69,14 +72,16 @@ module "snipeit" {
   gateway     = "10.0.0.1"
 }
 
+# Vaultwarden
 module "vaultwarden" {
   source      = "./modules/lxc_container"
   vmid        = 230
-  hostname    = "vault.${var.domain}"
+  hostname    = "vaultwarden"
   target_node = var.proxmox_node
   template    = var.debian_template
   password    = var.container_password
   storage     = var.storage_pool
+  tags        = local.common_tags
 
   # Resources
   cores       = 2
@@ -90,14 +95,16 @@ module "vaultwarden" {
   gateway     = "10.0.0.1"
 }
 
+# Zabbix
 module "zabbix" {
   source      = "./modules/lxc_container"
   vmid        = 240
-  hostname    = "monitoring.${var.domain}"
+  hostname    = "zabbix-server"
   target_node = var.proxmox_node
   template    = var.debian_template
   password    = var.container_password
   storage     = var.storage_pool
+  tags        = local.common_tags
 
   # Resources
   cores       = 2
@@ -110,4 +117,3 @@ module "zabbix" {
   ip          = "10.0.0.40/24"
   gateway     = "10.0.0.1"
 }
-# dans leurs fichiers respectifs dans les dossiers containers/ et vm/
