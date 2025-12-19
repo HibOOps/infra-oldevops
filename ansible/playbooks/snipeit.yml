@@ -1,6 +1,8 @@
 ---
 - hosts: snipe
   become: yes
+  vars_files:
+    - ../vault/secrets.yml
   roles:
     - common
     - snipeit
