@@ -18,6 +18,7 @@ services:
       - OVH_APPLICATION_KEY={{ ovh_application_key }}
       - OVH_APPLICATION_SECRET={{ ovh_application_secret }}
       - OVH_CONSUMER_KEY={{ ovh_consumer_key }}
+      - DOCKER_API_VERSION=1.44
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro

@@ -10,29 +10,34 @@ variable "proxmox_username" {
   description = "Proxmox API username"
   type        = string
   sensitive   = true
+  default     = ""
 }
 
 variable "proxmox_password" {
   description = "Proxmox API password"
   type        = string
   sensitive   = true
+  default     = ""
 }
 
 # Provider and Node Configuration
 variable "proxmox_api_url" {
   description = "URL de l'API Proxmox (ex: https://192.168.0.10:8006/api2/json)"
   type        = string
+  default     = ""
 }
 
 variable "proxmox_api_token_id" {
   description = "ID du token API Proxmox (ex: root@pam!terraform)"
   type        = string
+  default     = ""
 }
 
 variable "proxmox_api_token_secret" {
   description = "Secret du token API Proxmox"
   type        = string
   sensitive   = true
+  default     = ""
 }
 
 variable "proxmox_node" {

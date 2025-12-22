@@ -1,6 +1,6 @@
 # Configuration des tags communs
 locals {
-  common_tags = "managed-by:terraform,environment:production"
+  common_tags = "terraform;production"
 }
 
 # 1. Conteneur Proxy (Traefik)
@@ -14,6 +14,7 @@ module "proxy" {
   storage     = var.storage_pool
   tags            = local.common_tags
   ssh_public_keys = var.ssh_public_keys
+  unprivileged    = false
 
   # Resources
   cores       = 2
@@ -36,8 +37,9 @@ module "utilities" {
   template    = var.debian_template
   password    = var.container_password
   storage     = var.storage_pool
-  tags            = "${local.common_tags},role:utilities"
+  tags            = "${local.common_tags};utilities"
   ssh_public_keys = var.ssh_public_keys
+  unprivileged    = false
 
   # Resources
   cores       = 6
@@ -60,8 +62,9 @@ module "monitoring" {
   template    = var.debian_template
   password    = var.container_password
   storage     = var.storage_pool
-  tags            = "${local.common_tags},role:monitoring"
+  tags            = "${local.common_tags};monitoring"
   ssh_public_keys = var.ssh_public_keys
+  unprivileged    = false
 
   # Resources
   cores       = 4

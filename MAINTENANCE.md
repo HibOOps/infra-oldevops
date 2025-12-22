@@ -28,6 +28,29 @@ ansible-playbook -i inventory.ini playbooks/utilities.yml --ask-vault-pass
 ansible-playbook -i inventory.ini playbooks/monitoring.yml --ask-vault-pass
 ```
 
+### 🗑️ Remise à zéro (Clean Slate)
+Si vous souhaitez supprimer toute l'infrastructure pour repartir de zéro :
+
+1.  **Via Terraform (Recommandé)** :
+    ```bash
+    cd terraform
+    terraform destroy
+    ```
+    *Ceci détruira les 3 conteneurs actuels ainsi que tout ce qui est géré dans le `tfstate`.*
+
+2.  **Nettoyage des anciens conteneurs (Orphelins)** :
+    Si vous avez encore les anciens conteneurs (IDs 210, 230) qui ne sont plus dans le code actuel, vous pouvez les supprimer manuellement via la console Proxmox ou en SSH sur l'hôte Proxmox :
+    ```bash
+    pct destroy 210
+    pct destroy 230
+    ```
+
+3.  **Redéploiement complet** :
+    Utilisez simplement le script à la racine :
+    ```bash
+    ./deploy.sh
+    ```
+
 ---
 
 ## 🛠️ Notes Techniques
@@ -38,6 +61,12 @@ Traefik utilise un **fournisseur de fichier** (`dynamic_conf.yml`) pour router l
 **Ports Utilisés sur les LXCs :**
 - **Utilities** : Snipe-IT (8081), Vaultwarden (8082), **NetBox (8084)**.
 - **Monitoring** : Zabbix (8083), Uptime Kuma (3001), Prometheus (9090), Grafana (3000).
+
+### Sécurité SSH & Ansible
+Pour faciliter les redéploiements fréquents (destruction/recréation), Ansible est configuré (`ansible.cfg`) pour ignorer la vérification des clés d'hôte (`host_key_checking = False`). Cela évite les erreurs "REMOTE HOST IDENTIFICATION HAS CHANGED" quand un conteneur est recréé avec la même IP.
+
+### Docker dans LXC
+Pour que Docker fonctionne de manière stable et puisse monter les systèmes de fichiers nécessaires (`/proc`, etc.), les conteneurs ont été configurés en **mode privilégié** (`unprivileged = false`) et avec l'option **`nesting = true`** activée dans Terraform.
 
 ---
 

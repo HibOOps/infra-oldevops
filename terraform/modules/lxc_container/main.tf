@@ -10,6 +10,12 @@ resource "proxmox_lxc" "this" {
   description  = var.description
   ssh_public_keys = join("\n", var.ssh_public_keys)
   tags            = var.tags
+  features {
+    nesting = true
+    keyctl  = true
+    fuse    = true
+    mknod   = true
+  }
 
   # CPU and Memory
   cores  = var.cores

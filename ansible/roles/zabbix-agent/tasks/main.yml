@@ -24,7 +24,7 @@
     - { regexp: '^Server=', line: 'Server=10.0.0.40' }
     - { regexp: '^ServerActive=', line: 'ServerActive=10.0.0.40' }
     - { regexp: '^Hostname=', line: 'Hostname={{ inventory_hostname }}' }
-  notify: restart zabbix-agent
+  notify: restart zabbix-agent2
 
 - name: Start and enable Zabbix Agent 2
   service:

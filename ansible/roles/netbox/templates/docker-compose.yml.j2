@@ -1,14 +1,13 @@
 version: '3'
 
 services:
-  netbox: &netbox
+  netbox:
     image: docker.io/netboxcommunity/netbox:v4.4-3.4.1
     depends_on:
       - postgres
       - redis
       - redis-cache
     env_file: .env
-    user: "unit:root"
     ports:
       - "8084:8080"
     healthcheck:
@@ -26,10 +25,19 @@ services:
       - default
 
   netbox-worker:
-    <<: *netbox
+    image: docker.io/netboxcommunity/netbox:v4.4-3.4.1
     depends_on:
       netbox:
         condition: service_healthy
+    env_file: .env
+    volumes:
+      - ./configuration:/etc/netbox/config:z,ro
+      - netbox-media-files:/opt/netbox/netbox/media:rw
+      - netbox-reports-files:/opt/netbox/netbox/reports:rw
+      - netbox-scripts-files:/opt/netbox/netbox/scripts:rw
+    networks:
+      - proxy
+      - default
     command:
       - /opt/netbox/venv/bin/python
       - /opt/netbox/netbox/manage.py
@@ -48,9 +56,14 @@ services:
       timeout: 30s
       interval: 10s
       retries: 5
-    env_file: .env
+    environment:
+      - POSTGRES_DB=netbox
+      - POSTGRES_USER=netbox
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - netbox-postgres-data:/var/lib/postgresql/data
+    networks:
+      - default
 
   redis:
     image: docker.io/valkey/valkey:8.1-alpine
@@ -60,13 +73,12 @@ services:
       - valkey-server --appendonly yes --requirepass $$REDIS_PASSWORD
     healthcheck: &redis-healthcheck
       test: '[ $$(valkey-cli --pass "$${REDIS_PASSWORD}" ping) = ''PONG'' ]'
-      start_period: 5s
-      timeout: 3s
-      interval: 10s
-      retries: 5
-    env_file: .env
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     volumes:
       - netbox-redis-data:/data
+    networks:
+      - default
 
   redis-cache:
     image: docker.io/valkey/valkey:8.1-alpine
@@ -75,9 +87,12 @@ services:
       - -c
       - valkey-server --requirepass $$REDIS_PASSWORD
     healthcheck: *redis-healthcheck
-    env_file: .env
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     volumes:
       - netbox-redis-cache-data:/data
+    networks:
+      - default
 
 networks:
   proxy:
