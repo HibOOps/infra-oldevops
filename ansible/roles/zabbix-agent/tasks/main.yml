@@ -21,8 +21,8 @@
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
   with_items:
-    - { regexp: '^Server=', line: 'Server=10.0.0.40' }
-    - { regexp: '^ServerActive=', line: 'ServerActive=10.0.0.40' }
+    - { regexp: '^Server=', line: 'Server=192.168.20.102' }
+    - { regexp: '^ServerActive=', line: 'ServerActive=192.168.20.102' }
     - { regexp: '^Hostname=', line: 'Hostname={{ inventory_hostname }}' }
   notify: restart zabbix-agent2
 
