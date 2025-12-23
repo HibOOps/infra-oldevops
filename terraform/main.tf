@@ -24,8 +24,8 @@ module "proxy" {
 
   # Réseau
   bridge      = var.lxc_bridge
-  ip          = "192.168.20.100/24"
-  gateway     = "192.168.20.1"
+  ip          = "192.168.1.200/24"
+  gateway     = "192.168.1.254"
 }
 
 # 2. Conteneur Utilities (Snipe-IT, Vaultwarden)
@@ -49,8 +49,8 @@ module "utilities" {
 
   # Réseau
   bridge      = var.lxc_bridge
-  ip          = "192.168.20.101/24"
-  gateway     = "192.168.20.1"
+  ip          = "192.168.1.201/24"
+  gateway     = "192.168.1.254"
 }
 
 # 3. Conteneur Monitoring (Zabbix, Uptime Kuma, Prometheus, Grafana)
@@ -74,6 +74,6 @@ module "monitoring" {
 
   # Réseau
   bridge      = var.lxc_bridge
-  ip          = "192.168.20.102/24"
-  gateway     = "192.168.20.1"
+  ip          = "192.168.1.202/24"
+  gateway     = "192.168.1.254"
 }
