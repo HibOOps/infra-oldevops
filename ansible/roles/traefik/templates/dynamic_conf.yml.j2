@@ -49,6 +49,13 @@ http:
       tls:
         certResolver: ovh
       service: netbox
+    dashboard:
+      rule: "Host(`proxy.{{ domain_name }}`)"
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: ovh
+      service: api@internal
 
   services:
     vaultwarden:
