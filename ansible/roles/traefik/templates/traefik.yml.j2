@@ -2,6 +2,13 @@ global:
   checkNewVersion: false
   sendAnonymousUsage: false
 
+log:
+  level: DEBUG
+
+api:
+  dashboard: true
+  insecure: true # port 8080 sans TLS, A REMOVE EN PRODUCTION
+
 entryPoints:
   web:
     address: ":80"
@@ -30,6 +37,4 @@ certificatesResolvers:
         provider: ovh
         delayBeforeCheck: 60s
 
-api:
-  dashboard: true
 

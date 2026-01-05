@@ -10,18 +10,21 @@ Infrastructure-as-Code pour le déploiement des services internes sur un serveur
 
 | Service | URL | IP | Description |
 |---------|-----|----|-------------|
-| Reverse Proxy | https://proxy.oldevops.fr | 10.0.0.2 | Traefik v3 pour le routage et SSL (DNS-01) |
-| Uptime Kuma | https://status.oldevops.fr | 10.0.0.10 | Surveillance des services et temps de réponse |
-| Snipe-IT | https://inventory.oldevops.fr | 10.0.0.20 | Gestion de parc informatique |
-| Vaultwarden | https://vault.oldevops.fr | 10.0.0.30 | Gestionnaire de mots de passe auto-hébergé |
-| Zabbix | https://monitoring.oldevops.fr | 10.0.0.40 | Surveillance avancée des serveurs et services |
+| Reverse Proxy | https://proxy.oldevops.fr | 192.168.1.200 | Traefik v3 pour le routage et SSL (DNS-01) |
+| Uptime Kuma | https://status.oldevops.fr | 192.168.1.202 | Surveillance des services et temps de réponse |
+| Snipe-IT | https://inventory.oldevops.fr | 192.168.1.201 | Gestion de parc informatique |
+| Vaultwarden | https://vault.oldevops.fr | 192.168.1.201 | Gestionnaire de mots de passe auto-hébergé |
+| Zabbix | https://monitoring.oldevops.fr | 192.168.1.202 | Surveillance avancée des serveurs et services |
+| NetBox | https://netbox.oldevops.fr | 192.168.1.201 | Documentation réseau et DCIM |
+| Prometheus | https://prometheus.oldevops.fr | 192.168.1.202 | Métriques et monitoring |
+| Grafana | https://grafana.oldevops.fr | 192.168.1.202 | Dashboards de visualisation |
 
 ## 🛠️ Stack Technique
 
 - **Infrastructure**
   - Proxmox VE (Virtualisation)
   - LXC (Conteneurs légers)
-  - Réseau privé 10.0.0.0/24
+  - Réseau BBox 192.168.1.0/24
 
 - **Outils**
   - Terraform (Déploiement d'infrastructure)
