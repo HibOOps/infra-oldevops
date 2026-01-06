@@ -136,10 +136,10 @@ cd ansible
 
 # Déployer tous les services
 ansible-playbook -i inventory.ini playbooks/traefik.yml --ask-vault-pass
-ansible-playbook -i inventory.ini playbooks/uptime-kuma.yml
-ansible-playbook -i inventory.ini playbooks/snipeit.yml
-ansible-playbook -i inventory.ini playbooks/vaultwarden.yml
-ansible-playbook -i inventory.ini playbooks/zabbix.yml
+ansible-playbook -i inventory.ini playbooks/uptime-kuma.yml --ask-vault-pass
+ansible-playbook -i inventory.ini playbooks/snipeit.yml --ask-vault-pass
+ansible-playbook -i inventory.ini playbooks/vaultwarden.yml --ask-vault-pass
+ansible-playbook -i inventory.ini playbooks/zabbix.yml --ask-vault-pass
 ```
 
 ### Configuration DNS
@@ -170,12 +170,6 @@ Le fichier d'état Terraform (`tfstate`) est également synchronisé automatique
    terraform plan -out=tfplan
    terraform apply "tfplan"
    ```
-
-## 📝 Documentation Supplémentaire
-
-- [Architecture détaillée](docs/architecture.md)
-- [Guide d'administration](docs/admin-guide.md)
-- [Dépannage](docs/troubleshooting.md)
 
 ## 🤝 Contribution
 
