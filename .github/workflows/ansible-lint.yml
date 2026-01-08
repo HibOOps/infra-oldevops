@@ -21,6 +21,9 @@ jobs:
       run:
         working-directory: ansible
 
+    env:
+      ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
