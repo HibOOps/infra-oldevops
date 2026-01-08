@@ -1,0 +1,64 @@
+# ansible-lint configuration file
+# Documentation: https://ansible-lint.readthedocs.io/configuring/
+
+# Exclude specific paths
+exclude_paths:
+  - .cache/
+  - .git/
+  - .ansible/
+  - vault/secrets.yml  # Encrypted vault file
+  - vault/secrets.yml.example
+
+# Skip specific rules (if needed)
+skip_list:
+  # - name[casing]  # Ignore task name casing rules
+  # - yaml[line-length]  # Ignore line length rules
+  - experimental  # Skip experimental rules
+
+# Warn on specific rules instead of failing
+warn_list:
+  - role-name  # Warn on role naming issues
+  - var-naming[no-role-prefix]  # Warn on variable naming
+  - galaxy[no-changelog]  # Warn on missing changelog
+
+# Enable offline mode (no galaxy dependency download)
+offline: true
+
+# Use progressive mode (enable additional rules gradually)
+progressive: false
+
+# Profile to use (min, basic, moderate, safety, shared, production)
+# production: Strictest ruleset for production environments
+profile: moderate
+
+# Kinds of files to lint
+kinds:
+  - playbook: playbooks/*.yml
+  - playbook: playbooks/**/*.yml
+  - tasks: roles/*/tasks/*.yml
+  - handlers: roles/*/handlers/*.yml
+  - vars: roles/*/defaults/*.yml
+  - vars: roles/*/vars/*.yml
+  - meta: roles/*/meta/*.yml
+
+# Mock modules or roles that are not installed
+mock_modules:
+  - docker_network
+  - docker_container
+
+# Mock roles
+mock_roles:
+  - common
+  - github-runner
+
+# Enable colored output
+colored: true
+
+# Parseable output format
+parseable: false
+
+# Quiet mode (only show rule violations)
+quiet: false
+
+# Verbosity level
+verbosity: 1

@@ -1,0 +1,43 @@
+# tfsec configuration file
+# Documentation: https://aquasecurity.github.io/tfsec/latest/guides/configuration/config/
+
+# Minimum severity level to report (LOW, MEDIUM, HIGH, CRITICAL)
+minimum_severity: MEDIUM
+
+# Exclude specific checks (if needed)
+exclude:
+  # Example: Exclude specific check codes
+  # - AWS001
+  # - AWS002
+
+# Include specific directories only
+include:
+  - terraform/
+
+# Exclude specific directories
+exclude_paths:
+  - terraform/.terraform/
+  - terraform/**/.terraform/
+  - terraform/modules/.terraform/
+
+# Custom checks configuration
+severity_overrides:
+  # Override severity for specific checks if needed
+  # AWS001: HIGH
+
+# Enable/disable specific features
+config:
+  # Ignore checks in comments: Add '# tfsec:ignore:<check_id>' above resource
+  ignore_in_comments: true
+
+  # Stop on first error (useful for CI)
+  stop_on_errors: false
+
+  # Format output
+  format: default
+
+  # Include passed checks in output
+  include_passed: false
+
+  # Include ignored checks in output
+  include_ignored: false

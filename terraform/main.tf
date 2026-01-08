@@ -77,3 +77,28 @@ module "monitoring" {
   ip          = "192.168.1.202/24"
   gateway     = "192.168.1.254"
 }
+
+# 4. Conteneur CI/CD Runner (GitHub Actions Self-Hosted)
+module "ci_runner" {
+  source      = "./modules/lxc_container"
+  vmid        = 210
+  hostname    = "ci-runner"
+  target_node = var.proxmox_node
+  template    = var.debian_template
+  password    = var.container_password
+  storage     = var.storage_pool
+  tags            = "${local.common_tags};cicd;github-runner"
+  ssh_public_keys = var.ssh_public_keys
+  unprivileged    = false
+
+  # Resources - Runner needs good specs for parallel jobs
+  cores       = 4
+  memory      = 4096
+  swap        = 1024
+  disk        = 30
+
+  # Réseau
+  bridge      = var.lxc_bridge
+  ip          = "192.168.1.210/24"
+  gateway     = "192.168.1.254"
+}

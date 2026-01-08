@@ -1,0 +1,57 @@
+---
+# Playbook pour configurer le container GitHub Actions Self-Hosted Runner
+# Usage: ansible-playbook -i inventory.ini playbooks/ci-runner.yml
+
+- name: Setup GitHub Actions Self-Hosted Runner
+  hosts: ci_runner
+  become: yes
+  gather_facts: yes
+
+  vars_files:
+    - ../vault/secrets.yml  # Charge les variables encryptées
+
+  pre_tasks:
+    - name: Validate required variables from vault
+      fail:
+        msg: "Les variables vault_github_repo_owner et vault_github_runner_token doivent être définies dans vault/secrets.yml"
+      when: vault_github_repo_owner is not defined or vault_github_runner_token is not defined
+
+    - name: Display configuration
+      debug:
+        msg:
+          - "Configuration du runner pour: {{ vault_github_repo_owner }}/{{ vault_github_repo_name }}"
+          - "Hostname: {{ ansible_hostname }}"
+          - "IP: {{ ansible_default_ipv4.address }}"
+
+  roles:
+    - role: common
+      tags: ['common', 'docker']
+
+    - role: github-runner
+      tags: ['runner']
+      vars:
+        github_repo_owner: "{{ vault_github_repo_owner }}"
+        github_repo_name: "{{ vault_github_repo_name }}"
+        github_runner_token: "{{ vault_github_runner_token }}"
+
+  post_tasks:
+    - name: Display next steps
+      debug:
+        msg:
+          - "=========================================="
+          - "✅ GitHub Actions Runner installé avec succès !"
+          - ""
+          - "📋 Outils installés:"
+          - "  - Terraform {{ terraform_version }}"
+          - "  - Ansible + ansible-lint"
+          - "  - tfsec {{ tfsec_version }}"
+          - "  - trufflehog"
+          - ""
+          - "🔍 Vérifier le runner sur GitHub:"
+          - "  https://github.com/{{ vault_github_repo_owner }}/{{ vault_github_repo_name }}/settings/actions/runners"
+          - ""
+          - "🚀 Prochaines étapes:"
+          - "  1. Créer les workflows dans .github/workflows/"
+          - "  2. Créer une PR de test"
+          - "  3. Vérifier que le runner exécute les jobs"
+          - "=========================================="
