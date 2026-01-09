@@ -43,7 +43,7 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -no-color -input=false
+        run: terraform plan -no-color -input=false -refresh=false
         continue-on-error: true
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.OVH_S3_ACCESS_KEY }}
@@ -51,6 +51,8 @@ jobs:
           TF_VAR_proxmox_password: ${{ secrets.PROXMOX_PASSWORD }}
           TF_VAR_proxmox_username: ${{ secrets.PROXMOX_USERNAME }}
           TF_VAR_container_password: ${{ secrets.CONTAINER_PASSWORD }}
+          TF_VAR_proxmox_host: "192.168.1.50"
+          TF_VAR_ssh_public_keys: "[]"
 
       - name: Comment PR with Terraform Plan
         uses: actions/github-script@v7
