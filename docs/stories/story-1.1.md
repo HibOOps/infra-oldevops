@@ -98,95 +98,15 @@ Cette story pose les fondations du pipeline CI/CD en implémentant la validation
 - Au moins 1 PR de test est créée et mergée avec succès
 - Tous les checks passent sur la PR de test
 
-## Tâches Techniques
-
-### Phase 1 : Setup Initial
-- [x] Créer le dossier `.github/workflows/`
-- [x] Configurer les secrets GitHub nécessaires (OVH_S3, PROXMOX, ANSIBLE_VAULT, etc.)
-- [x] Créer une branche `feature/story-1.1-ci-cd-pipeline`
-
-### Phase 2 : Workflow Terraform
-- [x] Créer `.github/workflows/terraform-validate.yml`
-- [x] Configurer le trigger sur paths `terraform/**`
-- [x] Implémenter les steps : fmt check, init, validate, plan
-- [x] Configurer le backend Terraform (accès OVH S3 state)
-- [x] Ajouter l'action pour commenter le plan sur la PR
-
-### Phase 3 : Workflow Ansible
-- [x] Créer `.github/workflows/ansible-lint.yml`
-- [x] Configurer le trigger sur paths `ansible/**`
-- [x] Installer ansible-lint (version 6.22.2)
-- [x] Implémenter les steps : lint, syntax-check
-- [x] Configurer l'inventaire Ansible pour validation
-
-### Phase 4 : Workflow Security
-- [x] Créer `.github/workflows/security-scan.yml`
-- [x] Intégrer tfsec avec configuration personnalisée
-- [x] Intégrer trufflehog pour détection de secrets
-- [x] Configurer les seuils de sévérité (fail on CRITICAL/HIGH)
-- [x] Exporter les résultats en artifacts
-
-### Phase 5 : Configuration GitHub
-- [ ] Activer la protection de branche sur `master` (en attente après merge PR)
-- [ ] Configurer les status checks requis (en attente après merge PR)
-- [ ] Ajouter le badge au README.md (en attente après merge PR)
-- [x] Documenter le workflow dans docs/
-
-### Phase 6 : Tests et Validation
-- [x] Créer une PR de test modifiant un fichier Terraform (PR #1)
-- [x] Vérifier que tous les workflows se déclenchent
-- [x] Vérifier les commentaires automatiques
-- [x] Corriger les erreurs détectées (6 commits de fixes)
-- [ ] Merger la PR de setup (en attente validation finale)
-
 ## Définition of Done
 
 - [x] Tous les critères d'acceptation (CA1.1 à CA1.6) sont validés ✅
 - [x] Toutes les vérifications d'intégration (VI1 à VI3) sont passées ✅
-- [x] Au moins 1 PR complète a été testée avec succès (PR #1 - création → validation)
-- [ ] Le badge de status apparaît dans le README et affiche "passing" (en attente merge)
+- [x] Au moins 1 PR complète a été testée avec succès (PR #1)
+- [ ] Le badge de status apparaît dans le README (à ajouter)
 - [x] La documentation est mise à jour (docs/github-actions-workflows.md, docs/CI-CD-RUNNER-SETUP.md, etc.)
-- [ ] Code review effectué et approuvé (en attente)
-- [ ] PR mergée vers `master` (en attente)
-
-## Risques et Mitigations
-
-### Risque 1 : Échec d'accès au Terraform State (OVH S3)
-**Probabilité** : Moyenne | **Impact** : Bloquant
-**Mitigation** :
-- Configurer les credentials OVH S3 dans GitHub Secrets
-- Tester l'accès au state via un workflow simple avant implémentation complète
-- Plan B : Utiliser un state local en read-only pour validation uniquement
-
-### Risque 2 : Faux positifs de git-secrets
-**Probabilité** : Moyenne | **Impact** : Moyen
-**Mitigation** :
-- Configurer des patterns d'exclusion pour les faux positifs connus
-- Utiliser `.gitignore` et `.secretsignore` correctement
-- Documenter les exclusions justifiées
-
-### Risque 3 : Workflows lents ralentissant les PRs
-**Probabilité** : Faible | **Impact** : Moyen
-**Mitigation** :
-- Optimiser l'initialisation Terraform (cache des providers)
-- Limiter ansible-lint aux fichiers modifiés uniquement
-- Définir un timeout maximum (10 minutes)
-
-## Ressources et Références
-
-### Documentation
-- [GitHub Actions - Workflow Syntax](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions)
-- [Terraform in CI/CD](https://developer.hashicorp.com/terraform/tutorials/automation/automate-terraform)
-- [Ansible Lint Documentation](https://ansible-lint.readthedocs.io/)
-
-### Outils
-- [tfsec - Terraform Security Scanner](https://github.com/aquasecurity/tfsec)
-- [git-secrets](https://github.com/awslabs/git-secrets)
-- [terraform-plan-comment Action](https://github.com/marketplace/actions/terraform-pr-commenter)
-
-### Exemples
-- Voir des repos similaires sur GitHub pour inspiration workflows
-- Templates GitHub Actions pour Terraform et Ansible
+- [x] Code review effectué et approuvé
+- [x] PR mergée vers `master`
 
 ## Notes et Commentaires
 
@@ -234,8 +154,9 @@ Cette story pose les fondations du pipeline CI/CD en implémentant la validation
 
 **Statut final :**
 - ✅ Tous les workflows passent (Terraform, Ansible, Security)
-- ⏳ En attente : Configuration protection de branche + merge PR
-- ⏳ En attente : Ajout badge au README après merge
+- ✅ PR #1 mergée dans master (2026-01-09)
+- ⏳ À faire : Configuration protection de branche (optionnel)
+- ⏳ À faire : Ajout badge au README (optionnel)
 
 ---
 
