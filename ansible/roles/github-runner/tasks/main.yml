@@ -1,0 +1,161 @@
+---
+# GitHub Actions Self-Hosted Runner Installation
+# Installe le runner + tous les outils nécessaires (Terraform, Ansible, tfsec, etc.)
+
+- name: Install system dependencies
+  apt:
+    name:
+      - curl
+      - wget
+      - git
+      - jq
+      - unzip
+      - tar
+      - ca-certificates
+      - gnupg
+      - lsb-release
+      - python3
+      - python3-pip
+      - build-essential
+      - libssl-dev
+    state: present
+    update_cache: yes
+
+- name: Create runner user
+  user:
+    name: "{{ github_runner_user }}"
+    comment: "GitHub Actions Runner"
+    home: "{{ github_runner_home }}"
+    shell: /bin/bash
+    create_home: yes
+    system: yes
+
+- name: Install Terraform
+  block:
+    - name: Download Terraform
+      get_url:
+        url: "https://releases.hashicorp.com/terraform/{{ terraform_version }}/terraform_{{ terraform_version }}_linux_amd64.zip"
+        dest: "/tmp/terraform.zip"
+        mode: '0644'
+
+    - name: Unzip Terraform
+      unarchive:
+        src: "/tmp/terraform.zip"
+        dest: "/usr/local/bin"
+        remote_src: yes
+        mode: '0755'
+
+    - name: Verify Terraform installation
+      command: terraform --version
+      register: terraform_version_output
+      changed_when: false
+
+    - name: Display Terraform version
+      debug:
+        var: terraform_version_output.stdout_lines
+
+- name: Install Ansible and ansible-lint
+  pip:
+    name:
+      - ansible>=2.14
+      - ansible-lint=={{ ansible_lint_version }}
+    state: present
+    executable: pip3
+    extra_args: --break-system-packages  # Nécessaire pour Debian 12+ (PEP 668)
+
+- name: Install tfsec
+  block:
+    - name: Download tfsec
+      get_url:
+        url: "https://github.com/aquasecurity/tfsec/releases/download/v{{ tfsec_version }}/tfsec-linux-amd64"
+        dest: "/usr/local/bin/tfsec"
+        mode: '0755'
+
+    - name: Verify tfsec installation
+      command: tfsec --version
+      register: tfsec_version_output
+      changed_when: false
+
+- name: Install trufflehog for secrets scanning
+  block:
+    - name: Download trufflehog
+      get_url:
+        url: "https://github.com/trufflesecurity/trufflehog/releases/download/v3.84.2/trufflehog_3.84.2_linux_amd64.tar.gz"
+        dest: "/tmp/trufflehog.tar.gz"
+        mode: '0644'
+
+    - name: Extract trufflehog
+      unarchive:
+        src: "/tmp/trufflehog.tar.gz"
+        dest: "/usr/local/bin"
+        remote_src: yes
+        mode: '0755'
+
+- name: Create runner directory
+  file:
+    path: "{{ github_runner_home }}/actions-runner"
+    state: directory
+    owner: "{{ github_runner_user }}"
+    group: "{{ github_runner_group }}"
+    mode: '0755'
+
+- name: Download GitHub Actions runner
+  get_url:
+    url: "https://github.com/actions/runner/releases/download/v{{ github_runner_version }}/actions-runner-linux-x64-{{ github_runner_version }}.tar.gz"
+    dest: "/tmp/actions-runner.tar.gz"
+    mode: '0644'
+
+- name: Extract GitHub Actions runner
+  unarchive:
+    src: "/tmp/actions-runner.tar.gz"
+    dest: "{{ github_runner_home }}/actions-runner"
+    remote_src: yes
+    owner: "{{ github_runner_user }}"
+    group: "{{ github_runner_group }}"
+
+- name: Check if runner is already configured
+  stat:
+    path: "{{ github_runner_home }}/actions-runner/.runner"
+  register: runner_configured
+
+- name: Configure GitHub Actions runner
+  become: yes
+  become_user: "{{ github_runner_user }}"
+  shell: |
+    cd {{ github_runner_home }}/actions-runner
+    ./config.sh --unattended \
+      --url https://github.com/{{ github_repo_owner }}/{{ github_repo_name }} \
+      --token {{ github_runner_token }} \
+      --name {{ github_runner_name }} \
+      --labels {{ github_runner_labels }} \
+      --work {{ github_runner_work_dir }}
+  args:
+    creates: "{{ github_runner_home }}/actions-runner/.runner"
+  when:
+    - not runner_configured.stat.exists
+    - github_runner_token != ""
+  notify: restart github-runner
+
+- name: Install runner as service
+  command: ./svc.sh install {{ github_runner_user }}
+  args:
+    chdir: "{{ github_runner_home }}/actions-runner"
+    creates: /etc/systemd/system/actions.runner.*
+  when: not runner_configured.stat.exists
+
+- name: Enable and start GitHub Actions runner service
+  systemd:
+    name: "actions.runner.{{ github_repo_owner }}-{{ github_repo_name }}.{{ github_runner_name }}.service"
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  when: runner_configured.stat.exists or github_runner_token != ""
+
+- name: Display runner status information
+  debug:
+    msg:
+      - "GitHub Actions Runner installed successfully!"
+      - "Runner Name: {{ github_runner_name }}"
+      - "Labels: {{ github_runner_labels }}"
+      - "Repository: {{ github_repo_owner }}/{{ github_repo_name }}"
+      - "Service: actions.runner.{{ github_repo_owner }}-{{ github_repo_name }}.{{ github_runner_name }}.service"

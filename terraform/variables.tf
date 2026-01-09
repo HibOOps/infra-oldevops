@@ -2,7 +2,7 @@
 variable "proxmox_host" {
   description = "Proxmox hostname or IP address (use local IP for LAN access)"
   type        = string
-  default     = "192.168.0.10"  # Remplacez par l'IP locale de votre serveur Proxmox
+  default     = "192.168.0.10" # Remplacez par l'IP locale de votre serveur Proxmox
 }
 
 

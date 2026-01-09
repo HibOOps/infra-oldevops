@@ -11,18 +11,18 @@ output "services" {
   description = "List of deployed services with their access URLs"
   value = {
     "Reverse Proxy (Traefik)" = "https://proxy.${var.domain}"
-    "Vaultwarden"            = "https://vault.${var.domain}"
-    "Snipe-IT"               = "https://inventory.${var.domain}"
-    "Uptime Kuma"            = "https://status.${var.domain}"
-    "Zabbix"                 = "https://monitoring.${var.domain}"
-    "Grafana"                = "https://grafana.${var.domain}"
-    "Prometheus"             = "https://prometheus.${var.domain}"
+    "Vaultwarden"             = "https://vault.${var.domain}"
+    "Snipe-IT"                = "https://inventory.${var.domain}"
+    "Uptime Kuma"             = "https://status.${var.domain}"
+    "Zabbix"                  = "https://monitoring.${var.domain}"
+    "Grafana"                 = "https://grafana.${var.domain}"
+    "Prometheus"              = "https://prometheus.${var.domain}"
   }
 }
 
 output "next_steps" {
   description = "Next steps to complete the setup"
-  value = <<EOT
+  value       = <<EOT
 
 Next steps:
 1. Apply consolidated infrastructure:

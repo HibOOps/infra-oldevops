@@ -38,8 +38,11 @@ terraform.rc
 
 # Secrets and env
 .env
-ansible/vault/*
 *.retry
+
+# Ansible Vault - Ne commit que le fichier encrypté
+ansible/.vault_pass
+!ansible/vault/secrets.yml  # Le fichier encrypté DOIT être commité
 
 # General
 *.log

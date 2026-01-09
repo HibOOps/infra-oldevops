@@ -1,0 +1,6 @@
+---
+- name: restart github-runner
+  systemd:
+    name: "actions.runner.{{ github_repo_owner }}-{{ github_repo_name }}.{{ github_runner_name }}.service"
+    state: restarted
+    daemon_reload: yes
