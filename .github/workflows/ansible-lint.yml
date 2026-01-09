@@ -16,6 +16,8 @@ jobs:
   ansible-lint:
     name: Lint Ansible Configuration
     runs-on: self-hosted
+    # Security: Only run on PRs from the same repository (not forks) or on direct pushes
+    if: github.event.pull_request.head.repo.full_name == github.repository || github.event_name != 'pull_request'
 
     defaults:
       run:
