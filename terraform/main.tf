@@ -1,6 +1,6 @@
 # Configuration des tags communs
 locals {
-  common_tags = "terraform;production"
+  common_tags = "terraform;production;story-1.3a-tested"
 }
 
 # 1. Conteneur Proxy (Traefik)
