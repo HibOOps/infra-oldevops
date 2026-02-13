@@ -1,0 +1,13 @@
+---
+app_demo_dir: /opt/app-demo
+app_demo_frontend_domain: "app.oldevops.fr"
+app_demo_backend_domain: "api.oldevops.fr"
+
+# Database
+app_demo_db_name: app_demo
+app_demo_db_user: app_demo
+
+# Ports
+app_demo_frontend_port: 3000
+app_demo_backend_port: 8080
+app_demo_db_port: 5432

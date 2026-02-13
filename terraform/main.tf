@@ -102,3 +102,28 @@ module "ci_runner" {
   ip      = "192.168.1.210/24"
   gateway = "192.168.1.254"
 }
+
+# 5. Conteneur App Demo (Application de démonstration)
+module "app_demo" {
+  source          = "./modules/lxc_container"
+  vmid            = 250
+  hostname        = "app-demo"
+  target_node     = var.proxmox_node
+  template        = var.debian_template
+  password        = var.container_password
+  storage         = var.storage_pool
+  tags            = "${local.common_tags};app-demo"
+  ssh_public_keys = var.ssh_public_keys
+  unprivileged    = true
+
+  # Resources
+  cores  = 2
+  memory = 2048
+  swap   = 512
+  disk   = 20
+
+  # Réseau
+  bridge  = var.lxc_bridge
+  ip      = "192.168.1.250/24"
+  gateway = "192.168.1.254"
+}

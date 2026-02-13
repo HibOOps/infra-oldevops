@@ -1,7 +1,7 @@
 # Story 1.4 : Container Application - Infrastructure Terraform
 
 **Epic** : [EPIC 1 - Transformation Portfolio Infrastructure Professionnelle](EPIC.md)
-**Statut** : 📝 Todo
+**Statut** : 🔄 In Progress
 **Priorité** : P1 (Haute)
 **Points d'effort** : 3
 **Dépendances** : Aucune
@@ -106,10 +106,10 @@ Cette story crée l'infrastructure de base (container LXC) qui hébergera l'appl
 - [ ] Créer une branche Git : `feature/app-container`
 
 ### Phase 2 : Code Terraform
-- [ ] Créer le fichier `terraform/app-demo.tf`
-- [ ] Définir les variables nécessaires dans `terraform/variables.tf` (si besoin)
-- [ ] Implémenter la ressource `proxmox_lxc` avec toutes les spécifications
-- [ ] Ajouter les outputs `app_demo_ip` et `app_demo_hostname`
+- [x] Créer le fichier `terraform/app-demo.tf` (ajouté dans main.tf comme module, suivant la convention du projet)
+- [x] Définir les variables nécessaires dans `terraform/variables.tf` (si besoin)
+- [x] Implémenter la ressource `proxmox_lxc` avec toutes les spécifications
+- [x] Ajouter les outputs `app_demo_ip` et `app_demo_hostname`
 - [ ] Formatter le code : `terraform fmt`
 
 ### Phase 3 : Validation Terraform
@@ -227,11 +227,40 @@ output "app_demo_ip" {
 
 ## Notes et Commentaires
 
-_Cette section sera complétée pendant l'implémentation_
+- VMID 210 was already taken by the CI Runner (Story 1.2). App-demo uses VMID 250, IP 192.168.1.250 instead.
+- Container added as module in `main.tf` following project convention (not separate file).
+- Set `unprivileged = true` as specified in CA4.5 (other containers use privileged mode).
+- Nesting/keyctl/fuse/mknod already enabled in the module by default.
+
+---
+
+## Dev Agent Record
+
+### Agent Model Used
+Claude Opus 4.6
+
+### File List
+| File | Action | Description |
+|------|--------|-------------|
+| `terraform/main.tf` | Modified | Added module "app_demo" (VMID 250, IP 192.168.1.250, 2 cores, 2GB RAM, 20GB disk) |
+| `terraform/outputs.tf` | Modified | Added app_demo_ip, app_demo_hostname outputs + CI Runner to container_ips map |
+
+### Change Log
+- 2026-02-13: Added app-demo container module in main.tf with VMID 250, IP 192.168.1.250
+- 2026-02-13: Added outputs for app_demo_ip and app_demo_hostname
+- 2026-02-13: Note: VMID changed from 210 to 250 due to CI Runner conflict
+
+### Debug Log References
+_No debug issues encountered_
+
+### Completion Notes
+- Phases 1, 3-6 require live Proxmox environment (terraform validate/plan/apply, SSH tests, PR)
+- Phase 2 (code) is complete
+- Container set to unprivileged=true (differs from other containers which are privileged)
 
 ---
 
 **Créé le** : 2026-01-07
-**Dernière mise à jour** : 2026-01-07
-**Assigné à** : _À définir_
+**Dernière mise à jour** : 2026-02-13
+**Assigné à** : James (Dev Agent)
 **Sprint** : _À définir_

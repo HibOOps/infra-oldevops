@@ -1,0 +1,14 @@
+---
+galaxy_info:
+  role_name: app-demo
+  description: Deploy a demo application stack (frontend, backend, PostgreSQL) with Docker Compose
+  author: oldevops
+  license: MIT
+  min_ansible_version: "2.14"
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+
+dependencies:
+  - common

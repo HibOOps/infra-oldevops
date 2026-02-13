@@ -1,7 +1,7 @@
 # Story 1.7 : Application de Démonstration - Intégration Traefik
 
 **Epic** : [EPIC 1 - Transformation Portfolio Infrastructure Professionnelle](EPIC.md)
-**Statut** : 📝 Todo
+**Statut** : 🔄 In Progress
 **Priorité** : P1 (Haute)
 **Points d'effort** : 5
 **Dépendances** : Story 1.6 (Application développée)
@@ -71,7 +71,7 @@
 
 ## Définition of Done
 
-- [ ] Tous les CA validés ✅
+- [ ] Tous les CA validés
 - [ ] `https://app.oldevops.fr` accessible et sécurisé
 - [ ] `https://api.oldevops.fr` accessible et sécurisé
 - [ ] Certificats SSL valides
@@ -79,4 +79,34 @@
 
 ---
 
+## Dev Agent Record
+
+### Agent Model Used
+Claude Opus 4.6
+
+### File List
+| File | Action | Description |
+|------|--------|-------------|
+| `ansible/roles/traefik/templates/dynamic_conf.yml.j2` | Modified | Added app-frontend/app-backend routers+services, secure-headers and rate-limit middlewares |
+| `app-demo/docker-compose.yml` | Modified | Removed Traefik labels (file-based routing used), removed proxy network |
+| `ansible/roles/app-demo/templates/docker-compose.yml.j2` | Modified | Aligned with file-based Traefik routing |
+| `ansible/roles/app-demo/vars/main.yml` | Modified | Split domain into frontend/backend domains |
+| `ansible/roles/app-demo/templates/env.j2` | Modified | Updated API URL to api.oldevops.fr |
+| `app-demo/.env.example` | Modified | Updated API URL |
+| `scripts/health-check.sh` | Modified | Replaced demo.oldevops.fr with app/api.oldevops.fr |
+
+### Change Log
+- 2026-02-13: Added Traefik file-based routes for app.oldevops.fr and api.oldevops.fr
+- 2026-02-13: Added secure-headers middleware (HSTS, X-Frame-Options, nosniff)
+- 2026-02-13: Added rate-limit middleware (1000 req/burst 500)
+- 2026-02-13: Added Traefik health checks for both services
+- 2026-02-13: Removed Docker labels from docker-compose (project uses file-based routing)
+
+### Completion Notes
+- DNS A records for app.oldevops.fr and api.oldevops.fr need to be added manually in OVH
+- SSL certs will auto-generate via OVH DNS challenge (already configured)
+
+---
+
 **Créé le** : 2026-01-07
+**Dernière mise à jour** : 2026-02-13

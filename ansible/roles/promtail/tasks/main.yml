@@ -1,0 +1,23 @@
+---
+- name: Create promtail directory
+  file:
+    path: /opt/promtail
+    state: directory
+    mode: '0755'
+
+- name: Deploy promtail-config.yml
+  template:
+    src: promtail-config.yml.j2
+    dest: /opt/promtail/promtail-config.yml
+    mode: '0644'
+
+- name: Deploy docker-compose.yml
+  template:
+    src: docker-compose.yml.j2
+    dest: /opt/promtail/docker-compose.yml
+    mode: '0644'
+
+- name: Launch Promtail
+  shell: docker compose up -d
+  args:
+    chdir: /opt/promtail

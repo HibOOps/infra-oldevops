@@ -1,7 +1,7 @@
 # Story 1.5 : Container Application - Configuration Ansible
 
 **Epic** : [EPIC 1 - Transformation Portfolio Infrastructure Professionnelle](EPIC.md)
-**Statut** : 📝 Todo
+**Statut** : 🔄 In Progress
 **Priorité** : P1 (Haute)
 **Points d'effort** : 5
 **Dépendances** : Story 1.4 (Container créé)
@@ -66,7 +66,7 @@
 
 ## Définition of Done
 
-- [ ] Tous les CA validés ✅
+- [ ] Tous les CA validés
 - [ ] Docker installé et fonctionnel dans le container
 - [ ] Playbook exécutable sans erreur
 - [ ] Code Ansible validé par ansible-lint
@@ -74,4 +74,41 @@
 
 ---
 
+## Dev Agent Record
+
+### Agent Model Used
+Claude Opus 4.6
+
+### File List
+| File | Action | Description |
+|------|--------|-------------|
+| `ansible/roles/app-demo/meta/main.yml` | Created | Role metadata with common dependency |
+| `ansible/roles/app-demo/tasks/main.yml` | Created | Main tasks: create dir, deploy env/compose, start stack |
+| `ansible/roles/app-demo/vars/main.yml` | Created | Non-sensitive variables (ports, paths, domain) |
+| `ansible/roles/app-demo/handlers/main.yml` | Created | Restart handler for docker compose |
+| `ansible/roles/app-demo/templates/env.j2` | Created | .env template with DB/JWT/API vars |
+| `ansible/roles/app-demo/templates/docker-compose.yml.j2` | Created | 3-service stack (frontend, backend, postgres) with Traefik labels |
+| `ansible/playbooks/app-demo.yml` | Created | Playbook targeting app_demo host group |
+| `ansible/inventory.ini` | Modified | Added [app_demo] group with 192.168.1.250 |
+| `scripts/create-snapshots.sh` | Modified | Updated container list to include VMID 250 |
+| `scripts/health-check.sh` | Modified | Added 192.168.1.250 to SSH/Docker checks, demo.oldevops.fr to HTTP checks |
+| `scripts/rollback.sh` | Modified | Updated container list to include VMID 250 |
+
+### Change Log
+- 2026-02-13: Created app-demo Ansible role with full structure
+- 2026-02-13: Created playbook, updated inventory with app_demo group at 192.168.1.250
+- 2026-02-13: Updated all deployment scripts to include new container
+
+### Debug Log References
+_No debug issues encountered_
+
+### Completion Notes
+- Vault secrets `app_demo_db_password` and `app_demo_jwt_secret` need to be added manually
+- IP changed from story spec 192.168.1.210 to 192.168.1.250 (CI runner conflict)
+- Docker Compose template uses placeholder node:20-alpine images; actual app images TBD
+- Ansible-lint validation pending (no ansible-lint available locally)
+
+---
+
 **Créé le** : 2026-01-07
+**Dernière mise à jour** : 2026-02-13

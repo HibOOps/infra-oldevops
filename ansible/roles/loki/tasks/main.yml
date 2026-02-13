@@ -1,0 +1,23 @@
+---
+- name: Create loki directory
+  file:
+    path: /opt/loki
+    state: directory
+    mode: '0755'
+
+- name: Deploy loki-config.yml
+  template:
+    src: loki-config.yml.j2
+    dest: /opt/loki/loki-config.yml
+    mode: '0644'
+
+- name: Deploy docker-compose.yml
+  template:
+    src: docker-compose.yml.j2
+    dest: /opt/loki/docker-compose.yml
+    mode: '0644'
+
+- name: Launch Loki
+  shell: docker compose up -d
+  args:
+    chdir: /opt/loki

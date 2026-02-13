@@ -1,0 +1,5 @@
+---
+- name: restart app-demo
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_demo_dir }}"
+    state: restarted

@@ -4,7 +4,19 @@ output "container_ips" {
     "Proxy"      = module.proxy.ip_address
     "Utilities"  = module.utilities.ip_address
     "Monitoring" = module.monitoring.ip_address
+    "CI Runner"  = module.ci_runner.ip_address
+    "App Demo"   = module.app_demo.ip_address
   }
+}
+
+output "app_demo_ip" {
+  description = "IP address of the app-demo container"
+  value       = module.app_demo.ip_address
+}
+
+output "app_demo_hostname" {
+  description = "Hostname of the app-demo container"
+  value       = module.app_demo.hostname
 }
 
 output "services" {

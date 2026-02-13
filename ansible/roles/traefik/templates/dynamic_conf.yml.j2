@@ -1,5 +1,37 @@
 http:
+  middlewares:
+    secure-headers:
+      headers:
+        stsSeconds: 31536000
+        stsIncludeSubdomains: true
+        frameDeny: true
+        contentTypeNosniff: true
+        browserXssFilter: true
+    rate-limit:
+      rateLimit:
+        average: 1000
+        burst: 500
+
   routers:
+    app-frontend:
+      rule: "Host(`app.{{ domain_name }}`)"
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: ovh
+      service: app-frontend
+      middlewares:
+        - secure-headers
+    app-backend:
+      rule: "Host(`api.{{ domain_name }}`)"
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: ovh
+      service: app-backend
+      middlewares:
+        - secure-headers
+        - rate-limit
     vaultwarden:
       rule: "Host(`vault.{{ domain_name }}`)"
       entryPoints:
@@ -86,3 +118,19 @@ http:
       loadBalancer:
         servers:
           - url: "http://192.168.1.201:8084"
+    app-frontend:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.1.250:3000"
+        healthCheck:
+          path: /
+          interval: 15s
+          timeout: 5s
+    app-backend:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.1.250:8080"
+        healthCheck:
+          path: /api/health
+          interval: 15s
+          timeout: 5s

@@ -8,6 +8,7 @@
     - zabbix-server
     - uptime-kuma
     - prometheus
+    - loki
     - grafana
 
 - hosts: all

@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  loki:
+    image: grafana/loki:2.9.4
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki-config.yml:/etc/loki/local-config.yaml
+      - loki-data:/loki
+    restart: unless-stopped
+    networks:
+      - monitoring
+
+volumes:
+  loki-data:
+
+networks:
+  monitoring:
+    external: true

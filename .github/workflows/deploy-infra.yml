@@ -3,70 +3,69 @@ name: Deploy Infrastructure
 on:
   push:
     branches:
-      - master
+      - main
   workflow_dispatch:
 
 permissions:
   contents: read
   pull-requests: write
 
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
 jobs:
   deploy:
     name: Deploy to Production
-    runs-on: self-hosted
-    # Security: This workflow only runs on push to master (from trusted maintainers)
-    # and manual workflow_dispatch. PRs from forks cannot trigger this workflow.
+    runs-on: self-hosted-proxmox
+    timeout-minutes: 30
     environment:
       name: production
       url: https://grafana.oldevops.fr
-
-    defaults:
-      run:
-        working-directory: terraform
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Record start time
+        id: timer
+        run: echo "start=$(date +%s)" >> $GITHUB_OUTPUT
+
+      # --- Phase 3: Proxmox Snapshots ---
+      - name: Create Proxmox Snapshots
+        id: snapshots
+        run: ./scripts/create-snapshots.sh
+        env:
+          PROXMOX_API_TOKEN: ${{ secrets.PROXMOX_API_TOKEN }}
+          PROXMOX_HOST: "192.168.1.50"
+          PROXMOX_NODE: "pve"
+
+      # --- Phase 4: Terraform ---
       - name: Backup Terraform State
         id: backup
+        working-directory: terraform
         run: |
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
           echo "timestamp=$TIMESTAMP" >> $GITHUB_OUTPUT
-          echo "📦 Creating state backup: terraform-state-backup-$TIMESTAMP"
+          echo "Creating state backup: terraform-state-backup-$TIMESTAMP"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.OVH_S3_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.OVH_S3_SECRET_KEY }}
 
       - name: Terraform Init
         id: init
+        working-directory: terraform
         run: terraform init
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.OVH_S3_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.OVH_S3_SECRET_KEY }}
 
-      - name: Terraform Plan
-        id: plan
-        run: |
-          terraform plan -no-color -refresh=false -out=tfplan
-          terraform show -no-color tfplan > plan.txt
-          echo "plan<<EOF" >> $GITHUB_OUTPUT
-          cat plan.txt >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.OVH_S3_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.OVH_S3_SECRET_KEY }}
-          TF_VAR_proxmox_password: ${{ secrets.PROXMOX_PASSWORD }}
-          TF_VAR_proxmox_username: ${{ secrets.PROXMOX_USERNAME }}
-          TF_VAR_container_password: ${{ secrets.CONTAINER_PASSWORD }}
-          TF_VAR_proxmox_host: "192.168.1.50"
-          TF_VAR_ssh_public_keys: "[]"
-
       - name: Terraform Apply
         id: apply
+        working-directory: terraform
         run: |
-          echo "🚀 Applying Terraform changes..."
-          terraform apply -auto-approve tfplan 2>&1 | tee apply.log
+          echo "Applying Terraform changes..."
+          terraform apply -auto-approve 2>&1 | tee apply.log
 
           # Extract summary
           echo "summary<<EOF" >> $GITHUB_OUTPUT
@@ -81,18 +80,12 @@ jobs:
           TF_VAR_proxmox_host: "192.168.1.50"
           TF_VAR_ssh_public_keys: "[]"
 
-      - name: Configure Ansible
-        run: |
-          cd ../ansible
-          echo "🔧 Configuring Ansible environment..."
-        env:
-          ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
-
+      # --- Phase 5: Ansible Playbooks ---
       - name: Deploy Traefik (Proxy)
         id: ansible_traefik
+        working-directory: ansible
         run: |
-          cd ../ansible
-          echo "🌐 Deploying Traefik reverse proxy..."
+          echo "Deploying Traefik reverse proxy..."
           ansible-playbook -i inventory.ini playbooks/traefik.yml 2>&1 | tee traefik.log
 
           echo "traefik_result<<EOF" >> $GITHUB_OUTPUT
@@ -103,9 +96,9 @@ jobs:
 
       - name: Deploy Utilities (Vaultwarden, Snipe-IT, NetBox)
         id: ansible_utilities
+        working-directory: ansible
         run: |
-          cd ../ansible
-          echo "🛠️ Deploying utilities services..."
+          echo "Deploying utilities services..."
           ansible-playbook -i inventory.ini playbooks/utilities.yml 2>&1 | tee utilities.log
 
           echo "utilities_result<<EOF" >> $GITHUB_OUTPUT
@@ -116,9 +109,9 @@ jobs:
 
       - name: Deploy Monitoring (Zabbix, Uptime Kuma, Prometheus, Grafana)
         id: ansible_monitoring
+        working-directory: ansible
         run: |
-          cd ../ansible
-          echo "📊 Deploying monitoring stack..."
+          echo "Deploying monitoring stack..."
           ansible-playbook -i inventory.ini playbooks/monitoring.yml 2>&1 | tee monitoring.log
 
           echo "monitoring_result<<EOF" >> $GITHUB_OUTPUT
@@ -127,15 +120,69 @@ jobs:
         env:
           ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
 
-      - name: Deployment Summary
-        id: summary
+      - name: Deploy App Demo (if exists)
+        id: ansible_demo
+        working-directory: ansible
         run: |
-          echo "✅ Deployment completed successfully!"
-          echo "📝 Summary:"
-          echo "  - Terraform: ${{ steps.apply.outputs.summary }}"
-          echo "  - Traefik: ${{ steps.ansible_traefik.outputs.traefik_result }}"
-          echo "  - Utilities: ${{ steps.ansible_utilities.outputs.utilities_result }}"
-          echo "  - Monitoring: ${{ steps.ansible_monitoring.outputs.monitoring_result }}"
+          if [ -f playbooks/app-demo.yml ]; then
+            echo "Deploying demo application..."
+            ansible-playbook -i inventory.ini playbooks/app-demo.yml 2>&1 | tee app-demo.log
+            echo "demo_result<<EOF" >> $GITHUB_OUTPUT
+            grep -E "ok=|changed=|failed=|skipped=" app-demo.log | tail -1 >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "No app-demo.yml found, skipping."
+            echo "demo_result=skipped" >> $GITHUB_OUTPUT
+          fi
+        env:
+          ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+
+      # --- Phase 6: Health Checks ---
+      - name: Post-Deployment Health Checks
+        id: healthcheck
+        run: ./scripts/health-check.sh
+        continue-on-error: true
+
+      # --- Phase 7: Rollback on Health Check Failure ---
+      - name: Rollback on Failure
+        id: rollback
+        if: steps.healthcheck.outcome == 'failure'
+        run: |
+          echo "Health checks failed! Initiating rollback..."
+          ./scripts/rollback.sh "${{ steps.snapshots.outputs.snapshot_name }}"
+        env:
+          PROXMOX_API_TOKEN: ${{ secrets.PROXMOX_API_TOKEN }}
+          PROXMOX_HOST: "192.168.1.50"
+          PROXMOX_NODE: "pve"
+
+      - name: Post-Rollback Health Checks
+        id: rollback_healthcheck
+        if: steps.rollback.outcome == 'success'
+        run: |
+          echo "Re-running health checks after rollback..."
+          ./scripts/health-check.sh
+        continue-on-error: true
+
+      - name: Fail if Health Checks Failed
+        if: steps.healthcheck.outcome == 'failure'
+        run: |
+          echo "Deployment failed - health checks did not pass."
+          if [ "${{ steps.rollback.outcome }}" == "success" ]; then
+            echo "Rollback was performed successfully."
+          fi
+          exit 1
+
+      # --- Phase 8: Notification ---
+      - name: Calculate Duration
+        id: duration
+        if: always()
+        run: |
+          END=$(date +%s)
+          START=${{ steps.timer.outputs.start }}
+          ELAPSED=$((END - START))
+          MINUTES=$((ELAPSED / 60))
+          SECONDS=$((ELAPSED % 60))
+          echo "duration=${MINUTES}min ${SECONDS}s" >> $GITHUB_OUTPUT
 
       - name: Post Deployment Notification
         uses: actions/github-script@v7
@@ -144,42 +191,54 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const timestamp = new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' });
-            const success = '${{ job.status }}' === 'success';
-            const icon = success ? '🎉' : '⚠️';
-            const status = success ? 'réussi' : 'échoué';
+            const jobStatus = '${{ job.status }}';
+            const success = jobStatus === 'success';
+            const healthFailed = '${{ steps.healthcheck.outcome }}' === 'failure';
+            const rollbackDone = '${{ steps.rollback.outcome }}' === 'success';
+            const duration = '${{ steps.duration.outputs.duration }}';
+
+            let icon, status, footer;
+            if (success) {
+              icon = '🎉';
+              status = 'réussi';
+              footer = `🎉 Déploiement réussi en ${duration}`;
+            } else if (rollbackDone) {
+              icon = '⚠️';
+              status = 'échoué (rollback effectué)';
+              footer = `⚠️ Déploiement échoué - Rollback effectué en ${duration}`;
+            } else {
+              icon = '⚠️';
+              status = 'échoué';
+              footer = `⚠️ Déploiement échoué - Rollback recommandé`;
+            }
 
             const output = `## ${icon} Déploiement ${status}
 
             **Date**: ${timestamp}
+            **Durée**: ${duration}
             **Commit**: ${{ github.sha }}
             **Acteur**: @${{ github.actor }}
             **Workflow**: [Voir les logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
-            ### 📊 Résultats Terraform
+            ### Résultats Terraform
             \`\`\`
             ${{ steps.apply.outputs.summary || 'N/A' }}
             \`\`\`
 
-            ### 🎭 Résultats Ansible
+            ### Résultats Ansible
+            | Service | Résultat |
+            |---------|----------|
+            | Traefik | ${{ steps.ansible_traefik.outputs.traefik_result || 'N/A' }} |
+            | Utilities | ${{ steps.ansible_utilities.outputs.utilities_result || 'N/A' }} |
+            | Monitoring | ${{ steps.ansible_monitoring.outputs.monitoring_result || 'N/A' }} |
+            | App Demo | ${{ steps.ansible_demo.outputs.demo_result || 'N/A' }} |
 
-            **Traefik (Proxy)**:
-            \`\`\`
-            ${{ steps.ansible_traefik.outputs.traefik_result || 'N/A' }}
-            \`\`\`
-
-            **Utilities (Vaultwarden, Snipe-IT, NetBox)**:
-            \`\`\`
-            ${{ steps.ansible_utilities.outputs.utilities_result || 'N/A' }}
-            \`\`\`
-
-            **Monitoring (Zabbix, Uptime Kuma, Prometheus, Grafana)**:
-            \`\`\`
-            ${{ steps.ansible_monitoring.outputs.monitoring_result || 'N/A' }}
-            \`\`\`
+            ### Health Checks
+            Status: ${healthFailed ? '❌ Échec' : '✅ Succès'}
+            ${rollbackDone ? '\\n### Rollback\\n⚠️ Rollback automatique effectué vers snapshot précédent' : ''}
 
             ---
-
-            ${success ? '✅ Infrastructure déployée avec succès!' : '⚠️ Des erreurs ont été rencontrées pendant le déploiement. Consultez les logs pour plus de détails.'}
+            ${footer}
             `;
 
             github.rest.repos.createCommitComment({
