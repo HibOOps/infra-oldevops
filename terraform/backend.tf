@@ -9,7 +9,7 @@ terraform {
     skip_region_validation      = true
     skip_credentials_validation = true
     skip_metadata_api_check     = true
-    skip_requesting_account_id  = true # Required for OVH S3 (non-AWS)
+    # skip_requesting_account_id  = true # Required for OVH S3 (non-AWS) - Requires Terraform >= 1.6.0
   }
 }
 
