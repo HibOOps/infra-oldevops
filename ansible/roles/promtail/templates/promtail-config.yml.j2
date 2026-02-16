@@ -20,8 +20,15 @@ scrape_configs:
             log: log
             stream: stream
             time: time
+      - json:
+          source: log
+          expressions:
+            level: level
+            service: service
       - labels:
           stream:
+          level:
+          service:
 
   - job_name: syslog
     static_configs:
@@ -29,6 +36,11 @@ scrape_configs:
           host: {{ inventory_hostname }}
           job: syslog
           __path__: /var/log/syslog
+    pipeline_stages:
+      - regex:
+          expression: '.*\s+(?P<level>(emerg|alert|crit|err|warning|notice|info|debug))(\[|\s).*'
+      - labels:
+          level:
 
   - job_name: journal
     journal:

@@ -1,5 +1,10 @@
 # App Demo - Task Manager
 
+[![Build](https://github.com/olabe/Infra-oldevops/actions/workflows/app-build.yml/badge.svg)](https://github.com/olabe/Infra-oldevops/actions/workflows/app-build.yml)
+[![Docker](https://github.com/olabe/Infra-oldevops/actions/workflows/app-docker.yml/badge.svg)](https://github.com/olabe/Infra-oldevops/actions/workflows/app-docker.yml)
+[![Deploy](https://github.com/olabe/Infra-oldevops/actions/workflows/app-deploy.yml/badge.svg)](https://github.com/olabe/Infra-oldevops/actions/workflows/app-deploy.yml)
+[![Security](https://github.com/olabe/Infra-oldevops/actions/workflows/security-scan.yml/badge.svg)](https://github.com/olabe/Infra-oldevops/actions/workflows/security-scan.yml)
+
 Application de demonstration deployee sur l'infrastructure oldevops.
 
 ## Architecture
@@ -9,7 +14,7 @@ Application de demonstration deployee sur l'infrastructure oldevops.
                        |
                    Traefik (proxy)
                    /          \
-           demo.oldevops.fr   demo.oldevops.fr/api
+          app.oldevops.fr   api.oldevops.fr
                 |                    |
            Frontend (React)    Backend (Express)
            nginx:80            node:8080
