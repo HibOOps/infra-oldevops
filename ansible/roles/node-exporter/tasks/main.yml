@@ -1,0 +1,31 @@
+---
+- name: Create node-exporter directory
+  file:
+    path: /opt/node-exporter
+    state: directory
+    mode: '0755'
+
+- name: Deploy node-exporter docker-compose.yml
+  template:
+    src: docker-compose.yml.j2
+    dest: /opt/node-exporter/docker-compose.yml
+    mode: '0644'
+
+- name: Launch Node Exporter
+  shell: docker compose up -d
+  args:
+    chdir: /opt/node-exporter
+
+- name: Wait for Node Exporter to be healthy
+  uri:
+    url: http://localhost:9100/metrics
+    method: GET
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 10
+  delay: 2
+
+- name: Verify node-exporter is running
+  debug:
+    msg: "Node Exporter successfully deployed on {{ inventory_hostname }}"

@@ -5,10 +5,28 @@
     state: directory
     mode: '0755'
 
+- name: Create prometheus rules directory
+  file:
+    path: /opt/prometheus/rules
+    state: directory
+    mode: '0755'
+
 - name: Deploy prometheus.yml
   template:
     src: prometheus.yml.j2
     dest: /opt/prometheus/prometheus.yml
+    mode: '0644'
+
+- name: Deploy alertmanager.yml
+  template:
+    src: alertmanager.yml.j2
+    dest: /opt/prometheus/alertmanager.yml
+    mode: '0644'
+
+- name: Deploy alert rules
+  copy:
+    src: rules/
+    dest: /opt/prometheus/rules/
     mode: '0644'
 
 - name: Deploy docker-compose.yml
@@ -17,7 +35,54 @@
     dest: /opt/prometheus/docker-compose.yml
     mode: '0644'
 
-- name: Launch Prometheus
+- name: Create prometheus data directory with correct permissions
+  file:
+    path: /opt/prometheus/prom-data
+    state: directory
+    owner: '65534'
+    group: '65534'
+    mode: '0755'
+
+- name: Create alertmanager data directory with correct permissions
+  file:
+    path: /opt/prometheus/alertmanager-data
+    state: directory
+    owner: '65534'
+    group: '65534'
+    mode: '0755'
+
+- name: Launch Prometheus stack
   shell: docker compose up -d
   args:
     chdir: /opt/prometheus
+
+- name: Wait for Prometheus to be healthy
+  uri:
+    url: http://localhost:9090/-/healthy
+    method: GET
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 30
+  delay: 2
+
+- name: Wait for Alertmanager to be healthy
+  uri:
+    url: http://localhost:9093/-/healthy
+    method: GET
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 30
+  delay: 2
+
+- name: Verify alert rules are loaded
+  uri:
+    url: http://localhost:9090/api/v1/rules
+    method: GET
+    return_content: yes
+  register: rules_check
+
+- name: Display loaded alert rules count
+  debug:
+    msg: "Loaded {{ (rules_check.json.data.groups | length) if rules_check.json.data.groups is defined else 0 }} alert rule groups"

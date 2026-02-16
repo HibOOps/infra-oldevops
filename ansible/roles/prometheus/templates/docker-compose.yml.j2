@@ -2,12 +2,23 @@ version: '3'
 
 services:
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v2.48.1
     container_name: prometheus
+    user: "65534:65534"  # nobody:nobody for security
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-lifecycle'
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./prom-data:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./rules:/etc/prometheus/rules:ro
+      - prom-data:/prometheus
     restart: always
+    ports:
+      - "9090:9090"
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy || exit 1"]
       interval: 30s
@@ -22,6 +33,60 @@ services:
       - "traefik.http.routers.prometheus.entrypoints=websecure"
       - "traefik.http.routers.prometheus.tls.certresolver=ovh"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+
+  alertmanager:
+    image: prom/alertmanager:v0.26.0
+    container_name: alertmanager
+    user: "65534:65534"  # nobody:nobody for security
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://alertmanager.oldevops.fr'
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager-data:/alertmanager
+    restart: always
+    ports:
+      - "9093:9093"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9093/-/healthy || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.alertmanager.rule=Host(`alertmanager.oldevops.fr`)"
+      - "traefik.http.routers.alertmanager.entrypoints=websecure"
+      - "traefik.http.routers.alertmanager.tls.certresolver=ovh"
+      - "traefik.http.services.alertmanager.loadbalancer.server.port=9093"
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.0
+    container_name: cadvisor
+    privileged: true
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /dev/disk:/dev/disk:ro
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - proxy
+    command:
+      - '--housekeeping_interval=10s'
+      - '--docker_only=true'
+
+volumes:
+  prom-data:
+  alertmanager-data:
 
 networks:
   proxy:

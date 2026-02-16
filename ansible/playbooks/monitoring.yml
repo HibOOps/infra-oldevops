@@ -15,3 +15,4 @@
   become: yes
   roles:
     - zabbix-agent
+    - node-exporter
