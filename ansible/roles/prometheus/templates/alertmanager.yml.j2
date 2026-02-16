@@ -1,0 +1,97 @@
+global:
+  resolve_timeout: 5m
+  # SMTP configuration from Ansible Vault
+  smtp_smarthost: '{{ smtp_host }}'
+  smtp_from: '{{ smtp_from }}'
+  smtp_auth_username: '{{ smtp_username }}'
+  smtp_auth_password: '{{ smtp_password }}'
+  smtp_require_tls: {{ smtp_require_tls | lower }}
+
+# Route tree for alerts
+route:
+  receiver: 'default'
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s        # Wait before sending initial notification
+  group_interval: 10s    # Wait before sending batch of new alerts
+  repeat_interval: 12h   # Wait before re-sending resolved alerts
+
+  routes:
+    # Critical alerts - immediate notification
+    - match:
+        severity: critical
+      receiver: 'critical'
+      group_wait: 0s
+      repeat_interval: 4h
+
+    # Warning alerts - grouped notifications
+    - match:
+        severity: warning
+      receiver: 'warning'
+      group_wait: 30s
+      repeat_interval: 12h
+
+# Inhibition rules - prevent alert storms
+inhibit_rules:
+  # Inhibit warning if critical alert is firing
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'instance']
+
+  # Inhibit ServiceDown if ServiceFlapping is firing
+  - source_match:
+      alertname: 'ServiceFlapping'
+    target_match:
+      alertname: 'ServiceDown'
+    equal: ['instance']
+
+# Receivers - notification endpoints
+receivers:
+  - name: 'default'
+    email_configs:
+      - to: '{{ alert_email_recipient }}'
+        headers:
+          Subject: '[ALERT] {{ "{{ .GroupLabels.alertname }}" }}'
+        html: |
+          <h2>Alert: {{ "{{ .GroupLabels.alertname }}" }}</h2>
+          <p><strong>Severity:</strong> {{ "{{ .CommonLabels.severity }}" }}</p>
+          <p><strong>Summary:</strong> {{ "{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}" }}</p>
+          <p><strong>Description:</strong> {{ "{{ range .Alerts }}{{ .Annotations.description }}{{ end }}" }}</p>
+          <p><strong>Time:</strong> {{ "{{ .CommonAnnotations.startsAt }}" }}</p>
+
+  - name: 'critical'
+    email_configs:
+      - to: '{{ alert_email_recipient }}'
+        headers:
+          Subject: '[🚨 CRITICAL] {{ "{{ .GroupLabels.alertname }}" }}'
+        html: |
+          <h1 style="color: red;">🚨 CRITICAL ALERT</h1>
+          <h2>{{ "{{ .GroupLabels.alertname }}" }}</h2>
+          <p><strong>Severity:</strong> <span style="color: red;">CRITICAL</span></p>
+          <p><strong>Summary:</strong> {{ "{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}" }}</p>
+          <p><strong>Description:</strong> {{ "{{ range .Alerts }}{{ .Annotations.description }}{{ end }}" }}</p>
+          <p><strong>Instance:</strong> {{ "{{ .CommonLabels.instance }}" }}</p>
+          <p><strong>Time:</strong> {{ "{{ .CommonAnnotations.startsAt }}" }}</p>
+          <hr>
+          <p><em>This is a critical alert requiring immediate attention.</em></p>
+        send_resolved: true
+
+  - name: 'warning'
+    email_configs:
+      - to: '{{ alert_email_recipient }}'
+        headers:
+          Subject: '[⚠️ WARNING] {{ "{{ .GroupLabels.alertname }}" }}'
+        html: |
+          <h2 style="color: orange;">⚠️ Warning Alert</h2>
+          <h3>{{ "{{ .GroupLabels.alertname }}" }}</h3>
+          <p><strong>Severity:</strong> <span style="color: orange;">WARNING</span></p>
+          <p><strong>Summary:</strong> {{ "{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}" }}</p>
+          <p><strong>Description:</strong> {{ "{{ range .Alerts }}{{ .Annotations.description }}{{ end }}" }}</p>
+          <p><strong>Instance:</strong> {{ "{{ .CommonLabels.instance }}" }}</p>
+          <p><strong>Time:</strong> {{ "{{ .CommonAnnotations.startsAt }}" }}</p>
+        send_resolved: true
+
+# Templates for custom notification messages
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
