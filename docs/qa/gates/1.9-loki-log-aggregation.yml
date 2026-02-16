@@ -1,0 +1,145 @@
+# Quality Gate Decision - Story 1.9
+# Schema version 1
+
+schema: 1
+story: "1.9"
+story_title: "Monitoring Avancé - Loki pour Agrégation de Logs"
+gate: CONCERNS
+status_reason: "Solid infrastructure implementation with functional observability stack delivered. Five configuration improvements recommended for production hardening (port exposure, hardcoded IP, positions file persistence, schema date, resource limits). Core functionality validated with pragmatic scope adjustment for containers 200/201."
+reviewer: "Quinn (Test Architect)"
+updated: "2026-02-14T15:00:00Z"
+
+# Waiver status
+waiver:
+  active: false
+
+# Top issues identified
+top_issues:
+  - id: "INFRA-001"
+    severity: medium
+    finding: "Loki port 3100 exposed to host (0.0.0.0:3100) - potential external access risk"
+    suggested_action: "Remove port mapping from docker-compose.yml.j2; access only via Docker network"
+    suggested_owner: dev
+    refs:
+      - "ansible/roles/loki/templates/docker-compose.yml.j2:8"
+
+  - id: "INFRA-002"
+    severity: medium
+    finding: "Promtail uses hardcoded IP (192.168.1.202) for Loki URL - brittle configuration"
+    suggested_action: "Replace with Ansible variable or Docker service name resolution"
+    suggested_owner: dev
+    refs:
+      - "ansible/roles/promtail/templates/promtail-config.yml.j2:8"
+
+  - id: "INFRA-003"
+    severity: low
+    finding: "Promtail positions file in /tmp - lost on container restart"
+    suggested_action: "Move to persistent volume (/var/lib/promtail/positions.yaml)"
+    suggested_owner: dev
+    refs:
+      - "ansible/roles/promtail/templates/promtail-config.yml.j2:5"
+
+  - id: "INFRA-004"
+    severity: low
+    finding: "Loki schema date (2024-01-01) over 1 year old for new deployment"
+    suggested_action: "Update to recent date or use Ansible variable"
+    suggested_owner: dev
+    refs:
+      - "ansible/roles/loki/templates/loki-config.yml.j2:21"
+
+# Risk summary
+risk_summary:
+  totals:
+    critical: 0
+    high: 0
+    medium: 2
+    low: 2
+  recommendations:
+    must_fix: []
+    monitor:
+      - "Resource usage as containers 200/201 are added"
+      - "Disk usage growth with log retention"
+
+# Quality score
+quality_score: 60
+# Calculation: 100 - (10 × 4 concerns) = 60
+
+# Evidence
+evidence:
+  tests_reviewed: 4  # 4 validation task groups
+  risks_identified: 4
+  trace:
+    ac_covered: [9.1, 9.2, 9.4, 9.5, 9.6]  # Fully met ACs
+    ac_gaps: [9.3]  # Partially met (containers 200/201 deferred)
+
+# NFR validation
+nfr_validation:
+  security:
+    status: CONCERNS
+    notes: "Loki port exposed to host, auth disabled. Acceptable for internal network but document security boundary. Port exposure should be removed."
+  performance:
+    status: PASS
+    notes: "Memory 24.68 MiB (<1 GB), Disk 104 KB (<10 GB), Query latency sub-second. All targets met."
+  reliability:
+    status: PASS
+    notes: "Services healthy, permissions resolved, restart policies configured. Minor concern with positions file in /tmp."
+  maintainability:
+    status: CONCERNS
+    notes: "Hardcoded IP reduces maintainability. Otherwise good structure and documentation."
+
+# Recommendations
+recommendations:
+  immediate: []  # No blocking issues
+
+  future:
+    - action: "Remove Loki host port binding for security"
+      priority: medium
+      effort: low
+      refs:
+        - "ansible/roles/loki/templates/docker-compose.yml.j2"
+
+    - action: "Replace hardcoded IP with Ansible variable in Promtail"
+      priority: medium
+      effort: low
+      refs:
+        - "ansible/roles/promtail/templates/promtail-config.yml.j2"
+
+    - action: "Move Promtail positions to persistent volume"
+      priority: low
+      effort: medium
+      refs:
+        - "ansible/roles/promtail/templates/promtail-config.yml.j2"
+        - "ansible/roles/promtail/templates/docker-compose.yml.j2"
+
+    - action: "Add Promtail to containers 200/201 when infrastructure ready"
+      priority: medium
+      effort: medium
+      refs:
+        - "Follow-up from Stories 1.1, 1.4-1.5"
+
+    - action: "Add Docker resource limits (cpu, memory)"
+      priority: low
+      effort: low
+      refs:
+        - "ansible/roles/loki/templates/docker-compose.yml.j2"
+        - "ansible/roles/promtail/templates/docker-compose.yml.j2"
+
+# Additional notes
+notes:
+  scope_adjustment: "Containers 200 (proxy) and 201 (utilities) deferred due to infrastructure not ready. This is well-justified and properly documented. Only container 202 (monitoring) currently operational."
+
+  strengths:
+    - "Excellent troubleshooting (network config, TSDB, WAL, permissions)"
+    - "Comprehensive validation approach"
+    - "Clear documentation of decisions and scope changes"
+    - "Good use of existing Ansible role structure"
+
+  validation_performed:
+    - "API health checks (/ready, /metrics)"
+    - "Resource monitoring (memory, disk)"
+    - "Query latency testing"
+    - "LogQL query validation (187 log lines from 4 containers)"
+    - "Inter-service connectivity (Loki-Promtail-Grafana)"
+
+# Gate expiry (recommended review if story touched again)
+expires: "2026-03-01T00:00:00Z"

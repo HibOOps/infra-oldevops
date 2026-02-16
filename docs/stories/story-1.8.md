@@ -1,7 +1,7 @@
 # Story 1.8 : Application de Démonstration - Pipeline CI/CD
 
 **Epic** : [EPIC 1 - Transformation Portfolio Infrastructure Professionnelle](EPIC.md)
-**Statut** : 📝 Todo
+**Statut** : 🔄 In Progress
 **Priorité** : P1 (Haute)
 **Points d'effort** : 8
 **Dépendances** : Story 1.7 (App intégrée Traefik), Story 1.3 (Pipeline infra)
@@ -77,12 +77,43 @@
 
 ## Définition of Done
 
-- [ ] Tous les CA validés ✅
+- [ ] Tous les CA validés
 - [ ] Pipeline complet testé end-to-end
 - [ ] Au moins 1 déploiement automatisé réussi
 - [ ] Rollback testé et fonctionnel
-- [ ] Documentation pipeline créée
+- [x] Documentation pipeline créée
+
+---
+
+## Dev Agent Record
+
+### Agent Model Used
+Claude Opus 4.6
+
+### File List
+| File | Action | Description |
+|------|--------|-------------|
+| `.github/workflows/app-build.yml` | Created | Build & test workflow: lint + test backend/frontend, docker compose build |
+| `.github/workflows/app-docker.yml` | Created | Docker build & push to ghcr.io with SHA tags, Trivy security scan |
+| `.github/workflows/app-deploy.yml` | Created | Deploy via SSH to 192.168.1.250, health checks, rollback, notifications |
+| `app-demo/README.md` | Modified | Added CI/CD badges (Build, Docker, Deploy, Security), fixed domain names |
+
+### Change Log
+- 2026-02-14: Created 3 CI/CD workflow files (app-build, app-docker, app-deploy)
+- 2026-02-14: Added status badges to app-demo README
+- 2026-02-14: Fixed architecture diagram domains (app/api.oldevops.fr)
+- 2026-02-14: All YAML validated
+
+### Debug Log References
+_No debug issues encountered_
+
+### Completion Notes
+- Workflows use GITHUB_TOKEN for ghcr.io (no extra GHCR_TOKEN needed)
+- SSH_PRIVATE_KEY secret must be configured in GitHub Settings
+- End-to-end pipeline test and rollback test require live environment
+- Badge URLs assume repo owner is "olabe" - adjust if different
 
 ---
 
 **Créé le** : 2026-01-07
+**Dernière mise à jour** : 2026-02-14
