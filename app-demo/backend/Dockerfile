@@ -14,12 +14,15 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# Install OpenSSL for Prisma compatibility
+RUN apk add --no-cache openssl libssl3
+
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/package.json ./package.json
-COPY --from=build /app/src ./src
-COPY --from=build /app/prisma ./prisma
+COPY --from=build --chown=appuser:appgroup /app/node_modules ./node_modules
+COPY --from=build --chown=appuser:appgroup /app/package.json ./package.json
+COPY --from=build --chown=appuser:appgroup /app/src ./src
+COPY --from=build --chown=appuser:appgroup /app/prisma ./prisma
 
 USER appuser
 

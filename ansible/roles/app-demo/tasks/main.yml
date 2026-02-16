@@ -5,18 +5,32 @@
     state: directory
     mode: '0755'
 
+- name: Copy app-demo backend source
+  copy:
+    src: "{{ playbook_dir }}/../../app-demo/backend"
+    dest: "{{ app_demo_dir }}/"
+
+- name: Copy app-demo frontend source
+  copy:
+    src: "{{ playbook_dir }}/../../app-demo/frontend"
+    dest: "{{ app_demo_dir }}/"
+
+- name: Copy app-demo docker-compose.yml
+  copy:
+    src: "{{ playbook_dir }}/../../app-demo/docker-compose.yml"
+    dest: "{{ app_demo_dir }}/docker-compose.yml"
+
+- name: Copy app-demo .env.example as reference
+  copy:
+    src: "{{ playbook_dir }}/../../app-demo/.env.example"
+    dest: "{{ app_demo_dir }}/.env.example"
+  ignore_errors: yes
+
 - name: Deploy .env file
   template:
     src: env.j2
     dest: "{{ app_demo_dir }}/.env"
     mode: '0600'
-
-- name: Deploy docker-compose.yml
-  template:
-    src: docker-compose.yml.j2
-    dest: "{{ app_demo_dir }}/docker-compose.yml"
-    mode: '0644'
-  notify: restart app-demo
 
 - name: Create Docker volumes directories
   file:
@@ -26,7 +40,19 @@
   loop:
     - data/postgres
 
-- name: Start app-demo stack
+- name: Build and start app-demo stack
   community.docker.docker_compose_v2:
     project_src: "{{ app_demo_dir }}"
+    build: always
     state: present
+  register: app_demo_deploy
+
+- name: Wait for services to be healthy
+  wait_for:
+    host: "{{ ansible_default_ipv4.address }}"
+    port: "{{ item }}"
+    delay: 5
+    timeout: 60
+  loop:
+    - "{{ app_demo_backend_port }}"
+    - "{{ app_demo_frontend_port }}"

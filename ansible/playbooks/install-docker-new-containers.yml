@@ -1,0 +1,6 @@
+---
+- name: Install Docker on New Containers
+  hosts: utilities,app_demo
+  become: yes
+  roles:
+    - common
