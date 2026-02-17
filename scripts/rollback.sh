@@ -8,7 +8,7 @@ set -uo pipefail
 SNAPSHOT_NAME="${1:?Usage: rollback.sh <snapshot_name>}"
 PROXMOX_HOST="${PROXMOX_HOST:-192.168.1.50}"
 PROXMOX_NODE="${PROXMOX_NODE:-homelab}"
-CONTAINERS=(200 210 220 240 250)
+CONTAINERS=(200 201 240 250)  # CT 210 (ci-runner) excluded: rolling it back kills the workflow runner
 TIMEOUT=300  # 5 minutes max
 
 echo "=== Rollback to Snapshot: ${SNAPSHOT_NAME} ==="
