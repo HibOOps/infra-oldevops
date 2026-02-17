@@ -81,6 +81,13 @@ jobs:
           TF_VAR_ssh_public_keys: "[]"
 
       # --- Phase 5: Ansible Playbooks ---
+      - name: Setup SSH key for Ansible
+        run: |
+          mkdir -p /home/runner/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > /home/runner/.ssh/id_ed25519
+          chmod 600 /home/runner/.ssh/id_ed25519
+          chmod 700 /home/runner/.ssh
+
       - name: Deploy Traefik (Proxy)
         id: ansible_traefik
         working-directory: ansible
