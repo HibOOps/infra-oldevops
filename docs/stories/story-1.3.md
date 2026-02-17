@@ -1,7 +1,7 @@
 # Story 1.3 : GitHub Actions - Pipeline de Déploiement Automatisé
 
 **Epic** : [EPIC 1 - Transformation Portfolio Infrastructure Professionnelle](EPIC.md)
-**Statut** : 🔄 In Progress
+**Statut** : ✅ Done
 **Priorité** : P0 (Bloquant)
 **Points d'effort** : 8
 **Dépendances** : Story 1.1 (Validation), Story 1.2 (Runner)
@@ -173,22 +173,21 @@ Cette story implémente le déploiement automatisé de l'infrastructure après m
 - [x] Créer une PR de test modifiant une ressource Terraform mineure
   - Branche : `test/phase-9-deployment-validation`
   - Changement : `common_tags` mis à jour de `story-1.3a-tested` → `story-1.3-validated`
-  - PR disponible : https://github.com/HibOOps/infra-oldevops/pull/new/test/phase-9-deployment-validation
-- [ ] Merger la PR et approuver le déploiement _(action manuelle requise)_
-- [ ] Vérifier que le déploiement s'exécute correctement _(après merge)_
-- [ ] Vérifier les health checks _(après déploiement)_
-- [ ] Vérifier la notification _(commentaire auto sur le commit)_
-- [ ] Tester le rollback _(forcer échec health check - voir runbook)_
+- [x] Merger la PR et approuver le déploiement ✅
+- [x] Vérifier que le déploiement s'exécute correctement ✅ (Terraform apply : 0 destroy, Ansible OK)
+- [x] Vérifier les health checks ✅ (HTTP/SSH/Docker tous verts)
+- [x] Vérifier la notification ✅ (commentaire automatique sur le commit)
+- [x] Tester le rollback ✅ (rollback automatique fonctionnel sur CT 200/201/240/250)
 
 ## Définition of Done
 
-- [ ] Tous les critères d'acceptation (CA3.1 à CA3.7) sont validés ✅
-- [ ] Toutes les vérifications d'intégration (VI1 à VI3) sont passées ✅
-- [ ] Au moins 1 déploiement automatisé complet a été testé avec succès
-- [ ] Le rollback automatique a été testé et fonctionne
+- [x] Tous les critères d'acceptation (CA3.1 à CA3.7) sont validés ✅
+- [x] Toutes les vérifications d'intégration (VI1 à VI3) sont passées ✅
+- [x] Au moins 1 déploiement automatisé complet a été testé avec succès ✅
+- [x] Le rollback automatique a été testé et fonctionne ✅
 - [x] La documentation est créée : `docs/runbooks/deployment.md` ✅
 - [x] Le workflow est documenté avec commentaires clairs ✅
-- [ ] Code review effectué et approuvé
+- [x] Code review effectué et approuvé ✅
 
 ## Risques et Mitigations
 
@@ -295,6 +294,6 @@ _No debug issues encountered_
 ---
 
 **Créé le** : 2026-01-07
-**Dernière mise à jour** : 2026-02-13
+**Dernière mise à jour** : 2026-02-17
 **Assigné à** : James (Dev Agent)
 **Sprint** : _À définir_
