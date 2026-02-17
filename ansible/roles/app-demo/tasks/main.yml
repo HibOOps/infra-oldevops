@@ -1,5 +1,10 @@
 ---
 
+- name: Install rsync on remote host (required for synchronize module)
+  apt:
+    name: rsync
+    state: present
+
 - name: Create app-demo directory
   file:
     path: "{{ app_demo_dir }}"
@@ -13,6 +18,7 @@
     rsync_opts:
       - "--exclude=node_modules"
       - "--exclude=.git"
+  become: false
 
 - name: Sync app-demo frontend source (excluding node_modules)
   synchronize:
@@ -21,6 +27,7 @@
     rsync_opts:
       - "--exclude=node_modules"
       - "--exclude=.git"
+  become: false
 
 - name: Copy app-demo docker-compose.yml
   copy:
