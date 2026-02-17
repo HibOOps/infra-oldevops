@@ -13,14 +13,14 @@ echo "=== HTTP Health Checks ==="
 
 declare -A HTTP_SERVICES
 HTTP_SERVICES=(
-  ["proxy.oldevops.fr"]="200,404"
-  ["vault.oldevops.fr"]="200"
-  ["status.oldevops.fr"]="200"
-  ["grafana.oldevops.fr"]="200"
-  ["inventory.oldevops.fr"]="200"
-  ["monitoring.oldevops.fr"]="200"
-  ["app.oldevops.fr"]="200,502"
-  ["api.oldevops.fr"]="200,502"
+  ["proxy.oldevops.fr"]="200,301,302,404"   # Traefik dashboard: may redirect HTTP→HTTPS
+  ["vault.oldevops.fr"]="200,301,302"
+  ["status.oldevops.fr"]="200,301,302"      # Uptime Kuma: redirects HTTP→HTTPS
+  ["grafana.oldevops.fr"]="200,301,302"
+  ["inventory.oldevops.fr"]="200,301,302"   # Snipe-IT: redirects HTTP→HTTPS
+  ["monitoring.oldevops.fr"]="200,301,302"
+  ["app.oldevops.fr"]="200,301,302,502,503" # App demo: 503 while starting
+  ["api.oldevops.fr"]="200,301,302,404,502" # API: 404 acceptable if no root route
 )
 
 for SERVICE in "${!HTTP_SERVICES[@]}"; do
@@ -57,7 +57,7 @@ CONTAINERS=(
   "192.168.1.200"
   "192.168.1.201"
   "192.168.1.202"
-  "192.168.1.210"
+  # 192.168.1.210 excluded: this is the CI runner itself, SSH self-check always fails
   "192.168.1.250"
 )
 

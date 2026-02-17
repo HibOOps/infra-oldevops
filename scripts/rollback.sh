@@ -64,8 +64,8 @@ done
 
 # Wait for containers to boot
 echo ""
-echo "Waiting 15s for containers to start..."
-sleep 15
+echo "Waiting 45s for containers and services to start..."
+sleep 45
 
 ELAPSED=$(( $(date +%s) - START_TIME ))
 echo ""
