@@ -81,12 +81,15 @@ jobs:
           TF_VAR_ssh_public_keys: "[]"
 
       # --- Phase 5: Ansible Playbooks ---
-      - name: Setup SSH key for Ansible
+      - name: Verify SSH key for Ansible
         run: |
-          mkdir -p /home/runner/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > /home/runner/.ssh/id_ed25519
-          chmod 600 /home/runner/.ssh/id_ed25519
-          chmod 700 /home/runner/.ssh
+          if [ -f /home/runner/.ssh/id_ed25519 ]; then
+            echo "SSH key already present on runner"
+            ssh-keygen -y -f /home/runner/.ssh/id_ed25519 > /dev/null && echo "SSH key valid"
+          else
+            echo "ERROR: No SSH key found at /home/runner/.ssh/id_ed25519"
+            exit 1
+          fi
 
       - name: Deploy Traefik (Proxy)
         id: ansible_traefik
