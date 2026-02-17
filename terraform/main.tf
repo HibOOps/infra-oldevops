@@ -79,6 +79,9 @@ module "monitoring" {
 }
 
 # 4. Conteneur CI/CD Runner (GitHub Actions Self-Hosted)
+# WARNING: This container runs the GitHub Actions runner that executes Terraform.
+# It must never be destroyed or modified by Terraform apply - doing so kills the workflow.
+# Migration plan: move to an external VPS (OVH/Hetzner) with VPN access to homelab.
 module "ci_runner" {
   source          = "./modules/lxc_container"
   vmid            = 210

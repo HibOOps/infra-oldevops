@@ -7,14 +7,17 @@
   gather_facts: no
 
   vars:
+    # CT 210 (ci-runner) is excluded: managed separately, not bootstrapped via this playbook
     containers:
-      - { id: 200, name: "reverse-proxy" }
-      - { id: 210, name: "uptime-kuma" }
-      - { id: 220, name: "snipeit" }
-      - { id: 230, name: "vaultwarden" }
-      - { id: 240, name: "zabbix" }
+      - { id: 200, name: "proxy" }
+      - { id: 201, name: "utilities" }
+      - { id: 240, name: "monitoring" }
+      - { id: 250, name: "app-demo" }
 
-    ssh_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPxEdycH87BRihJ6kqCKSbAI955PxN9m9aKWNpI6CdQC olabe@Oliviers-Mini"
+    # Authorized public keys - private keys are never stored here
+    ssh_keys:
+      - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPxEdycH87BRihJ6kqCKSbAI955PxN9m9aKWNpI6CdQC olabe@Oliviers-Mini"
+      - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAeOYuB0mGduZg77GCwIwpyefmqyow5MjqUETROgbzGn ci-runner-ansible"
 
   tasks:
     - name: Check if container is running
@@ -38,9 +41,9 @@
       when: item.rc == 0
       changed_when: true
 
-    - name: Deploy SSH key to containers
+    - name: Deploy SSH keys to containers
       shell: |
-        pct exec {{ item.item.id }} -- bash -c "echo '{{ ssh_key }}' >> /root/.ssh/authorized_keys && chmod 600 /root/.ssh/authorized_keys && sort -u /root/.ssh/authorized_keys -o /root/.ssh/authorized_keys"
+        pct exec {{ item.item.id }} -- bash -c "echo '{{ ssh_keys | join('\n') }}' >> /root/.ssh/authorized_keys && chmod 600 /root/.ssh/authorized_keys && sort -u /root/.ssh/authorized_keys -o /root/.ssh/authorized_keys"
       loop: "{{ container_status.results }}"
       when: item.rc == 0
       changed_when: true
