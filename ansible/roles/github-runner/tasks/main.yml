@@ -11,6 +11,7 @@
       - jq
       - unzip
       - tar
+      - rsync
       - ca-certificates
       - gnupg
       - lsb-release

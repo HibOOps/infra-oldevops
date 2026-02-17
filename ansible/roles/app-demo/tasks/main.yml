@@ -1,11 +1,4 @@
 ---
-- name: Ensure rsync is installed on Ansible controller (runner)
-  apt:
-    name: rsync
-    state: present
-  delegate_to: localhost
-  become: true
-  run_once: true
 
 - name: Create app-demo directory
   file:
