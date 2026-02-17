@@ -36,6 +36,13 @@ resource "proxmox_lxc" "this" {
     gw     = var.gateway
   }
 
+  lifecycle {
+    ignore_changes = [
+      ssh_public_keys, # Managed by Ansible, not Terraform
+      tags,            # Tag ordering varies between Proxmox API responses
+    ]
+  }
+
 }
 
 # Outputs
