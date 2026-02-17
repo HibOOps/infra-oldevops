@@ -1,19 +1,31 @@
 ---
+- name: Install rsync (required for synchronize module)
+  apt:
+    name: rsync
+    state: present
+    update_cache: false
+
 - name: Create app-demo directory
   file:
     path: "{{ app_demo_dir }}"
     state: directory
     mode: '0755'
 
-- name: Copy app-demo backend source
-  copy:
-    src: "{{ playbook_dir }}/../../app-demo/backend"
-    dest: "{{ app_demo_dir }}/"
+- name: Sync app-demo backend source (excluding node_modules)
+  synchronize:
+    src: "{{ playbook_dir }}/../../app-demo/backend/"
+    dest: "{{ app_demo_dir }}/backend/"
+    rsync_opts:
+      - "--exclude=node_modules"
+      - "--exclude=.git"
 
-- name: Copy app-demo frontend source
-  copy:
-    src: "{{ playbook_dir }}/../../app-demo/frontend"
-    dest: "{{ app_demo_dir }}/"
+- name: Sync app-demo frontend source (excluding node_modules)
+  synchronize:
+    src: "{{ playbook_dir }}/../../app-demo/frontend/"
+    dest: "{{ app_demo_dir }}/frontend/"
+    rsync_opts:
+      - "--exclude=node_modules"
+      - "--exclude=.git"
 
 - name: Copy app-demo docker-compose.yml
   copy:
