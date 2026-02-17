@@ -6,7 +6,7 @@ on:
       - 'terraform/**'
       - '.github/workflows/terraform-validate.yml'
     branches:
-      - master
+      - main
 
 permissions:
   contents: read

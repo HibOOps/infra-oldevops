@@ -6,7 +6,7 @@ on:
       - 'ansible/**'
       - '.github/workflows/ansible-lint.yml'
     branches:
-      - master
+      - main
 
 permissions:
   contents: read
