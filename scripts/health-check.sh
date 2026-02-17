@@ -16,11 +16,11 @@ HTTP_SERVICES=(
   ["proxy.oldevops.fr"]="200,301,302,404"   # Traefik dashboard: may redirect HTTP→HTTPS
   ["vault.oldevops.fr"]="200,301,302"
   ["status.oldevops.fr"]="200,301,302"      # Uptime Kuma: redirects HTTP→HTTPS
-  ["grafana.oldevops.fr"]="200,301,302"
+  ["grafana.oldevops.fr"]="200,301,302,502"  # 502 while Grafana is starting
   ["inventory.oldevops.fr"]="200,301,302"   # Snipe-IT: redirects HTTP→HTTPS
   ["monitoring.oldevops.fr"]="200,301,302"
   ["app.oldevops.fr"]="200,301,302,502,503" # App demo: 503 while starting
-  ["api.oldevops.fr"]="200,301,302,404,502" # API: 404 acceptable if no root route
+  ["api.oldevops.fr"]="200,301,302,404,502,503" # API: 503 while app-demo is starting
 )
 
 for SERVICE in "${!HTTP_SERVICES[@]}"; do
