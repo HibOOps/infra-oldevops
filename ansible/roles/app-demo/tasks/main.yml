@@ -1,9 +1,11 @@
 ---
-- name: Install rsync (required for synchronize module)
+- name: Ensure rsync is installed on Ansible controller (runner)
   apt:
     name: rsync
     state: present
-    update_cache: false
+  delegate_to: localhost
+  become: true
+  run_once: true
 
 - name: Create app-demo directory
   file:
