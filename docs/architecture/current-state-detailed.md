@@ -57,7 +57,7 @@ Services: Traefik v3
 
 ---
 
-#### Container: utilities (VMID 220)
+#### Container: utilities (VMID 201)
 ```yaml
 Hostname: utilities
 IP: 192.168.1.201/24
@@ -120,19 +120,71 @@ Services:
 
 ---
 
+#### Container: ci-runner (VMID 210)
+```yaml
+Hostname: ci-runner
+IP: 192.168.1.210/24
+Gateway: 192.168.1.254
+Resources:
+  vCPU: 4
+  RAM: 4096 MB (4 GB)
+  Swap: 1024 MB
+  Disk: 30 GB
+Template: Debian 12
+Mode: Privileged (unprivileged: false)
+Features: nesting=true, keyctl=true, fuse=true, onboot=true
+Services:
+  - GitHub Actions Runner (self-hosted, label: self-hosted-proxmox)
+```
+
+**Purpose**: Executes GitHub Actions CI/CD workflows on-premises (Terraform, Ansible, tests)
+
+**Warning**: This container runs the pipeline that manages all other containers.
+It must never be destroyed by Terraform. Migration to external VPS planned (todolist priority 1).
+
+---
+
+#### Container: app-demo (VMID 250)
+```yaml
+Hostname: app-demo
+IP: 192.168.1.250/24
+Gateway: 192.168.1.254
+Resources:
+  vCPU: 2
+  RAM: 2048 MB (2 GB)
+  Swap: 512 MB
+  Disk: 20 GB
+Template: Debian 12
+Mode: Unprivileged (unprivileged: true)  # differs from other containers
+Features: nesting=true, keyctl=true, fuse=true, mknod=true, onboot=true
+Services:
+  - App Demo (Node.js backend + React frontend + PostgreSQL) — Story 1.6
+```
+
+**Purpose**: Hosts the demonstration application stack for the portfolio project.
+Unprivileged mode used for better security isolation (Docker via nesting).
+
+**Note**: Originally planned as VMID 210 / IP 192.168.1.210 (Story 1.4), but VMID 210 was
+already taken by the CI Runner. Final assignment: VMID 250, IP 192.168.1.250.
+
+---
+
 ### 1.3 Resource Allocation Summary
 
 | Container | vCPU | RAM | Swap | Disk | Utilization (Estimate) |
 |-----------|------|-----|------|------|------------------------|
-| proxy | 2 | 1 GB | 512 MB | 8 GB | Low (Traefik only) |
-| utilities | 6 | 8 GB | 1 GB | 40 GB | Medium-High (3 apps) |
-| monitoring | 4 | 6 GB | 2 GB | 50 GB | Medium (4 services) |
-| **Total** | **12** | **15 GB** | **3.5 GB** | **98 GB** | - |
+| proxy (200) | 2 | 1 GB | 512 MB | 8 GB | Low (Traefik only) |
+| utilities (201) | 6 | 8 GB | 1 GB | 40 GB | Medium-High (3 apps) |
+| ci-runner (210) | 4 | 4 GB | 1 GB | 30 GB | Variable (CI jobs) |
+| monitoring (240) | 4 | 6 GB | 2 GB | 50 GB | Medium (4 services) |
+| app-demo (250) | 2 | 2 GB | 512 MB | 20 GB | Low (demo app) |
+| **Total** | **18** | **21 GB** | **5 GB** | **148 GB** | - |
 
 **Resource Notes**:
 - utilities container has highest resource allocation (6 vCPU, 8 GB RAM) due to NetBox + Snipe-IT
 - monitoring container has largest disk (50 GB) for metrics retention
-- proxy container minimal (only Traefik)
+- ci-runner excluded from rollback scripts to prevent self-destruction
+- app-demo is unprivileged (unique among containers) for security
 
 ---
 
@@ -150,13 +202,15 @@ Internet
                │
                └─ LAN: 192.168.1.0/24
                      │
-                     ├─ Proxmox Host (IP unknown)
+                     ├─ Proxmox Host (homelab)
                      │     │
                      │     └─ vmbr0 Bridge
                      │           │
-                     │           ├─ proxy: 192.168.1.200
-                     │           ├─ utilities: 192.168.1.201
-                     │           └─ monitoring: 192.168.1.202
+                     │           ├─ proxy (200):      192.168.1.200
+                     │           ├─ utilities (201):  192.168.1.201
+                     │           ├─ ci-runner (210):  192.168.1.210
+                     │           ├─ monitoring (240): 192.168.1.202
+                     │           └─ app-demo (250):   192.168.1.250
                      │
                      └─ Other devices on LAN
 ```
@@ -168,19 +222,21 @@ Internet
 **DNS**: Likely router default (needs verification)
 
 **Static IP Allocation**:
-| Device | IP | MAC | Assignment |
-|--------|-----|-----|------------|
+| Device | IP | VMID | Assignment |
+|--------|-----|------|------------|
 | BBox Router | 192.168.1.254 | - | Gateway |
-| Proxmox Host | Unknown | - | Needs verification |
-| proxy LXC | 192.168.1.200 | - | Terraform-assigned |
-| utilities LXC | 192.168.1.201 | - | Terraform-assigned |
-| monitoring LXC | 192.168.1.202 | - | Terraform-assigned |
-| **app-demo LXC** | **192.168.1.210** | - | **Future (Story 1.4)** |
+| Proxmox Host (homelab) | Unknown | - | Physical host |
+| proxy LXC | 192.168.1.200 | 200 | Terraform-assigned |
+| utilities LXC | 192.168.1.201 | 201 | Terraform-assigned |
+| ci-runner LXC | 192.168.1.210 | 210 | Terraform-assigned (Story 1.2) |
+| monitoring LXC | 192.168.1.202 | 240 | Terraform-assigned |
+| app-demo LXC | 192.168.1.250 | 250 | Terraform-assigned (Story 1.4) |
 
 **IP Range Strategy**:
-- .200-202: Existing containers (production)
-- .210: Reserved for app-demo (future)
-- .220+: Available for future expansion
+- .200-.202: Core infra (proxy, utilities, monitoring)
+- .210: CI runner (GitOps pipeline executor)
+- .250: App demo workloads
+- .220, .230, .260+: Available for future expansion
 
 ### 2.3 Port Forwarding
 
@@ -419,15 +475,30 @@ module "proxy" {
 
 module "utilities" {
   source   = "./modules/lxc_container"
-  vmid     = 220
+  vmid     = 201
   hostname = "utilities"
   # ... configuration
+}
+
+module "ci_runner" {
+  source   = "./modules/lxc_container"
+  vmid     = 210
+  hostname = "ci-runner"
+  # WARNING: never destroy - runs the pipeline that manages other containers
 }
 
 module "monitoring" {
   source   = "./modules/lxc_container"
   vmid     = 240
   hostname = "monitoring"
+  # ... configuration
+}
+
+module "app_demo" {
+  source       = "./modules/lxc_container"
+  vmid         = 250
+  hostname     = "app-demo"
+  unprivileged = true   # unique: unprivileged for Docker security
   # ... configuration
 }
 ```

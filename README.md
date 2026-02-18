@@ -4,7 +4,15 @@ Infrastructure-as-Code pour le déploiement des services internes sur un serveur
 
 ## 🌐 Architecture Globale
 
+### Containers Proxmox
 
+| VMID | Hostname | IP | vCPU | RAM | Disk | Rôle | Statut |
+|------|----------|----|------|-----|------|------|--------|
+| 200 | proxy | 192.168.1.200 | 2 | 1 GB | 8 GB | Traefik reverse proxy (SSL, routage) | ✅ Running |
+| 201 | utilities | 192.168.1.201 | 6 | 8 GB | 40 GB | Vaultwarden, Snipe-IT, NetBox | ✅ Running |
+| 210 | ci-runner | 192.168.1.210 | 4 | 4 GB | 30 GB | GitHub Actions Runner auto-hébergé | ✅ Running |
+| 240 | monitoring | 192.168.1.202 | 4 | 6 GB | 50 GB | Prometheus, Grafana, Zabbix, Uptime Kuma | ✅ Running |
+| 250 | app-demo | 192.168.1.250 | 2 | 2 GB | 20 GB | Application de démonstration (Node.js/React/PostgreSQL) | ✅ Running |
 
 ### Services Principaux
 
@@ -18,6 +26,7 @@ Infrastructure-as-Code pour le déploiement des services internes sur un serveur
 | NetBox | https://netbox.oldevops.fr | 192.168.1.201 | Documentation réseau et DCIM |
 | Prometheus | https://prometheus.oldevops.fr | 192.168.1.202 | Métriques et monitoring |
 | Grafana | https://grafana.oldevops.fr | 192.168.1.202 | Dashboards de visualisation |
+| App Demo | https://app.oldevops.fr | 192.168.1.250 | Application de démonstration (Story 1.6-1.8) |
 
 ## 🛠️ Stack Technique
 
