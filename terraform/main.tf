@@ -31,7 +31,7 @@ module "proxy" {
 # 2. Conteneur Utilities (Snipe-IT, Vaultwarden)
 module "utilities" {
   source          = "./modules/lxc_container"
-  vmid            = 201  # Aligned with actual deployed VMID
+  vmid            = 201 # Aligned with actual deployed VMID
   hostname        = "utilities"
   target_node     = var.proxmox_node
   template        = var.debian_template
@@ -56,7 +56,7 @@ module "utilities" {
 # 3. Conteneur Monitoring (Zabbix, Uptime Kuma, Prometheus, Grafana)
 module "monitoring" {
   source          = "./modules/lxc_container"
-  vmid            = 240  # Aligned with actual deployed VMID (corrected from 202)
+  vmid            = 240 # Aligned with actual deployed VMID (corrected from 202)
   hostname        = "monitoring"
   target_node     = var.proxmox_node
   template        = var.debian_template
