@@ -2,9 +2,6 @@ name: Ansible Lint
 
 on:
   pull_request:
-    paths:
-      - 'ansible/**'
-      - '.github/workflows/ansible-lint.yml'
     branches:
       - main
 
@@ -16,6 +13,7 @@ jobs:
   ansible-lint:
     name: Lint Ansible Configuration
     runs-on: self-hosted
+    timeout-minutes: 15
     # Security: Only run on PRs from the same repository (not forks) or on direct pushes
     if: github.event.pull_request.head.repo.full_name == github.repository || github.event_name != 'pull_request'
 
@@ -29,14 +27,29 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if Ansible files changed
+        id: changes
+        run: |
+          CHANGED=$(git diff --name-only origin/main...HEAD | grep -c '^ansible/' || true)
+          echo "count=$CHANGED" >> $GITHUB_OUTPUT
+          echo "Ansible files changed: $CHANGED"
+
+      - name: Skip — no Ansible files changed
+        if: steps.changes.outputs.count == '0'
+        run: |
+          echo "✅ No Ansible files changed in this PR — skipping lint"
+          exit 0
 
       - name: Run ansible-lint
         id: lint
+        if: steps.changes.outputs.count != '0'
         run: |
           echo "Running ansible-lint on all playbooks and roles..."
           ansible-lint playbooks/ roles/ || true
 
-          # Store exit code
           LINT_EXIT=$?
 
           if [ $LINT_EXIT -eq 0 ]; then
@@ -50,32 +63,37 @@ jobs:
 
       - name: Syntax Check - Traefik Playbook
         id: syntax-traefik
+        if: steps.changes.outputs.count != '0'
         run: ansible-playbook playbooks/traefik.yml --syntax-check
         continue-on-error: true
 
       - name: Syntax Check - Utilities Playbook
         id: syntax-utilities
+        if: steps.changes.outputs.count != '0'
         run: ansible-playbook playbooks/utilities.yml --syntax-check
         continue-on-error: true
 
       - name: Syntax Check - Monitoring Playbook
         id: syntax-monitoring
+        if: steps.changes.outputs.count != '0'
         run: ansible-playbook playbooks/monitoring.yml --syntax-check
         continue-on-error: true
 
       - name: Syntax Check - CI Runner Playbook
         id: syntax-ci-runner
+        if: steps.changes.outputs.count != '0'
         run: ansible-playbook playbooks/ci-runner.yml --syntax-check
         continue-on-error: true
 
       - name: Syntax Check - Bootstrap Playbook
         id: syntax-bootstrap
+        if: steps.changes.outputs.count != '0'
         run: ansible-playbook playbooks/bootstrap-lxc.yml --syntax-check
         continue-on-error: true
 
       - name: Comment PR with Results
         uses: actions/github-script@v7
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && steps.changes.outputs.count != '0'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -99,12 +117,14 @@ jobs:
 
       - name: Final Status Check
         if: |
-          steps.lint.outcome == 'failure' ||
-          steps.syntax-traefik.outcome == 'failure' ||
-          steps.syntax-utilities.outcome == 'failure' ||
-          steps.syntax-monitoring.outcome == 'failure' ||
-          steps.syntax-ci-runner.outcome == 'failure' ||
-          steps.syntax-bootstrap.outcome == 'failure'
+          steps.changes.outputs.count != '0' && (
+            steps.lint.outcome == 'failure' ||
+            steps.syntax-traefik.outcome == 'failure' ||
+            steps.syntax-utilities.outcome == 'failure' ||
+            steps.syntax-monitoring.outcome == 'failure' ||
+            steps.syntax-ci-runner.outcome == 'failure' ||
+            steps.syntax-bootstrap.outcome == 'failure'
+          )
         run: |
           echo "❌ Ansible validation failed"
           exit 1
