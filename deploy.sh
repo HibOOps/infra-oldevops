@@ -29,6 +29,7 @@ echo "Étape 4 : Déploiement des services Docker..."
 ansible-playbook -i inventory.ini playbooks/traefik.yml --ask-vault-pass
 ansible-playbook -i inventory.ini playbooks/utilities.yml --ask-vault-pass
 ansible-playbook -i inventory.ini playbooks/monitoring.yml --ask-vault-pass
+ansible-playbook -i inventory.ini playbooks/app-demo.yml --ask-vault-pass
 
 echo "=== ✅ Déploiement Terminé ==="
 echo "Accès aux services :"
@@ -37,3 +38,4 @@ echo "  - Vaultwarden       : https://vault.oldevops.fr"
 echo "  - Snipe-IT          : https://inventory.oldevops.fr"
 echo "  - Uptime Kuma       : https://status.oldevops.fr"
 echo "  - Zabbix / Grafana  : https://monitoring.oldevops.fr"
+echo "  - App Demo          : https://app.oldevops.fr"
