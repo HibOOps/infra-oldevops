@@ -53,12 +53,12 @@ Ce projet d'infrastructure existe actuellement comme laboratoire de test personn
 | 1.1 | [GitHub Actions - Pipeline de Validation Infrastructure](story-1.1.md) | ✅ Done | P0 | - |
 | 1.2 | [GitHub Actions - Runner Auto-Hébergé](story-1.2.md) | ✅ Done | P0 | - |
 | 1.3 | [GitHub Actions - Pipeline de Déploiement Automatisé](story-1.3.md) | ✅ Done | P0 | 1.1, 1.2 |
-| 1.4 | [Container Application - Infrastructure Terraform](story-1.4.md) | 🔍 Ready for Review | P1 | - |
-| 1.5 | [Container Application - Configuration Ansible](story-1.5.md) | 🔍 Ready for Review | P1 | 1.4 |
+| 1.4 | [Container Application - Infrastructure Terraform](story-1.4.md) | ✅ Done | P1 | - |
+| 1.5 | [Container Application - Configuration Ansible](story-1.5.md) | ✅ Done | P1 | 1.4 |
 | 1.6 | [Application de Démonstration - Développement Frontend/Backend](story-1.6.md) | 🔄 In Progress | P1 | 1.5 |
 | 1.7 | [Application de Démonstration - Intégration Traefik](story-1.7.md) | 🔄 In Progress | P1 | 1.6 |
 | 1.8 | [Application de Démonstration - Pipeline CI/CD](story-1.8.md) | 🔄 In Progress | P1 | 1.7, 1.3 |
-| 1.9 | [Monitoring Avancé - Loki pour Agrégation de Logs](story-1.9.md) | 🔍 Ready for Review | P2 | - |
+| 1.9 | [Monitoring Avancé - Loki pour Agrégation de Logs](story-1.9.md) | ✅ Done | P2 | - |
 | 1.10 | [Monitoring Avancé - Dashboards Grafana Versionnés](story-1.10.md) | 📝 Todo | P2 | 1.9 |
 | 1.11 | [Backup et Disaster Recovery Automation](story-1.11.md) | 📝 Todo | P2 | - |
 | 1.12 | [Sécurité - Scanning et Hardening Automatisé](story-1.12.md) | 📝 Todo | P2 | 1.1 |

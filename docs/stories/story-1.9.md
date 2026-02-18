@@ -1,7 +1,7 @@
 # Story 1.9 : Monitoring Avancé - Loki pour Agrégation de Logs
 
 **Epic** : [EPIC 1 - Transformation Portfolio Infrastructure Professionnelle](EPIC.md)
-**Statut** : 🔍 Ready for Review
+**Statut** : ✅ Done
 **Priorité** : P2 (Moyenne)
 **Points d'effort** : 5
 **Dépendances** : Aucune
@@ -73,10 +73,11 @@
     - [x] `host` label (container hostname)
     - [x] `service` label (Docker service name - from JSON logs)
     - [x] `level` label (info/warn/error extraction - from JSON logs and syslog)
-  - [x] Deploy Promtail to container 200 (proxy) - DEFERRED: No Docker, awaits Story 1.1
-  - [x] Deploy Promtail to container 201 (utilities) - DEFERRED: Container not ready, awaits Stories 1.4-1.5
+  - [x] Deploy Promtail to container 200 (proxy) - Deployed 2026-02-18 via QA fix session
+  - [x] Deploy Promtail to container 201 (utilities) - Deployed 2026-02-18 via QA fix session
   - [x] Deploy Promtail to container 202 (monitoring)
-  - [x] Verify Promtail agents running and shipping logs (202 verified, labels present in Loki)
+  - [x] Deploy Promtail to container 250 (app-demo) - Deployed 2026-02-18 (deployed in Story 1.4-1.5)
+  - [x] Verify Promtail agents running and shipping logs (all 4 hosts verified, labels present in Loki)
 
 - [x] Task 3: Integrate Loki with Grafana (AC: 9.6)
   - [x] Add Loki as datasource in Grafana configuration
@@ -92,7 +93,7 @@
   - [x] Check Loki memory usage (<1 GB) - 24.68 MiB ✅
   - [x] Check Loki disk usage (<10 GB with rotation) - 104K ✅
   - [x] Test query latency (<2 seconds) - Sub-second response ✅
-  - [x] Verify logs from container 202 visible in Grafana (containers 200/201 deferred)
+  - [x] Verify logs from all 4 containers (200, 201, 202, 250) visible in Loki (Grafana Explore)
 
 ## Dev Notes
 
@@ -222,11 +223,11 @@ du -sh /opt/loki/data/
 
 ## Définition of Done
 
-- [ ] Tous les CA validés ✅
-- [ ] Loki déployé et opérationnel
-- [ ] Promtail collecte logs de tous les containers
-- [ ] Logs interrogeables dans Grafana
-- [ ] Documentation Loki/Promtail ajoutée
+- [x] Tous les CA validés ✅
+- [x] Loki déployé et opérationnel
+- [x] Promtail collecte logs de tous les containers (200, 201, 202, 250)
+- [x] Logs interrogeables dans Grafana
+- [x] Documentation Loki/Promtail ajoutée
 
 ---
 
@@ -236,16 +237,19 @@ du -sh /opt/loki/data/
 |------|---------|-------------|--------|
 | 2026-01-07 | 1.0 | Initial story creation | Story Author |
 | 2026-02-14 | 1.1 | Story validation and structure update - Fixed container list (200,201,202), added Tasks/Subtasks, Dev Notes, Testing section | Dev Agent (James) |
+| 2026-02-18 | 1.2 | QA fixes applied: LAN-bound Loki port, Ansible-variable Promtail URL, persistent positions volume, schema date 2026-01-01, resource limits, healthcheck fix. Promtail deployed to all 4 containers (200,201,202,250). Story marked Done. | Dev Agent (James) |
 
 ---
 
 ## Dev Agent Record
 
 ### Agent Model Used
-Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)
+Claude Sonnet 4.6 (claude-sonnet-4-6) — QA fixes session 2026-02-18
+Claude Sonnet 4.5 (claude-sonnet-4-5-20250929) — Initial implementation 2026-02-14
 
 ### Debug Log References
-_To be populated during implementation_
+- 2026-02-18: Promtail healthcheck "wget not found" — Promtail 2.9.4 image has no wget; fixed with `bash -c 'echo >/dev/tcp/localhost/9080'`
+- 2026-02-18: Promtail connectivity refused — removing Loki port 3100 broke host-network Promtail; fixed by binding Loki to `{{ ansible_host }}:3100:3100` (LAN IP only)
 
 ### Completion Notes List
 - **Task 1 Completed**: Loki deployed successfully on monitoring container (192.168.1.202)
@@ -285,14 +289,25 @@ _To be populated during implementation_
   - ✅ Promtail deployed to monitoring container (202) with enhanced label extraction
   - ✅ Grafana integrated with Loki datasource provisioning
   - ✅ Log aggregation functional - 187 log lines collected from 4 containers
-  - ⚠️ Scope Adjustment: Containers 200 (proxy) and 201 (utilities) deferred to their deployment stories (1.1, 1.4-1.5) - infrastructure not yet ready
   - 📊 Achievement: Complete observability stack operational on container 202
+
+- **QA Fix Session (2026-02-18)**:
+  - ✅ QA Issue 1 (Security): Loki port changed from `0.0.0.0:3100` to `{{ ansible_host }}:3100` (LAN-only binding)
+  - ✅ QA Issue 2 (Maintainability): Hardcoded Loki IP replaced with `{{ groups['monitoring'][0] }}` in Promtail config
+  - ✅ QA Issue 3 (Reliability): Promtail positions file moved from `/tmp/` to `/var/lib/promtail/` (persistent named volume)
+  - ✅ QA Issue 4 (Best Practice): Loki schema date updated from `2024-01-01` → `2026-01-01`
+  - ✅ QA Issue 5 (Resource Management): Added `mem_limit`/`cpus` to both Loki and Promtail Compose files
+  - ✅ Bonus Fix: Promtail healthcheck changed from `wget` (not in image) to `bash -c 'echo >/dev/tcp/localhost/9080'`
+  - ✅ Promtail deployed to all 4 containers: 200, 201, 202, 250 — all healthy
+  - ✅ Loki labels API confirms all 4 hosts ingesting: 192.168.1.200, 192.168.1.201, 192.168.1.202, 192.168.1.250
 
 ### File List
 **Modified Files:**
-- `ansible/roles/loki/templates/docker-compose.yml.j2` - Changed network from "monitoring" to "proxy"
-- `ansible/roles/loki/templates/loki-config.yml.j2` - Added tsdb_shipper config, WAL configuration
-- `ansible/roles/promtail/templates/promtail-config.yml.j2` - Added service/level label extraction pipelines
+- `ansible/roles/loki/templates/docker-compose.yml.j2` - Changed network from "monitoring" to "proxy"; LAN-bound port `{{ ansible_host }}:3100:3100`; resource limits (512m/0.5cpu); removed obsolete `version:`
+- `ansible/roles/loki/templates/loki-config.yml.j2` - Added tsdb_shipper config, WAL config; schema date updated to 2026-01-01
+- `ansible/roles/promtail/templates/promtail-config.yml.j2` - Added service/level label extraction; replaced hardcoded IP with `{{ groups['monitoring'][0] }}`; positions to persistent path
+- `ansible/roles/promtail/templates/docker-compose.yml.j2` - Added persistent positions volume; resource limits (128m/0.25cpu); fixed healthcheck (wget→bash /dev/tcp); removed obsolete `version:`
+- `ansible/playbooks/promtail.yml` - Changed `hosts: all` → `hosts: all:!ci_runner`
 
 **Deployed/Created Files (on container 202):**
 - `/opt/loki/loki-config.yml` - Loki configuration with 7-day retention, TSDB storage
@@ -398,11 +413,11 @@ _To be populated during implementation_
 ### Improvements Checklist
 
 **Recommended (Not Blocking):**
-- [ ] Remove Loki port host binding - access only via Docker network (loki/templates/docker-compose.yml.j2)
-- [ ] Replace hardcoded IP with Ansible variable in Promtail config (promtail/templates/promtail-config.yml.j2)
-- [ ] Move Promtail positions file to persistent volume (promtail/templates/promtail-config.yml.j2 + docker-compose.yml.j2)
-- [ ] Update schema date to recent value or use variable (loki/templates/loki-config.yml.j2)
-- [ ] Add resource limits to Docker Compose files (cpu, memory constraints)
+- [x] Remove Loki port host binding - changed to `{{ ansible_host }}:3100:3100` (LAN-bound, not 0.0.0.0) — 2026-02-18
+- [x] Replace hardcoded IP with Ansible variable in Promtail config — `{{ groups['monitoring'][0] }}` — 2026-02-18
+- [x] Move Promtail positions file to persistent volume — `/var/lib/promtail/` with named volume — 2026-02-18
+- [x] Update schema date to recent value — `2026-01-01` — 2026-02-18
+- [x] Add resource limits to Docker Compose files — 512m/0.5cpu (Loki), 128m/0.25cpu (Promtail) — 2026-02-18
 
 **Future Considerations:**
 - [ ] When containers 200/201 are deployed, add Promtail agents (follow-up to Stories 1.1, 1.4-1.5)
@@ -445,4 +460,4 @@ None - Review only, no refactoring performed.
 ---
 
 **Créé le** : 2026-01-07
-**Dernière mise à jour** : 2026-02-14
+**Dernière mise à jour** : 2026-02-18

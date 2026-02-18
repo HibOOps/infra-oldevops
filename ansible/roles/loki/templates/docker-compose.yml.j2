@@ -5,6 +5,8 @@ services:
     volumes:
       - ./loki-config.yml:/etc/loki/local-config.yaml
       - loki-data:/loki
+    ports:
+      - "{{ ansible_host }}:3100:3100"
     restart: unless-stopped
     mem_limit: 512m
     cpus: "0.5"
