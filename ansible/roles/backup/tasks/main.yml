@@ -1,0 +1,40 @@
+---
+- name: Install rclone for S3 sync
+  apt:
+    name: rclone
+    state: present
+    update_cache: yes
+
+- name: Create backup directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0700'
+  loop:
+    - "{{ backup_root }}"
+    - /etc/rclone
+
+- name: Deploy backup script
+  template:
+    src: backup.sh.j2
+    dest: /usr/local/bin/backup-infra.sh
+    mode: '0700'
+    owner: root
+    group: root
+
+- name: Configure rclone for OVH S3
+  template:
+    src: rclone.conf.j2
+    dest: /etc/rclone/rclone.conf
+    mode: '0600'
+    owner: root
+    group: root
+
+- name: Setup backup cron job
+  cron:
+    name: "Daily infrastructure backup"
+    hour: "{{ backup_cron_hour }}"
+    minute: "{{ backup_cron_minute }}"
+    job: "/usr/local/bin/backup-infra.sh >> {{ backup_root }}/backup.log 2>&1"
+    user: root
+    state: present

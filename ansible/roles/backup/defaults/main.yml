@@ -1,0 +1,19 @@
+---
+backup_root: /var/backups/infra-oldevops
+backup_retention_days: 7
+
+# OVH S3 offsite sync — set in vault to enable
+# ovh_s3_access_key: "CHANGE_ME"
+# ovh_s3_secret_key: "CHANGE_ME"
+ovh_s3_access_key: ""
+ovh_s3_secret_key: ""
+ovh_s3_backup_bucket: infraoldevops
+ovh_s3_endpoint: https://s3.rbx.io.cloud.ovh.net/
+ovh_s3_region: rbx
+
+# Containers to snapshot
+backup_containers: [200, 201, 240, 210, 250]
+
+# Cron schedule (default: 03:00 daily)
+backup_cron_hour: "3"
+backup_cron_minute: "0"

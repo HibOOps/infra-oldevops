@@ -1,0 +1,157 @@
+#!/bin/bash
+# Daily infrastructure backup — deployed by Ansible, do not edit manually
+# Runs on Proxmox host (192.168.1.50) via cron at 03:00
+# Usage: /usr/local/bin/backup-infra.sh [--no-snapshot] [--no-s3]
+
+set -uo pipefail
+
+BACKUP_ROOT="{{ backup_root }}"
+DATE=$(date +%Y-%m-%d)
+TIMESTAMP=$(date +%Y-%m-%d_%H%M%S)
+BACKUP_DIR="${BACKUP_ROOT}/${DATE}"
+LOG_FILE="${BACKUP_ROOT}/backup.log"
+RETENTION_DAYS="{{ backup_retention_days }}"
+
+# DB credentials — single-quoted to prevent shell expansion of special chars
+SNIPEIT_MYSQL_USER='{{ snipeit_mysql_user }}'
+SNIPEIT_MYSQL_PASS='{{ snipeit_mysql_password }}'
+SNIPEIT_MYSQL_DB='{{ snipeit_mysql_database }}'
+NETBOX_PG_USER='netbox'
+NETBOX_PG_DB='netbox'
+NETBOX_PG_PASS='{{ netbox_db_password }}'
+ZABBIX_MYSQL_DB='{{ zabbix_mysql_database }}'
+ZABBIX_MYSQL_ROOT_PASS='{{ zabbix_mysql_root_password }}'
+
+# Options
+NO_SNAPSHOT=0
+NO_S3=0
+for arg in "$@"; do
+  case "$arg" in
+    --no-snapshot) NO_SNAPSHOT=1 ;;
+    --no-s3)       NO_S3=1 ;;
+  esac
+done
+
+# ─── Logging ──────────────────────────────────────────────────────────────────
+log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" | tee -a "${LOG_FILE}"; }
+
+log "================================================================"
+log "=== Infrastructure Backup Started: ${TIMESTAMP} ==="
+log "================================================================"
+
+mkdir -p "${BACKUP_DIR}/databases" "${BACKUP_DIR}/volumes"
+ERRORS=0
+
+# ─── 1. Proxmox Snapshots ────────────────────────────────────────────────────
+if [ "${NO_SNAPSHOT}" -eq 0 ]; then
+  log "--- [1/5] Proxmox snapshots ---"
+  SNAP_NAME="daily-${DATE}"
+  for VMID in {{ backup_containers | join(' ') }}; do
+    pct delsnapshot "${VMID}" "${SNAP_NAME}" 2>/dev/null || true
+    if pct snapshot "${VMID}" "${SNAP_NAME}" --description "Daily backup ${DATE}" 2>>"${LOG_FILE}"; then
+      log "  CT ${VMID}: snapshot OK (${SNAP_NAME})"
+    else
+      log "  CT ${VMID}: snapshot FAILED"
+      ERRORS=$((ERRORS + 1))
+    fi
+  done
+else
+  log "--- [1/5] Snapshots skipped (--no-snapshot) ---"
+fi
+
+# ─── 2. Database Dumps ──────────────────────────────────────────────────────
+log "--- [2/5] Database dumps ---"
+
+# Snipe-IT MySQL (CT 201)
+log "  Dumping Snipe-IT MySQL..."
+if pct exec 201 -- bash -c \
+  "docker exec snipeit-db mysqldump -u${SNIPEIT_MYSQL_USER} -p${SNIPEIT_MYSQL_PASS} ${SNIPEIT_MYSQL_DB} 2>/dev/null" \
+  > "${BACKUP_DIR}/databases/snipeit-${DATE}.sql" 2>>"${LOG_FILE}"; then
+  gzip -f "${BACKUP_DIR}/databases/snipeit-${DATE}.sql"
+  log "  Snipe-IT: OK ($(du -sh "${BACKUP_DIR}/databases/snipeit-${DATE}.sql.gz" | cut -f1))"
+else
+  log "  Snipe-IT: FAILED"
+  rm -f "${BACKUP_DIR}/databases/snipeit-${DATE}.sql"
+  ERRORS=$((ERRORS + 1))
+fi
+
+# NetBox PostgreSQL (CT 201)
+log "  Dumping NetBox PostgreSQL..."
+if pct exec 201 -- bash -c \
+  "docker exec -e PGPASSWORD=${NETBOX_PG_PASS} netbox-postgres-1 pg_dump -U ${NETBOX_PG_USER} ${NETBOX_PG_DB} 2>/dev/null" \
+  > "${BACKUP_DIR}/databases/netbox-${DATE}.sql" 2>>"${LOG_FILE}"; then
+  gzip -f "${BACKUP_DIR}/databases/netbox-${DATE}.sql"
+  log "  NetBox: OK ($(du -sh "${BACKUP_DIR}/databases/netbox-${DATE}.sql.gz" | cut -f1))"
+else
+  log "  NetBox: FAILED"
+  rm -f "${BACKUP_DIR}/databases/netbox-${DATE}.sql"
+  ERRORS=$((ERRORS + 1))
+fi
+
+# Zabbix MySQL (CT 240 — VMID for monitoring IP 192.168.1.202)
+log "  Dumping Zabbix MySQL..."
+if pct exec 240 -- bash -c \
+  "docker exec mysql-server mysqldump -uroot -p${ZABBIX_MYSQL_ROOT_PASS} ${ZABBIX_MYSQL_DB} 2>/dev/null" \
+  > "${BACKUP_DIR}/databases/zabbix-${DATE}.sql" 2>>"${LOG_FILE}"; then
+  gzip -f "${BACKUP_DIR}/databases/zabbix-${DATE}.sql"
+  log "  Zabbix: OK ($(du -sh "${BACKUP_DIR}/databases/zabbix-${DATE}.sql.gz" | cut -f1))"
+else
+  log "  Zabbix: FAILED"
+  rm -f "${BACKUP_DIR}/databases/zabbix-${DATE}.sql"
+  ERRORS=$((ERRORS + 1))
+fi
+
+# ─── 3. Volume Backups ──────────────────────────────────────────────────────
+log "--- [3/5] Volume backups ---"
+
+log "  Backing up Vaultwarden..."
+if pct exec 201 -- bash -c "tar czf - /opt/vaultwarden/vw-data 2>/dev/null" \
+  > "${BACKUP_DIR}/volumes/vaultwarden-${DATE}.tar.gz" 2>>"${LOG_FILE}"; then
+  log "  Vaultwarden: OK ($(du -sh "${BACKUP_DIR}/volumes/vaultwarden-${DATE}.tar.gz" | cut -f1))"
+else
+  log "  Vaultwarden: FAILED"
+  rm -f "${BACKUP_DIR}/volumes/vaultwarden-${DATE}.tar.gz"
+  ERRORS=$((ERRORS + 1))
+fi
+
+# ─── 4. Local Rotation ──────────────────────────────────────────────────────
+log "--- [4/5] Rotating old backups (keeping ${RETENTION_DAYS} days) ---"
+find "${BACKUP_ROOT}" -maxdepth 1 -type d -name "20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]" \
+  -mtime "+${RETENTION_DAYS}" | while read -r old_dir; do
+  log "  Removing: $(basename "${old_dir}")"
+  rm -rf "${old_dir}"
+done
+
+# ─── 5. OVH S3 Sync ─────────────────────────────────────────────────────────
+{% if ovh_s3_access_key != '' %}
+if [ "${NO_S3}" -eq 0 ]; then
+  log "--- [5/5] Syncing to OVH S3 ({{ ovh_s3_backup_bucket }}) ---"
+  if rclone sync "${BACKUP_DIR}" \
+    "ovh-s3:{{ ovh_s3_backup_bucket }}/backups/${DATE}/" \
+    --config /etc/rclone/rclone.conf \
+    --stats-log-level NOTICE 2>>"${LOG_FILE}"; then
+    log "  S3 sync: OK → {{ ovh_s3_backup_bucket }}/backups/${DATE}/"
+    rclone delete "ovh-s3:{{ ovh_s3_backup_bucket }}/backups/" \
+      --config /etc/rclone/rclone.conf \
+      --min-age 30d 2>>"${LOG_FILE}" || true
+  else
+    log "  S3 sync: FAILED"
+    ERRORS=$((ERRORS + 1))
+  fi
+else
+  log "--- [5/5] S3 sync skipped (--no-s3) ---"
+fi
+{% else %}
+log "--- [5/5] S3 sync: skipped (ovh_s3_access_key not configured) ---"
+{% endif %}
+
+# ─── Summary ─────────────────────────────────────────────────────────────────
+BACKUP_SIZE=$(du -sh "${BACKUP_DIR}" | cut -f1)
+log "================================================================"
+log "=== Backup completed ==="
+log "    Location : ${BACKUP_DIR}"
+log "    Size     : ${BACKUP_SIZE}"
+log "    Errors   : ${ERRORS}"
+log "================================================================"
+
+[ "${ERRORS}" -eq 0 ] && exit 0 || exit 1

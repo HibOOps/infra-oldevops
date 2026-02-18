@@ -60,7 +60,7 @@ Ce projet d'infrastructure existe actuellement comme laboratoire de test personn
 | 1.8 | [Application de Démonstration - Pipeline CI/CD](story-1.8.md) | 🔄 In Progress | P1 | 1.7, 1.3 |
 | 1.9 | [Monitoring Avancé - Loki pour Agrégation de Logs](story-1.9.md) | ✅ Done | P2 | - |
 | 1.10 | [Monitoring Avancé - Dashboards Grafana Versionnés](story-1.10.md) | ✅ Done | P2 | 1.9 |
-| 1.11 | [Backup et Disaster Recovery Automation](story-1.11.md) | 📝 Todo | P2 | - |
+| 1.11 | [Backup et Disaster Recovery Automation](story-1.11.md) | ✅ Done | P2 | - |
 | 1.12 | [Sécurité - Scanning et Hardening Automatisé](story-1.12.md) | 📝 Todo | P2 | 1.1 |
 | 1.13 | [Documentation Professionnelle - Architecture et Runbooks](story-1.13.md) | 📝 Todo | P3 | Toutes |
 | 1.14 | [README et Portfolio - Transformation en Vitrine Professionnelle](story-1.14.md) | 📝 Todo | P3 | Toutes |
