@@ -1,8 +1,22 @@
 ---
-- name: Create grafana directory
+- name: Create grafana directory structure
   file:
-    path: /opt/grafana
+    path: "{{ item }}"
     state: directory
+    mode: '0755'
+  loop:
+    - /opt/grafana
+    - /opt/grafana/provisioning
+    - /opt/grafana/provisioning/dashboards
+    - /opt/grafana/provisioning/datasources
+    - /opt/grafana/dashboards
+
+- name: Create grafana-data directory with correct ownership
+  file:
+    path: /opt/grafana/grafana-data
+    state: directory
+    owner: "472"
+    group: "472"
     mode: '0755'
 
 - name: Deploy docker-compose.yml
@@ -10,6 +24,28 @@
     src: docker-compose.yml.j2
     dest: /opt/grafana/docker-compose.yml
     mode: '0644'
+
+- name: Deploy provisioning datasources config
+  copy:
+    src: provisioning/datasources.yml
+    dest: /opt/grafana/provisioning/datasources/datasources.yml
+    mode: '0644'
+
+- name: Deploy provisioning dashboards config
+  copy:
+    src: provisioning/dashboards.yml
+    dest: /opt/grafana/provisioning/dashboards/dashboards.yml
+    mode: '0644'
+
+- name: Deploy dashboard JSON files
+  copy:
+    src: "dashboards/{{ item }}"
+    dest: "/opt/grafana/dashboards/{{ item }}"
+    mode: '0644'
+  loop:
+    - infrastructure.json
+    - application.json
+    - logs-explorer.json
 
 - name: Launch Grafana
   shell: docker compose up -d

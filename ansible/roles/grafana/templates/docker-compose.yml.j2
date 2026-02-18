@@ -1,13 +1,12 @@
-version: '3'
-
 services:
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
-    user: "472:472"  # grafana user
+    user: "472:472"
     volumes:
       - ./grafana-data:/var/lib/grafana
       - ./provisioning:/etc/grafana/provisioning
+      - ./dashboards:/var/lib/grafana/dashboards
     restart: always
     ports:
       - "3000:3000"
