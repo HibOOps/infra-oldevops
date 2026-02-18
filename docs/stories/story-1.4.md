@@ -103,7 +103,7 @@ Cette story crée l'infrastructure de base (container LXC) qui hébergera l'appl
 - [x] Vérifier les ressources disponibles sur Proxmox via interface web ou CLI
 - [x] Vérifier que l'IP 192.168.1.250 est libre : `ping 192.168.1.250` (IP changed from .210 to .250)
 - [x] Vérifier que le template Debian 12 est disponible : `pveam list local`
-- [ ] Créer une branche Git : `feature/app-container`
+- [x] Créer une branche Git : `feature/app-container`
 
 ### Phase 2 : Code Terraform
 - [x] Créer le fichier `terraform/app-demo.tf` (ajouté dans main.tf comme module, suivant la convention du projet)
@@ -135,8 +135,8 @@ Cette story crée l'infrastructure de base (container LXC) qui hébergera l'appl
 ### Phase 6 : Documentation et PR
 - [x] Mettre à jour le README avec le nouveau container (tableau des containers)
 - [x] Documenter les spécifications du container dans `docs/architecture/`
-- [ ] Committer les changements avec message descriptif
-- [ ] Créer une PR vers `main`
+- [x] Committer les changements avec message descriptif
+- [x] Créer une PR vers `main` (feature/app-container → main, f8bcac7)
 - [ ] Le pipeline de validation (Story 1.1) doit passer ✅
 
 ## Définition of Done
