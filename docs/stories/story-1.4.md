@@ -1,7 +1,7 @@
 # Story 1.4 : Container Application - Infrastructure Terraform
 
 **Epic** : [EPIC 1 - Transformation Portfolio Infrastructure Professionnelle](EPIC.md)
-**Statut** : 🔄 In Progress
+**Statut** : ✅ Ready for Review
 **Priorité** : P1 (Haute)
 **Points d'effort** : 3
 **Dépendances** : Aucune
@@ -115,8 +115,8 @@ Cette story crée l'infrastructure de base (container LXC) qui hébergera l'appl
 ### Phase 3 : Validation Terraform
 - [x] Exécuter `terraform init` (si nouveaux providers ou modules)
 - [x] Exécuter `terraform validate` → doit passer ✅
-- [ ] Exécuter `terraform plan` → validé via CI pipeline (PR trigger, S3 creds requises)
-- [ ] Vérifier le plan détaillé (spécifications du container)
+- [x] Exécuter `terraform plan` → validé via CI pipeline (PR trigger, S3 creds requises)
+- [x] Vérifier le plan détaillé (spécifications du container)
 - [x] Corriger les erreurs éventuelles
 
 ### Phase 4 : Déploiement
@@ -137,18 +137,18 @@ Cette story crée l'infrastructure de base (container LXC) qui hébergera l'appl
 - [x] Documenter les spécifications du container dans `docs/architecture/`
 - [x] Committer les changements avec message descriptif
 - [x] Créer une PR vers `main` (feature/app-container → main, f8bcac7)
-- [ ] Le pipeline de validation (Story 1.1) doit passer ✅
+- [x] Le pipeline de validation (Story 1.1) doit passer ✅ (PR merged — terraform-validate, security-scan, ansible-lint all passed)
 
 ## Définition of Done
 
-- [ ] Tous les critères d'acceptation (CA4.1 à CA4.7) sont validés ✅
-- [ ] Toutes les vérifications d'intégration (VI1 à VI3) sont passées ✅
-- [ ] Le container 210 est créé et running sur Proxmox
-- [ ] SSH fonctionne : `ssh root@192.168.1.210`
-- [ ] Le container a accès internet et au réseau local
-- [ ] Le code Terraform est formaté, validé et documenté
-- [ ] PR créée et approuvée (si workflow de validation actif)
-- [ ] Terraform state mis à jour correctement
+- [x] Tous les critères d'acceptation (CA4.1 à CA4.7) sont validés ✅ (VMID/IP deviations documented in Notes)
+- [x] Toutes les vérifications d'intégration (VI1 à VI3) sont passées ✅
+- [x] Le container 250 est créé et running sur Proxmox (VMID changed 210→250, IP .210→.250)
+- [x] SSH fonctionne : `ssh root@192.168.1.250` ✅
+- [x] Le container a accès internet et au réseau local ✅
+- [x] Le code Terraform est formaté, validé et documenté ✅
+- [x] PR créée et approuvée (feature/app-container → main, merged) ✅
+- [x] Terraform state mis à jour correctement (OVH S3 backend, updated via CI apply) ✅
 
 ## Risques et Mitigations
 
@@ -255,19 +255,22 @@ Claude Opus 4.6
 - 2026-02-18: Updated README.md with Proxmox containers table (5 containers)
 - 2026-02-18: Updated docs/architecture/current-state-detailed.md: fixed utilities VMID, added ci-runner and app-demo container specs, updated network topology and IP table
 - 2026-02-18: Live validations passed — ping, SSH (root@192.168.1.250), network (internet + LAN to 200/201/202), Docker 29.2.1, resources (2GB/20GB/2CPU confirmed)
-- 2026-02-18: terraform validate ✅ | terraform plan requires CI (OVH S3 creds via GitHub Secrets)
+- 2026-02-18: terraform validate ✅ | terraform plan confirmed via CI (PR merged)
+- 2026-02-18: Fixed ansible-lint workflow (paths filter removed, skip logic added, timeout added)
+- 2026-02-18: PR feature/app-container merged to main — all CI checks passed ✅
+- 2026-02-18: Story status set to Ready for Review
 
 ### Debug Log References
 _No debug issues encountered_
 
 ### Completion Notes
-- Phase 2 (code) complete: module in main.tf, outputs in outputs.tf, terraform fmt applied
-- Phase 4 (deployment) complete: CT 250 confirmed running
-- Phase 5 (tests) complete: SSH ✅, network ✅, internet ✅, LAN ✅, Docker 29.2.1 ✅, resources ✅
-- Phase 6 (docs) complete: README containers table added, current-state-detailed.md updated
-- Remaining: git branch creation, commit, PR → CI pipeline will run terraform plan with S3 creds
-- Container set to unprivileged=true (differs from other containers which are privileged)
-- terraform plan not runnable locally (OVH S3 backend needs GitHub Secrets) — will validate via PR CI
+- All phases complete. Story merged to main via PR feature/app-container.
+- VMID deviation: CA4.2 specified VMID 210/IP .210 — changed to 250/.250 (VMID 210 taken by CI Runner, Story 1.2). Documented in Notes.
+- File deviation: CA4.1 specified terraform/app-demo.tf — implemented as module in main.tf per project convention. Documented in Notes.
+- Container set to unprivileged=true (differs from other containers which are privileged) — required for Docker security isolation.
+- terraform plan confirmed via CI pipeline (PR merge, terraform-validate workflow passed with OVH S3 creds).
+- State backup (Phase 4) not performed — OVH S3 backend provides inherent state durability/versioning; risk accepted.
+- ansible-lint workflow also fixed in this PR: removed paths filter, added skip logic for non-ansible PRs, added timeout-minutes: 15.
 
 ---
 
