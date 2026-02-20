@@ -1,13 +1,12 @@
 ---
 app_demo_dir: /opt/app-demo
-app_demo_frontend_domain: "app.oldevops.fr"
-app_demo_backend_domain: "api.oldevops.fr"
+app_demo_domain: "demo.oldevops.fr"
 
 # Database
-app_demo_db_name: app_demo
-app_demo_db_user: app_demo
+app_demo_db_name: pricesync_db
+app_demo_db_user: pricesync
 
-# Ports
-app_demo_frontend_port: 3000
-app_demo_backend_port: 8080
+# Ports (internal container ports — no host port mapping, routed via Traefik proxy network)
+app_demo_backend_port: 5000
+app_demo_frontend_port: 80
 app_demo_db_port: 5432

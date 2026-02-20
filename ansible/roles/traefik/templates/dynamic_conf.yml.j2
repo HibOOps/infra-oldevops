@@ -19,23 +19,25 @@ http:
         burst: 500
 
   routers:
-    app-frontend:
-      rule: "Host(`app.{{ domain_name }}`)"
+    pricesync-api:
+      rule: "Host(`demo.{{ domain_name }}`) && PathPrefix(`/api`)"
       entryPoints:
         - websecure
       tls:
         certResolver: ovh
-      service: app-frontend
+      service: pricesync-api
+      priority: 20
       middlewares:
         - secure-headers
         - rate-limit
-    app-backend:
-      rule: "Host(`api.{{ domain_name }}`)"
+    pricesync-frontend:
+      rule: "Host(`demo.{{ domain_name }}`)"
       entryPoints:
         - websecure
       tls:
         certResolver: ovh
-      service: app-backend
+      service: pricesync-frontend
+      priority: 10
       middlewares:
         - secure-headers
         - rate-limit
@@ -148,18 +150,18 @@ http:
       loadBalancer:
         servers:
           - url: "http://192.168.1.201:8084"
-    app-frontend:
+    pricesync-frontend:
       loadBalancer:
         servers:
-          - url: "http://192.168.1.250:3000"
+          - url: "http://192.168.1.250:80"
         healthCheck:
           path: /
           interval: 15s
           timeout: 5s
-    app-backend:
+    pricesync-api:
       loadBalancer:
         servers:
-          - url: "http://192.168.1.250:8080"
+          - url: "http://192.168.1.250:5000"
         healthCheck:
           path: /api/health
           interval: 15s

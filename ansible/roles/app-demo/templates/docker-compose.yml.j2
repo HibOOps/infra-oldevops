@@ -1,58 +1,72 @@
 services:
-  postgres:
+  db:
     image: postgres:16-alpine
-    container_name: app-demo-db
+    container_name: pricesync-db
     restart: unless-stopped
-    env_file: .env
+    environment:
+      POSTGRES_DB: {{ app_demo_db_name }}
+      POSTGRES_USER: {{ app_demo_db_user }}
+      POSTGRES_PASSWORD: {{ app_demo_db_password }}
     volumes:
-      - ./data/postgres:/var/lib/postgresql/data
+      - pricesync_pgdata:/var/lib/postgresql/data
     networks:
-      - app-internal
+      - pricesync_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U {{ app_demo_db_user }}"]
+      test: ["CMD-SHELL", "pg_isready -U {{ app_demo_db_user }} -d {{ app_demo_db_name }}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   backend:
-    image: node:20-alpine
-    container_name: app-demo-backend
+    build:
+      context: ./backend
+      target: production
+    container_name: pricesync-backend
     restart: unless-stopped
-    env_file: .env
-    working_dir: /app
-    command: ["node", "server.js"]
+    environment:
+      DATABASE_URL: postgresql://{{ app_demo_db_user }}:{{ app_demo_db_password }}@db:5432/{{ app_demo_db_name }}
+      JWT_SECRET: {{ app_demo_jwt_secret }}
+      JWT_EXPIRES_IN: 24h
+      PORT: {{ app_demo_backend_port }}
+      NODE_ENV: production
+      CORS_ORIGIN: https://{{ app_demo_domain }}
     ports:
       - "{{ app_demo_backend_port }}:{{ app_demo_backend_port }}"
     depends_on:
-      postgres:
+      db:
         condition: service_healthy
     networks:
-      - app-internal
+      - pricesync_network
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:{{ app_demo_backend_port }}/api/health"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:{{ app_demo_backend_port }}/api/health"]
       interval: 15s
       timeout: 5s
-      retries: 3
+      retries: 5
+      start_period: 30s
 
   frontend:
-    image: node:20-alpine
-    container_name: app-demo-frontend
+    build:
+      context: ./frontend
+      target: production
+    container_name: pricesync-frontend
     restart: unless-stopped
-    env_file: .env
-    working_dir: /app
-    command: ["node", "server.js"]
     ports:
       - "{{ app_demo_frontend_port }}:{{ app_demo_frontend_port }}"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
-      - app-internal
+      - pricesync_network
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:{{ app_demo_frontend_port }}/"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:{{ app_demo_frontend_port }}"]
       interval: 15s
       timeout: 5s
       retries: 3
+      start_period: 10s
+
+volumes:
+  pricesync_pgdata:
 
 networks:
-  app-internal:
+  pricesync_network:
     driver: bridge

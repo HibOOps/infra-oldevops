@@ -46,27 +46,25 @@
     dest: "{{ app_demo_dir }}/.env"
     mode: '0600'
 
-- name: Create Docker volumes directories
-  file:
-    path: "{{ app_demo_dir }}/{{ item }}"
-    state: directory
-    mode: '0755'
-  loop:
-    - data/postgres
-
-- name: Build and start app-demo stack
+- name: Build and start PriceSync stack
   community.docker.docker_compose_v2:
     project_src: "{{ app_demo_dir }}"
     build: always
     state: present
   register: app_demo_deploy
 
-- name: Wait for services to be healthy
-  wait_for:
-    host: "{{ ansible_default_ipv4.address }}"
-    port: "{{ item }}"
-    delay: 5
-    timeout: 60
-  loop:
-    - "{{ app_demo_backend_port }}"
-    - "{{ app_demo_frontend_port }}"
+- name: Wait for pricesync-backend to be healthy
+  command: >
+    docker inspect --format="{{ '{{' }}.State.Health.Status{{ '}}' }}" pricesync-backend
+  register: backend_health
+  until: backend_health.stdout == "healthy"
+  retries: 20
+  delay: 10
+
+- name: Wait for pricesync-frontend to be healthy
+  command: >
+    docker inspect --format="{{ '{{' }}.State.Health.Status{{ '}}' }}" pricesync-frontend
+  register: frontend_health
+  until: frontend_health.stdout == "healthy"
+  retries: 12
+  delay: 10
