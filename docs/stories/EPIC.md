@@ -55,9 +55,9 @@ Ce projet d'infrastructure existe actuellement comme laboratoire de test personn
 | 1.3 | [GitHub Actions - Pipeline de Déploiement Automatisé](story-1.3.md) | ✅ Done | P0 | 1.1, 1.2 |
 | 1.4 | [Container Application - Infrastructure Terraform](story-1.4.md) | ✅ Done | P1 | - |
 | 1.5 | [Container Application - Configuration Ansible](story-1.5.md) | ✅ Done | P1 | 1.4 |
-| 1.6 | [Application de Démonstration - Développement Frontend/Backend](story-1.6.md) | 🔄 In Progress | P1 | 1.5 |
-| 1.7 | [Application de Démonstration - Intégration Traefik](story-1.7.md) | 🔄 In Progress | P1 | 1.6 |
-| 1.8 | [Application de Démonstration - Pipeline CI/CD](story-1.8.md) | 🔄 In Progress | P1 | 1.7, 1.3 |
+| 1.6 | [Application de Démonstration - Développement Frontend/Backend](story-1.6.md) | ✅ Done | P1 | 1.5 |
+| 1.7 | [Application de Démonstration - Intégration Traefik](story-1.7.md) | ✅ Done | P1 | 1.6 |
+| 1.8 | [Application de Démonstration - Pipeline CI/CD](story-1.8.md) | ✅ Done | P1 | 1.7, 1.3 |
 | 1.9 | [Monitoring Avancé - Loki pour Agrégation de Logs](story-1.9.md) | ✅ Done | P2 | - |
 | 1.10 | [Monitoring Avancé - Dashboards Grafana Versionnés](story-1.10.md) | ✅ Done | P2 | 1.9 |
 | 1.11 | [Backup et Disaster Recovery Automation](story-1.11.md) | ✅ Done | P2 | - |
@@ -127,7 +127,7 @@ Ce projet d'infrastructure existe actuellement comme laboratoire de test personn
 
 ---
 
-**Dernière mise à jour** : 2026-02-18
+**Dernière mise à jour** : 2026-02-20
 **Prochaine revue** : Fin de chaque phase
 
 ## Progression
@@ -135,9 +135,9 @@ Ce projet d'infrastructure existe actuellement comme laboratoire de test personn
 | Phase | Stories | Statut |
 |-------|---------|--------|
 | Phase 1 — CI/CD | 1.1, 1.2, 1.3 | ✅ Complète (3/3) |
-| Phase 2 — Application | 1.4, 1.5, 1.6, 1.7, 1.8 | 🔄 En cours (2/5 Ready for Review) |
-| Phase 3 — Monitoring | 1.9, 1.10 | 🔄 En cours (1/2 Ready for Review) |
+| Phase 2 — Application | 1.4, 1.5, 1.6, 1.7, 1.8 | ✅ Complète (5/5) |
+| Phase 3 — Monitoring | 1.9, 1.10 | ✅ Complète (2/2) |
 | Phase 4 — Opérations | 1.11, 1.12 | ✅ Complète (2/2) |
-| Phase 5 — Documentation | 1.13, 1.14 | 📝 À faire |
+| Phase 5 — Documentation | 1.13, 1.14 | 📝 À faire (0/2) |
 
-**Avancement global** : 4 Done · 3 Ready for Review · 3 In Progress · 4 Todo
+**Avancement global** : 12 Done · 0 In Progress · 2 Todo
