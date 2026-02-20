@@ -1,94 +1,147 @@
-# App Demo - Task Manager
+# 🏷️ PriceSync — Synchronisation de prix multi-canaux
 
-[![Build](https://github.com/olabe/Infra-oldevops/actions/workflows/app-build.yml/badge.svg)](https://github.com/olabe/Infra-oldevops/actions/workflows/app-build.yml)
-[![Docker](https://github.com/olabe/Infra-oldevops/actions/workflows/app-docker.yml/badge.svg)](https://github.com/olabe/Infra-oldevops/actions/workflows/app-docker.yml)
-[![Deploy](https://github.com/olabe/Infra-oldevops/actions/workflows/app-deploy.yml/badge.svg)](https://github.com/olabe/Infra-oldevops/actions/workflows/app-deploy.yml)
-[![Security](https://github.com/olabe/Infra-oldevops/actions/workflows/security-scan.yml/badge.svg)](https://github.com/olabe/Infra-oldevops/actions/workflows/security-scan.yml)
+Application de démonstration fullstack : centralisation et synchronisation des prix produits entre plusieurs canaux de distribution, sur un catalogue de matériel de lutherie.
 
-Application de demonstration deployee sur l'infrastructure oldevops.
+---
+
+## Use case
+
+La gestion des prix multi-canaux est un pain point réel en retail : un même produit peut avoir des prix différents selon le canal (magasin physique, boutique en ligne, marketplace), créant des désynchronisations difficiles à suivre manuellement. PriceSync centralise cette gestion.
+
+---
 
 ## Architecture
 
 ```
-                    Internet
-                       |
-                   Traefik (proxy)
-                   /          \
-          app.oldevops.fr   api.oldevops.fr
-                |                    |
-           Frontend (React)    Backend (Express)
-           nginx:80            node:8080
-                                     |
-                               PostgreSQL:5432
+┌─────────────┐    HTTP/80     ┌──────────────────────────────────┐
+│   Traefik   │ ─────────────▶ │  React 18 + Vite (Nginx)         │
+│  (reverse   │                │  demo.oldevops.fr                 │
+│   proxy)    │ ──/api──────▶  │  Node.js / Express API :5000      │
+└─────────────┘                │  PostgreSQL 16              :5432  │
+                               └──────────────────────────────────┘
+
+Services Docker :
+  db        → PostgreSQL 16
+  backend   → Node.js / Express + Prisma
+  frontend  → React / Nginx
 ```
 
-## Stack Technique
+---
 
-| Composant | Technologie | Version |
-|-----------|-------------|---------|
-| Frontend | React + Vite | 18.x |
-| Backend | Express.js | 4.x |
-| Database | PostgreSQL | 16 |
-| ORM | Prisma | 5.x |
-| Auth | JWT (jsonwebtoken) | - |
-| Reverse Proxy | Traefik | 3.x |
-| Container | Docker Compose | 3.8 |
+## Stack technique
 
-## Developpement Local
+| Couche | Technologie |
+|--------|-------------|
+| Frontend | React 18, Vite 5, React Router v6 |
+| Backend | Node.js 20 LTS, Express 4 |
+| ORM | Prisma 5 |
+| Base de données | PostgreSQL 16 |
+| Auth | JWT (jsonwebtoken) |
+| Validation | Zod v3 |
+| Tests backend | Jest + Supertest |
+| Tests frontend | Vitest + React Testing Library |
+| API Docs | Swagger UI |
+| Conteneurisation | Docker + Docker Compose |
+| Reverse proxy | Traefik |
 
-```bash
-# Copier les variables d'environnement
-cp .env.example .env
+---
 
-# Demarrer tous les services
-docker compose up -d
+## Schéma des entités
 
-# Voir les logs
-docker compose logs -f
-
-# Arreter
-docker compose down
+```
+User ──────────────────────── crée ──▶ PricingRule
+  │                                       │
+  │ modifie                               │ applique
+  ▼                                       ▼
+Price (productId × channelId) ──▶ PriceHistory
+  ▲                 ▲
+  │                 │
+Product          Channel
 ```
 
-L'application est accessible sur :
-- Frontend : http://localhost:3000
-- Backend API : http://localhost:8080/api
-- Health check : http://localhost:8080/api/health
+---
 
-## Commandes
+## Démarrage rapide
 
 ```bash
-# Tests backend
+# Cloner et démarrer
+cd app-demo
+docker-compose up --build
+
+# L'application sera disponible sur http://localhost:3000
+# (ou demo.oldevops.fr via Traefik en production)
+```
+
+Le seed data est chargé **automatiquement** au premier démarrage.
+
+---
+
+## Comptes de démonstration
+
+| Email | Mot de passe | Rôle |
+|-------|-------------|------|
+| `admin@pricesync.demo` | `Admin2024!` | Admin |
+| `manager@pricesync.demo` | `Manager2024!` | Manager |
+| `viewer@pricesync.demo` | `Viewer2024!` | Viewer |
+
+---
+
+## Données de démonstration
+
+- **20 produits** lutherie (bois, accastillage, mécaniques, cordes, outils, électronique, finition)
+- **3 canaux** : Atelier Galileo Paris / galileo-shop.fr / Marketplace Woodcraft
+- **7 produits en désync** (écart >10% entre canaux) — visibles immédiatement sur le dashboard
+- **2 règles de pricing actives** : Promo Cordes Web -15% / Soldes Bois Marketplace -12%
+- **25 entrées d'historique** réparties sur les 30 derniers jours
+
+---
+
+## API — Routes principales
+
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| POST | `/api/auth/login` | Authentification |
+| GET | `/api/products` | Liste produits (paginée) |
+| GET | `/api/channels` | Liste canaux |
+| GET | `/api/prices` | Prix par produit/canal |
+| PUT | `/api/prices/:productId/:channelId` | Mettre à jour un prix |
+| POST | `/api/sync` | Synchronisation globale |
+| GET | `/api/rules` | Règles de pricing |
+| GET | `/api/history` | Historique des modifications |
+
+Documentation interactive Swagger : `http://localhost:5000/api/docs`
+
+---
+
+## Développement local
+
+```bash
+# Backend
+cd backend
+npm install
+cp .env.example .env        # adapter DATABASE_URL
+npx prisma migrate dev
+node prisma/seed.js
+npm run dev
+
+# Frontend
+cd frontend
+npm install
+npm run dev                 # proxied vers localhost:5000
+
+# Tests
 cd backend && npm test
-
-# Tests frontend
 cd frontend && npm test
-
-# Linting
-cd backend && npm run lint
-cd frontend && npm run lint
-
-# Prisma migrations
-cd backend && npx prisma migrate dev
-
-# Seed database
-cd backend && npx prisma db seed
 ```
 
-## Endpoints API
+---
 
-| Methode | Route | Description | Auth |
-|---------|-------|-------------|------|
-| POST | /api/auth/register | Inscription | Non |
-| POST | /api/auth/login | Connexion | Non |
-| GET | /api/tasks | Liste des taches | Oui |
-| POST | /api/tasks | Creer une tache | Oui |
-| GET | /api/tasks/:id | Detail d'une tache | Oui |
-| PUT | /api/tasks/:id | Modifier une tache | Oui |
-| DELETE | /api/tasks/:id | Supprimer une tache | Oui |
-| GET | /api/health | Health check | Non |
+## Fonctionnalités
 
-## Compte Demo
-
-- Email : `demo@oldevops.fr`
-- Mot de passe : `password123`
+| Vue | Description |
+|-----|-------------|
+| **Dashboard** | KPIs (produits, canaux, règles, désync), tableau des produits en désync, bouton sync globale |
+| **Catalogue Produits** | CRUD produits, filtres par catégorie, statut sync |
+| **Prix par Canal** | Tableau Produit × Canal, édition inline, badge delta |
+| **Règles de Pricing** | CRUD règles (promo, soldes), activation/désactivation, preview |
+| **Historique** | Log filtrable (qui/quoi/quand), export CSV |

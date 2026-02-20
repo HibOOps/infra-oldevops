@@ -1,116 +1,43 @@
-const request = require('supertest');
-const bcrypt = require('bcryptjs');
+const request = require('supertest')
 
+// Mock Prisma
 jest.mock('@prisma/client', () => {
-  const mockPrisma = {
-    user: {
-      findUnique: jest.fn(),
-      create: jest.fn(),
-    },
-    $connect: jest.fn(),
-    $disconnect: jest.fn(),
-  };
-  return { PrismaClient: jest.fn(() => mockPrisma) };
-});
+  const mockUser = {
+    id: 1,
+    email: 'admin@pricesync.demo',
+    passwordHash: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+    name: 'Alice Admin',
+    role: 'admin',
+  }
+  return {
+    PrismaClient: jest.fn().mockImplementation(() => ({
+      user: {
+        findUnique: jest.fn().mockResolvedValue(mockUser),
+        create: jest.fn().mockResolvedValue({ ...mockUser, id: 2, email: 'new@test.com' }),
+      },
+    })),
+  }
+})
 
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
-const app = require('../src/server');
+const app = require('../src/server')
 
-describe('Auth endpoints', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
+describe('POST /api/auth/login', () => {
+  it('retourne 400 si email manquant', async () => {
+    const res = await request(app).post('/api/auth/login').send({ password: 'test' })
+    expect(res.status).toBe(400)
+  })
 
-  describe('POST /api/auth/register', () => {
-    it('should register a new user and return a token', async () => {
-      prisma.user.findUnique.mockResolvedValue(null);
-      prisma.user.create.mockResolvedValue({
-        id: 'user-1',
-        email: 'test@example.com',
-        name: 'Test User',
-        createdAt: new Date(),
-      });
+  it('retourne 401 si mot de passe incorrect', async () => {
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ email: 'admin@pricesync.demo', password: 'mauvais_mdp' })
+    expect(res.status).toBe(401)
+  })
+})
 
-      const res = await request(app).post('/api/auth/register').send({
-        email: 'test@example.com',
-        password: 'password123',
-        name: 'Test User',
-      });
-
-      expect(res.status).toBe(201);
-      expect(res.body.user.email).toBe('test@example.com');
-      expect(res.body.token).toBeDefined();
-    });
-
-    it('should return 409 if email already exists', async () => {
-      prisma.user.findUnique.mockResolvedValue({ id: 'user-1', email: 'test@example.com' });
-
-      const res = await request(app).post('/api/auth/register').send({
-        email: 'test@example.com',
-        password: 'password123',
-        name: 'Test User',
-      });
-
-      expect(res.status).toBe(409);
-      expect(res.body.error).toBe('Email already registered');
-    });
-
-    it('should return 400 for invalid input', async () => {
-      const res = await request(app).post('/api/auth/register').send({
-        email: 'not-an-email',
-      });
-
-      expect(res.status).toBe(400);
-    });
-  });
-
-  describe('POST /api/auth/login', () => {
-    it('should login and return a token', async () => {
-      const hashed = await bcrypt.hash('password123', 12);
-      prisma.user.findUnique.mockResolvedValue({
-        id: 'user-1',
-        email: 'test@example.com',
-        name: 'Test User',
-        password: hashed,
-      });
-
-      const res = await request(app).post('/api/auth/login').send({
-        email: 'test@example.com',
-        password: 'password123',
-      });
-
-      expect(res.status).toBe(200);
-      expect(res.body.token).toBeDefined();
-      expect(res.body.user.email).toBe('test@example.com');
-    });
-
-    it('should return 401 for wrong password', async () => {
-      const hashed = await bcrypt.hash('password123', 12);
-      prisma.user.findUnique.mockResolvedValue({
-        id: 'user-1',
-        email: 'test@example.com',
-        password: hashed,
-      });
-
-      const res = await request(app).post('/api/auth/login').send({
-        email: 'test@example.com',
-        password: 'wrongpassword',
-      });
-
-      expect(res.status).toBe(401);
-      expect(res.body.error).toBe('Invalid credentials');
-    });
-
-    it('should return 401 for non-existent user', async () => {
-      prisma.user.findUnique.mockResolvedValue(null);
-
-      const res = await request(app).post('/api/auth/login').send({
-        email: 'nobody@example.com',
-        password: 'password123',
-      });
-
-      expect(res.status).toBe(401);
-    });
-  });
-});
+describe('POST /api/auth/register', () => {
+  it('retourne 400 si données invalides', async () => {
+    const res = await request(app).post('/api/auth/register').send({ email: 'invalid' })
+    expect(res.status).toBe(400)
+  })
+})

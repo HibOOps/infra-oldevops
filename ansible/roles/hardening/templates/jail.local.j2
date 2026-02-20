@@ -1,0 +1,16 @@
+[DEFAULT]
+# Never ban LAN subnet or localhost — prevents Ansible/monitoring lockout
+ignoreip = {{ fail2ban_ignoreip }}
+
+bantime  = {{ fail2ban_ssh_bantime }}
+findtime = {{ fail2ban_ssh_findtime }}
+maxretry = {{ fail2ban_ssh_maxretry }}
+
+# Debian 12 LXC: sshd logs to journald, not file — use systemd backend
+backend  = systemd
+
+[sshd]
+enabled  = true
+port     = ssh
+filter   = sshd
+maxretry = {{ fail2ban_ssh_maxretry }}

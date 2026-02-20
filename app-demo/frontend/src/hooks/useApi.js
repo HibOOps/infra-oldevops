@@ -1,56 +1,38 @@
-import { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useCallback } from 'react'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const BASE = '/api'
 
-function useApi() {
-  const navigate = useNavigate();
+export function useApi(token) {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
-  const request = useCallback(async (endpoint, options = {}) => {
-    const token = localStorage.getItem('token');
-    const headers = {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-      ...options.headers,
-    };
-
-    const res = await fetch(`${API_URL}${endpoint}`, {
-      ...options,
-      headers,
-    });
-
-    if (res.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      navigate('/login');
-      throw new Error('Session expired');
+  const request = useCallback(async (method, path, body) => {
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch(`${BASE}${path}`, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: body ? JSON.stringify(body) : undefined,
+      })
+      const data = res.status !== 204 ? await res.json() : null
+      if (!res.ok) throw new Error(data?.error || `Erreur ${res.status}`)
+      return data
+    } catch (err) {
+      setError(err.message)
+      throw err
+    } finally {
+      setLoading(false)
     }
+  }, [token])
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Request failed');
-    return data;
-  }, [navigate]);
+  const get = useCallback((path) => request('GET', path), [request])
+  const post = useCallback((path, body) => request('POST', path, body), [request])
+  const put = useCallback((path, body) => request('PUT', path, body), [request])
+  const del = useCallback((path) => request('DELETE', path), [request])
 
-  const get = useCallback((endpoint) => request(endpoint), [request]);
-
-  const post = useCallback(
-    (endpoint, body) =>
-      request(endpoint, { method: 'POST', body: JSON.stringify(body) }),
-    [request]
-  );
-
-  const put = useCallback(
-    (endpoint, body) =>
-      request(endpoint, { method: 'PUT', body: JSON.stringify(body) }),
-    [request]
-  );
-
-  const del = useCallback(
-    (endpoint) => request(endpoint, { method: 'DELETE' }),
-    [request]
-  );
-
-  return { get, post, put, del };
+  return { get, post, put, del, loading, error }
 }
-
-export default useApi;

@@ -1,70 +1,78 @@
-const express = require('express');
-const bcrypt = require('bcryptjs');
-const Joi = require('joi');
-const { PrismaClient } = require('@prisma/client');
-const { signToken } = require('../utils/jwt');
-const { validate } = require('../middleware/validate');
+const { Router } = require('express')
+const bcrypt = require('bcryptjs')
+const { z } = require('zod')
+const { PrismaClient } = require('@prisma/client')
+const { signToken } = require('../utils/jwt')
+const { validate } = require('../middleware/validate')
 
-const router = express.Router();
-const prisma = new PrismaClient();
+const router = Router()
+const prisma = new PrismaClient()
 
-const registerSchema = Joi.object({
-  email: Joi.string().email().required(),
-  password: Joi.string().min(6).required(),
-  name: Joi.string().min(1).max(100).required(),
-});
+const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+})
 
-const loginSchema = Joi.object({
-  email: Joi.string().email().required(),
-  password: Joi.string().required(),
-});
+const registerSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+  name: z.string().min(1),
+})
 
-router.post('/register', validate(registerSchema), async (req, res, next) => {
-  try {
-    const { email, password, name } = req.body;
-
-    const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) {
-      return res.status(409).json({ error: 'Email already registered', status: 409 });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 12);
-    const user = await prisma.user.create({
-      data: { email, password: hashedPassword, name },
-      select: { id: true, email: true, name: true, createdAt: true },
-    });
-
-    const token = signToken({ userId: user.id });
-
-    res.status(201).json({ user, token });
-  } catch (err) {
-    next(err);
-  }
-});
-
+/**
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     summary: Authentification
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email: { type: string }
+ *               password: { type: string }
+ *     responses:
+ *       200:
+ *         description: Token JWT
+ *       401:
+ *         description: Credentials invalides
+ */
 router.post('/login', validate(loginSchema), async (req, res, next) => {
   try {
-    const { email, password } = req.body;
-
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid credentials', status: 401 });
+    const { email, password } = req.validated
+    const user = await prisma.user.findUnique({ where: { email } })
+    if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+      return res.status(401).json({ error: 'Email ou mot de passe incorrect' })
     }
-
-    const valid = await bcrypt.compare(password, user.password);
-    if (!valid) {
-      return res.status(401).json({ error: 'Invalid credentials', status: 401 });
-    }
-
-    const token = signToken({ userId: user.id });
-
-    res.json({
-      user: { id: user.id, email: user.email, name: user.name },
-      token,
-    });
+    const token = signToken({ id: user.id, email: user.email, role: user.role, name: user.name })
+    res.json({ token, user: { id: user.id, email: user.email, name: user.name, role: user.role } })
   } catch (err) {
-    next(err);
+    next(err)
   }
-});
+})
 
-module.exports = router;
+/**
+ * @swagger
+ * /api/auth/register:
+ *   post:
+ *     summary: Inscription
+ *     tags: [Auth]
+ */
+router.post('/register', validate(registerSchema), async (req, res, next) => {
+  try {
+    const { email, password, name } = req.validated
+    const existing = await prisma.user.findUnique({ where: { email } })
+    if (existing) return res.status(409).json({ error: 'Email déjà utilisé' })
+    const passwordHash = await bcrypt.hash(password, 10)
+    const user = await prisma.user.create({ data: { email, passwordHash, name } })
+    const token = signToken({ id: user.id, email: user.email, role: user.role, name: user.name })
+    res.status(201).json({ token, user: { id: user.id, email: user.email, name: user.name, role: user.role } })
+  } catch (err) {
+    next(err)
+  }
+})
+
+module.exports = router

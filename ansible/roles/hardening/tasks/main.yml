@@ -1,0 +1,63 @@
+---
+# ─── Packages ────────────────────────────────────────────────────────────────
+- name: Install security packages
+  apt:
+    name:
+      - ufw
+      - fail2ban
+      - unattended-upgrades
+      - apt-listchanges
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+
+# ─── UFW Firewall ─────────────────────────────────────────────────────────────
+- name: UFW - set default deny incoming
+  command: ufw default deny incoming
+  changed_when: false
+
+- name: UFW - set default allow outgoing
+  command: ufw default allow outgoing
+  changed_when: false
+
+- name: UFW - allow all traffic from LAN subnet
+  command: "ufw allow from {{ ufw_lan_subnet }} to any"
+  register: ufw_lan_result
+  changed_when: "'Skipping' not in ufw_lan_result.stdout"
+
+- name: UFW - allow SSH as safety net
+  command: ufw allow 22/tcp
+  register: ufw_ssh_result
+  changed_when: "'Skipping' not in ufw_ssh_result.stdout"
+
+- name: UFW - enable firewall (non-interactive)
+  command: ufw --force enable
+  changed_when: false
+
+# ─── Fail2ban ─────────────────────────────────────────────────────────────────
+- name: Deploy fail2ban jail.local
+  template:
+    src: jail.local.j2
+    dest: /etc/fail2ban/jail.local
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart fail2ban
+
+- name: Ensure fail2ban is started and enabled
+  service:
+    name: fail2ban
+    state: started
+    enabled: yes
+
+# ─── Unattended-upgrades ──────────────────────────────────────────────────────
+- name: Configure automatic security updates
+  copy:
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+      APT::Periodic::AutocleanInterval "7";
+    owner: root
+    group: root
+    mode: '0644'

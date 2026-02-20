@@ -1,0 +1,9 @@
+---
+# UFW - LAN subnet always whitelisted to avoid blocking Ansible/monitoring
+ufw_lan_subnet: "192.168.1.0/24"
+
+# Fail2ban SSH jail
+fail2ban_ignoreip: "127.0.0.1/8 ::1 192.168.1.0/24"
+fail2ban_ssh_maxretry: 3
+fail2ban_ssh_bantime: 3600   # 1 hour
+fail2ban_ssh_findtime: 600   # 10 min window

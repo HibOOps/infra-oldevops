@@ -1,69 +1,28 @@
-import { useState, useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useCallback } from 'react'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const TOKEN_KEY = 'pricesync_token'
+const USER_KEY = 'pricesync_user'
 
-function useAuth() {
-  const [token, setToken] = useState(() => localStorage.getItem('token'));
+export function useAuth() {
+  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY))
   const [user, setUser] = useState(() => {
-    const stored = localStorage.getItem('user');
-    return stored ? JSON.parse(stored) : null;
-  });
-  const navigate = useNavigate();
+    const u = localStorage.getItem(USER_KEY)
+    return u ? JSON.parse(u) : null
+  })
 
-  const isAuthenticated = !!token;
-
-  const login = useCallback(async (email, password) => {
-    const res = await fetch(`${API_URL}/api/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Login failed');
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('user', JSON.stringify(data.user));
-    setToken(data.token);
-    setUser(data.user);
-    navigate('/tasks');
-  }, [navigate]);
-
-  const register = useCallback(async (name, email, password) => {
-    const res = await fetch(`${API_URL}/api/auth/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password }),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Registration failed');
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('user', JSON.stringify(data.user));
-    setToken(data.token);
-    setUser(data.user);
-    navigate('/tasks');
-  }, [navigate]);
+  const login = useCallback((newToken, newUser) => {
+    localStorage.setItem(TOKEN_KEY, newToken)
+    localStorage.setItem(USER_KEY, JSON.stringify(newUser))
+    setToken(newToken)
+    setUser(newUser)
+  }, [])
 
   const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setToken(null);
-    setUser(null);
-    navigate('/login');
-  }, [navigate]);
+    localStorage.removeItem(TOKEN_KEY)
+    localStorage.removeItem(USER_KEY)
+    setToken(null)
+    setUser(null)
+  }, [])
 
-  useEffect(() => {
-    const handleStorage = () => {
-      const t = localStorage.getItem('token');
-      if (!t) {
-        setToken(null);
-        setUser(null);
-      }
-    };
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, []);
-
-  return { token, user, isAuthenticated, login, register, logout };
+  return { token, user, login, logout, isAuthenticated: !!token }
 }
-
-export default useAuth;

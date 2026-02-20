@@ -1,0 +1,60 @@
+repos:
+  # ─── Secrets detection ──────────────────────────────────────────────────────
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        name: Detect secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: >
+          (?x)^(
+            ansible/vault/.*|
+            \.secrets\.baseline$
+          )$
+
+  # ─── General file hygiene ───────────────────────────────────────────────────
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-yaml
+        name: Validate YAML syntax
+        exclude: ansible/roles/.*\.j2$
+      - id: check-json
+        name: Validate JSON syntax
+      - id: check-merge-conflict
+        name: Check for merge conflict markers
+      - id: trailing-whitespace
+        name: Trim trailing whitespace
+      - id: end-of-file-fixer
+        name: Ensure files end with newline
+      - id: check-added-large-files
+        name: Block large files (>500KB)
+        args: ['--maxkb=500']
+
+  # ─── Block sensitive files ───────────────────────────────────────────────────
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: no-commit-to-branch
+        name: Protect main branch
+        args: ['--branch', 'main']
+
+  # ─── Terraform formatting ────────────────────────────────────────────────────
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.96.2
+    hooks:
+      - id: terraform_fmt
+        name: Terraform format
+      - id: terraform_validate
+        name: Terraform validate
+        args:
+          - --init-args=-backend=false
+
+  # ─── Ansible lint ────────────────────────────────────────────────────────────
+  - repo: https://github.com/ansible/ansible-lint
+    rev: v24.12.2
+    hooks:
+      - id: ansible-lint
+        name: Ansible lint
+        files: ^ansible/
+        args: ['--config-file', 'ansible/.ansible-lint']

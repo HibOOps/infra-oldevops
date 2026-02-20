@@ -1,31 +1,20 @@
-FROM node:20-alpine AS build
-
+# Stage build
+FROM node:20-alpine AS builder
 WORKDIR /app
-
-COPY package.json package-lock.json* ./
-RUN npm ci
-
+COPY package*.json ./
+RUN npm ci --only=production
 COPY prisma ./prisma
 RUN npx prisma generate
 
-COPY src ./src
-
-FROM node:20-alpine
-
+# Stage production
+FROM node:20-alpine AS production
 WORKDIR /app
+RUN apk add --no-cache wget
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY prisma ./prisma
+COPY src ./src
+COPY package.json ./
 
-# Install OpenSSL for Prisma compatibility
-RUN apk add --no-cache openssl libssl3
-
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-
-COPY --from=build --chown=appuser:appgroup /app/node_modules ./node_modules
-COPY --from=build --chown=appuser:appgroup /app/package.json ./package.json
-COPY --from=build --chown=appuser:appgroup /app/src ./src
-COPY --from=build --chown=appuser:appgroup /app/prisma ./prisma
-
-USER appuser
-
-EXPOSE 8080
-
-CMD ["node", "src/server.js"]
+# Migrate + seed + start
+CMD ["sh", "-c", "npx prisma migrate deploy && node prisma/seed.js && node src/server.js"]

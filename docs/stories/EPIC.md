@@ -61,7 +61,7 @@ Ce projet d'infrastructure existe actuellement comme laboratoire de test personn
 | 1.9 | [Monitoring Avancé - Loki pour Agrégation de Logs](story-1.9.md) | ✅ Done | P2 | - |
 | 1.10 | [Monitoring Avancé - Dashboards Grafana Versionnés](story-1.10.md) | ✅ Done | P2 | 1.9 |
 | 1.11 | [Backup et Disaster Recovery Automation](story-1.11.md) | ✅ Done | P2 | - |
-| 1.12 | [Sécurité - Scanning et Hardening Automatisé](story-1.12.md) | 📝 Todo | P2 | 1.1 |
+| 1.12 | [Sécurité - Scanning et Hardening Automatisé](story-1.12.md) | ✅ Done | P2 | 1.1 |
 | 1.13 | [Documentation Professionnelle - Architecture et Runbooks](story-1.13.md) | 📝 Todo | P3 | Toutes |
 | 1.14 | [README et Portfolio - Transformation en Vitrine Professionnelle](story-1.14.md) | 📝 Todo | P3 | Toutes |
 
@@ -137,7 +137,7 @@ Ce projet d'infrastructure existe actuellement comme laboratoire de test personn
 | Phase 1 — CI/CD | 1.1, 1.2, 1.3 | ✅ Complète (3/3) |
 | Phase 2 — Application | 1.4, 1.5, 1.6, 1.7, 1.8 | 🔄 En cours (2/5 Ready for Review) |
 | Phase 3 — Monitoring | 1.9, 1.10 | 🔄 En cours (1/2 Ready for Review) |
-| Phase 4 — Opérations | 1.11, 1.12 | 📝 À faire |
+| Phase 4 — Opérations | 1.11, 1.12 | ✅ Complète (2/2) |
 | Phase 5 — Documentation | 1.13, 1.14 | 📝 À faire |
 
-**Avancement global** : 3 Done · 3 Ready for Review · 3 In Progress · 5 Todo
+**Avancement global** : 4 Done · 3 Ready for Review · 3 In Progress · 4 Todo

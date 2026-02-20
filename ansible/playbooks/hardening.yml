@@ -1,0 +1,5 @@
+---
+- hosts: all:!proxmox
+  become: yes
+  roles:
+    - hardening

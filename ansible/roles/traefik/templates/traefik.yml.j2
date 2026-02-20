@@ -3,11 +3,11 @@ global:
   sendAnonymousUsage: false
 
 log:
-  level: DEBUG
+  level: ERROR
 
 api:
   dashboard: true
-  insecure: true # port 8080 sans TLS, A REMOVE EN PRODUCTION
+  insecure: false
 
 entryPoints:
   web:
@@ -19,6 +19,9 @@ entryPoints:
           scheme: https
   websecure:
     address: ":443"
+    http:
+      tls:
+        options: tls-min13
 
 providers:
   docker:

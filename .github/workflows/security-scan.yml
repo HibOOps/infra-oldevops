@@ -23,6 +23,7 @@ jobs:
         with:
           fetch-depth: 0  # Full history for trufflehog
 
+      # ─── tfsec : Terraform static analysis ────────────────────────────────
       - name: Run tfsec on Terraform code
         id: tfsec
         run: |
@@ -56,6 +57,85 @@ jobs:
           path: terraform/tfsec-results.json
           retention-days: 30
 
+      # ─── Checkov : IaC security scanning ──────────────────────────────────
+      - name: Run Checkov on Terraform
+        id: checkov
+        run: |
+          echo "Running Checkov IaC scanner..."
+          cd terraform
+
+          checkov -d . \
+            --framework terraform \
+            --output json \
+            --output-file-path . \
+            --soft-fail || true
+
+          # results_json is checkov's default output name
+          RESULTS_FILE="results_json.json"
+          if [ -f "$RESULTS_FILE" ]; then
+            FAILED=$(jq '.summary.failed // 0' "$RESULTS_FILE")
+            PASSED=$(jq '.summary.passed // 0' "$RESULTS_FILE")
+            echo "checkov_failed=$FAILED" >> $GITHUB_OUTPUT
+            echo "checkov_passed=$PASSED" >> $GITHUB_OUTPUT
+            echo "Checkov: $PASSED passed, $FAILED failed"
+            [ "$FAILED" -gt 0 ] && exit 1 || true
+          else
+            echo "checkov_failed=0" >> $GITHUB_OUTPUT
+            echo "checkov_passed=0" >> $GITHUB_OUTPUT
+            echo "No Checkov results file found"
+          fi
+        continue-on-error: true
+
+      - name: Upload Checkov results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkov-results
+          path: terraform/results_json.json
+          retention-days: 30
+
+      # ─── Trivy : Docker image vulnerability scan ───────────────────────────
+      - name: Run Trivy on application Docker image
+        id: trivy
+        run: |
+          echo "Running Trivy vulnerability scanner..."
+
+          # Scan the app-demo image (built from app/ directory)
+          IMAGE_NAME="infra-oldevops/app-demo:latest"
+
+          # Build image locally for scanning if not cached
+          if [ -f "app/Dockerfile" ]; then
+            docker build -t "$IMAGE_NAME" app/ -q || docker build -t "$IMAGE_NAME" app/backend/ -q || true
+          fi
+
+          # Run Trivy scan — fail on CRITICAL (CVSS ≥ 9.0)
+          trivy image \
+            --exit-code 1 \
+            --severity CRITICAL \
+            --format json \
+            --output trivy-results.json \
+            "$IMAGE_NAME" 2>/dev/null || TRIVY_EXIT=$?
+
+          CRITICAL_COUNT=$(jq '[.Results[]?.Vulnerabilities[]? | select(.Severity == "CRITICAL")] | length' trivy-results.json 2>/dev/null || echo "0")
+          echo "trivy_critical=$CRITICAL_COUNT" >> $GITHUB_OUTPUT
+
+          if [ "${TRIVY_EXIT:-0}" -ne 0 ]; then
+            echo "❌ Trivy found $CRITICAL_COUNT CRITICAL vulnerabilities (CVSS ≥ 9.0)"
+            exit 1
+          else
+            echo "✅ No CRITICAL vulnerabilities found by Trivy"
+          fi
+        continue-on-error: true
+
+      - name: Upload Trivy results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-results
+          path: trivy-results.json
+          retention-days: 30
+
+      # ─── Trufflehog : Secrets detection ───────────────────────────────────
       - name: Scan for secrets with trufflehog
         id: trufflehog
         run: |
@@ -89,47 +169,37 @@ jobs:
           path: trufflehog-results.json
           retention-days: 30
 
+      # ─── PR Comment ────────────────────────────────────────────────────────
       - name: Comment PR with Security Results
         uses: actions/github-script@v7
         if: github.event_name == 'pull_request'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const tfsecOutcome = '${{ steps.tfsec.outcome }}';
+            const tfsecOutcome    = '${{ steps.tfsec.outcome }}';
+            const checkovOutcome  = '${{ steps.checkov.outcome }}';
+            const trivyOutcome    = '${{ steps.trivy.outcome }}';
             const trufflehogOutcome = '${{ steps.trufflehog.outcome }}';
-            const criticalCount = '${{ steps.tfsec.outputs.critical_count }}' || '0';
-            const highCount = '${{ steps.tfsec.outputs.high_count }}' || '0';
-            const secretCount = '${{ steps.trufflehog.outputs.secret_count }}' || '0';
 
-            let tfsecStatus = '✅';
-            let tfsecMessage = 'No CRITICAL or HIGH issues found';
+            const criticalCount  = '${{ steps.tfsec.outputs.critical_count }}'   || '0';
+            const highCount      = '${{ steps.tfsec.outputs.high_count }}'        || '0';
+            const checkovFailed  = '${{ steps.checkov.outputs.checkov_failed }}'  || '0';
+            const checkovPassed  = '${{ steps.checkov.outputs.checkov_passed }}'  || '0';
+            const trivyCritical  = '${{ steps.trivy.outputs.trivy_critical }}'   || '0';
+            const secretCount    = '${{ steps.trufflehog.outputs.secret_count }}' || '0';
 
-            if (tfsecOutcome === 'failure') {
-              tfsecStatus = '❌';
-              tfsecMessage = `Found ${criticalCount} CRITICAL and ${highCount} HIGH severity issues`;
-            }
-
-            let secretsStatus = '✅';
-            let secretsMessage = 'No verified secrets detected';
-
-            if (trufflehogOutcome === 'failure') {
-              secretsStatus = '❌';
-              secretsMessage = `Found ${secretCount} verified secrets in git history`;
-            }
+            const icon = (outcome) => outcome === 'failure' ? '❌' : '✅';
 
             const output = `### Security Scan Results 🔒
 
-            #### Infrastructure Security (tfsec) ${tfsecStatus}
-            ${tfsecMessage}
+            | Scanner | Status | Details |
+            |---------|--------|---------|
+            | tfsec (Terraform) | ${icon(tfsecOutcome)} | ${criticalCount} CRITICAL, ${highCount} HIGH |
+            | Checkov (IaC) | ${icon(checkovOutcome)} | ${checkovFailed} failed, ${checkovPassed} passed |
+            | Trivy (Docker) | ${icon(trivyOutcome)} | ${trivyCritical} CRITICAL vulnerabilities |
+            | Trufflehog (Secrets) | ${icon(trufflehogOutcome)} | ${secretCount} verified secrets |
 
-            #### Secrets Detection (trufflehog) ${secretsStatus}
-            ${secretsMessage}
-
-            ---
-
-            📊 **Artifacts Available:**
-            - tfsec results (JSON)
-            - trufflehog results (JSON)
+            📊 **Artifacts**: tfsec-results · checkov-results · trivy-results · trufflehog-results
 
             *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
 
@@ -140,8 +210,13 @@ jobs:
               body: output
             })
 
+      # ─── Final gate ────────────────────────────────────────────────────────
       - name: Final Security Check
-        if: steps.tfsec.outcome == 'failure' || steps.trufflehog.outcome == 'failure'
+        if: |
+          steps.tfsec.outcome == 'failure' ||
+          steps.checkov.outcome == 'failure' ||
+          steps.trivy.outcome == 'failure' ||
+          steps.trufflehog.outcome == 'failure'
         run: |
           echo "❌ Security scan failed - blocking PR merge"
           echo "Please review the security issues and fix them before merging"

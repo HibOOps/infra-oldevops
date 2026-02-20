@@ -1,20 +1,17 @@
-version: "3.8"
-
 services:
-  postgres:
+  db:
     image: postgres:16-alpine
-    container_name: app-demo-db
-    restart: unless-stopped
+    container_name: pricesync-db
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-app_demo}
-      POSTGRES_USER: ${POSTGRES_USER:-app_demo}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: pricesync_db
+      POSTGRES_USER: pricesync
+      POSTGRES_PASSWORD: pricesync_password
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - pricesync_pgdata:/var/lib/postgresql/data
     networks:
-      - app-internal
+      - pricesync_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-app_demo}"]
+      test: ["CMD-SHELL", "pg_isready -U pricesync -d pricesync_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -22,48 +19,55 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
-    container_name: app-demo-backend
-    restart: unless-stopped
-    env_file: .env
+      target: production
+    container_name: pricesync-backend
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-app_demo}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-app_demo}
-      PORT: 8080
-    ports:
-      - "8080:8080"
+      DATABASE_URL: postgresql://pricesync:pricesync_password@db:5432/pricesync_db
+      JWT_SECRET: ${JWT_SECRET:-pricesync_dev_secret_change_in_prod}
+      JWT_EXPIRES_IN: 24h
+      PORT: 5000
+      NODE_ENV: production
+      CORS_ORIGIN: "*"
     depends_on:
-      postgres:
+      db:
         condition: service_healthy
     networks:
-      - app-internal
+      - pricesync_network
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/api/health"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:5000/api/health"]
       interval: 15s
       timeout: 5s
-      retries: 3
+      retries: 5
+      start_period: 30s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pricesync-api.rule=Host(`demo.oldevops.fr`) && PathPrefix(`/api`)"
+      - "traefik.http.services.pricesync-api.loadbalancer.server.port=5000"
 
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
-    container_name: app-demo-frontend
-    restart: unless-stopped
-    ports:
-      - "3000:80"
+      target: production
+    container_name: pricesync-frontend
     depends_on:
       backend:
         condition: service_healthy
     networks:
-      - app-internal
+      - pricesync_network
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:80"]
       interval: 15s
       timeout: 5s
       retries: 3
+      start_period: 10s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pricesync-frontend.rule=Host(`demo.oldevops.fr`)"
+      - "traefik.http.services.pricesync-frontend.loadbalancer.server.port=80"
 
 volumes:
-  postgres_data:
+  pricesync_pgdata:
 
 networks:
-  app-internal:
+  pricesync_network:
     driver: bridge

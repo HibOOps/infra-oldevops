@@ -1,52 +1,49 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import DashboardPage from './pages/DashboardPage';
-import TaskDetailPage from './pages/TaskDetailPage';
-import ProtectedRoute from './components/ProtectedRoute';
-import Navbar from './components/Navbar';
-import useAuth from './hooks/useAuth';
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { useAuth } from './hooks/useAuth'
+import Navbar from './components/Navbar'
+import ProtectedRoute from './components/ProtectedRoute'
+import LoginPage from './pages/LoginPage'
+import DashboardPage from './pages/DashboardPage'
+import ProductsPage from './pages/ProductsPage'
+import PricesPage from './pages/PricesPage'
+import RulesPage from './pages/RulesPage'
+import HistoryPage from './pages/HistoryPage'
 
-function App() {
-  const { isAuthenticated, user, logout } = useAuth();
+export default function App() {
+  const { token, user, login, logout, isAuthenticated } = useAuth()
 
   return (
-    <div className="app">
+    <>
       {isAuthenticated && <Navbar user={user} onLogout={logout} />}
-      <main className="main-content">
-        <Routes>
-          <Route
-            path="/"
-            element={
-              isAuthenticated ? (
-                <Navigate to="/tasks" replace />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route
-            path="/tasks"
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/tasks/:id"
-            element={
-              <ProtectedRoute>
-                <TaskDetailPage />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </main>
-    </div>
-  );
+      <Routes>
+        <Route path="/login" element={<LoginPage onLogin={login} />} />
+        <Route path="/" element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <DashboardPage token={token} />
+          </ProtectedRoute>
+        } />
+        <Route path="/products" element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <ProductsPage token={token} />
+          </ProtectedRoute>
+        } />
+        <Route path="/prices" element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <PricesPage token={token} />
+          </ProtectedRoute>
+        } />
+        <Route path="/rules" element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <RulesPage token={token} />
+          </ProtectedRoute>
+        } />
+        <Route path="/history" element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <HistoryPage token={token} />
+          </ProtectedRoute>
+        } />
+        <Route path="*" element={<Navigate to={isAuthenticated ? '/' : '/login'} replace />} />
+      </Routes>
+    </>
+  )
 }
-
-export default App;
