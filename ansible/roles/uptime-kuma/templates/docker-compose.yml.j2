@@ -16,7 +16,10 @@ services:
       - "traefik.http.routers.uptimekuma.rule=Host(`status.oldevops.fr`)"
       - "traefik.http.routers.uptimekuma.entrypoints=websecure"
       - "traefik.http.routers.uptimekuma.tls.certresolver=ovh"
+      - "traefik.http.routers.uptimekuma.middlewares=uptime-kuma-headers,rate-limit"
       - "traefik.http.services.uptimekuma.loadbalancer.server.port=3001"
+      - "traefik.http.services.uptimekuma.loadbalancer.server.scheme=http"
+      - "traefik.http.services.uptimekuma.loadbalancer.passhostheader=true"
 
 networks:
   proxy:

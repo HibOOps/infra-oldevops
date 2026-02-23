@@ -18,6 +18,13 @@ http:
         average: 1000
         burst: 500
 
+    uptime-kuma-headers:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-Proto: "https"
+        # Allow WebSocket connections (socket.io used by Uptime Kuma)
+        contentSecurityPolicy: "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: wss: ws:; img-src 'self' data: https:;"
+
   routers:
     pricesync-api:
       rule: "Host(`demo.{{ domain_name }}`) && PathPrefix(`/api`)"
@@ -69,7 +76,7 @@ http:
         certResolver: ovh
       service: uptimekuma
       middlewares:
-        - secure-headers
+        - uptime-kuma-headers
         - rate-limit
     alertmanager:
       rule: "Host(`alertmanager.{{ domain_name }}`)"
