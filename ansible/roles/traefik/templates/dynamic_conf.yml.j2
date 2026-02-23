@@ -22,8 +22,10 @@ http:
       headers:
         customRequestHeaders:
           X-Forwarded-Proto: "https"
-        # Allow WebSocket connections (socket.io used by Uptime Kuma)
-        contentSecurityPolicy: "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: wss: ws:; img-src 'self' data: https:;"
+        customResponseHeaders:
+          # Override Uptime Kuma's own Helmet.js CSP — browsers apply intersection
+          # of multiple CSP headers (most restrictive wins), so we must replace it.
+          Content-Security-Policy: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' wss: ws:; frame-ancestors 'none';"
 
   routers:
     pricesync-api:
