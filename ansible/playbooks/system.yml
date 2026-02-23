@@ -26,7 +26,6 @@
 #    - ip
 #    - netfilter
 #    - filebeat
-#    - zabbix-agent
 
 # Outils système
 #    - btop

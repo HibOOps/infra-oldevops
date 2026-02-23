@@ -117,7 +117,7 @@ jobs:
         env:
           ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
 
-      - name: Deploy Monitoring (Zabbix, Uptime Kuma, Prometheus, Grafana)
+      - name: Deploy Monitoring (Uptime Kuma, Prometheus, Grafana, Loki)
         id: ansible_monitoring
         working-directory: ansible
         run: |

@@ -53,7 +53,7 @@ module "utilities" {
   gateway = "192.168.1.254"
 }
 
-# 3. Conteneur Monitoring (Zabbix, Uptime Kuma, Prometheus, Grafana)
+# 3. Conteneur Monitoring (Uptime Kuma, Prometheus, Grafana, Loki)
 module "monitoring" {
   source          = "./modules/lxc_container"
   vmid            = 240 # Aligned with actual deployed VMID (corrected from 202)

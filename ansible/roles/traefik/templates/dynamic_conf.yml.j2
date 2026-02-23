@@ -71,13 +71,13 @@ http:
       middlewares:
         - secure-headers
         - rate-limit
-    zabbix:
-      rule: "Host(`monitoring.{{ domain_name }}`)"
+    alertmanager:
+      rule: "Host(`alertmanager.{{ domain_name }}`)"
       entryPoints:
         - websecure
       tls:
         certResolver: ovh
-      service: zabbix
+      service: alertmanager
       middlewares:
         - secure-headers
         - rate-limit
@@ -134,10 +134,10 @@ http:
       loadBalancer:
         servers:
           - url: "http://192.168.1.202:3001"
-    zabbix:
+    alertmanager:
       loadBalancer:
         servers:
-          - url: "http://192.168.1.202:8083"
+          - url: "http://192.168.1.202:9093"
     prometheus:
       loadBalancer:
         servers:

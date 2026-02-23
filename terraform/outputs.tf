@@ -26,9 +26,10 @@ output "services" {
     "Vaultwarden"             = "https://vault.${var.domain}"
     "Snipe-IT"                = "https://inventory.${var.domain}"
     "Uptime Kuma"             = "https://status.${var.domain}"
-    "Zabbix"                  = "https://monitoring.${var.domain}"
+    "Loki"                    = "https://loki.${var.domain}"
     "Grafana"                 = "https://grafana.${var.domain}"
     "Prometheus"              = "https://prometheus.${var.domain}"
+    "Alertmanager"            = "https://alertmanager.${var.domain}"
   }
 }
 
