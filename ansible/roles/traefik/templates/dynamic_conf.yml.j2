@@ -23,10 +23,7 @@ http:
         customRequestHeaders:
           X-Forwarded-Proto: "https"
         customResponseHeaders:
-          # Override Uptime Kuma's own Helmet.js CSP — browsers apply intersection
-          # of multiple CSP headers (most restrictive wins), so we must replace it.
           Content-Security-Policy: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' wss: ws:;"
-          # Force override des headers Helmet.js
           Referrer-Policy: "strict-origin-when-cross-origin"
 
   routers:
