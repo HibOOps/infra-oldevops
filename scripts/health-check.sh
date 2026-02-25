@@ -18,7 +18,6 @@ HTTP_SERVICES=(
   ["status.oldevops.fr"]="200,301,302"      # Uptime Kuma: redirects HTTP→HTTPS
   ["grafana.oldevops.fr"]="200,301,302,502"  # 502 while Grafana is starting
   ["inventory.oldevops.fr"]="200,301,302"   # Snipe-IT: redirects HTTP→HTTPS
-  ["monitoring.oldevops.fr"]="200,301,302"
   ["demo.oldevops.fr"]="200,301,302,502,503" # PriceSync frontend: 503 while starting
 )
 
