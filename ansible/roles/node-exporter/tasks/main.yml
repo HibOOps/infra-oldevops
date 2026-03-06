@@ -11,8 +11,14 @@
     dest: /opt/node-exporter/docker-compose.yml
     mode: '0644'
 
+- name: UFW - allow Docker bridge to reach node-exporter
+  command: ufw allow from 172.16.0.0/12 to any port 9100 proto tcp
+  register: ufw_docker_result
+  changed_when: "'Skipping' not in ufw_docker_result.stdout"
+  ignore_errors: true
+
 - name: Launch Node Exporter
-  shell: docker compose up -d
+  shell: docker compose up -d --remove-orphans
   args:
     chdir: /opt/node-exporter
 
