@@ -10,13 +10,13 @@ RUN npx prisma generate
 # Stage production
 FROM node:20-alpine AS production
 WORKDIR /app
-RUN apk add --no-cache wget openssl
-# Copy full node_modules (includes prisma CLI needed for db push at runtime)
-COPY --from=builder /app/node_modules ./node_modules
+RUN apk upgrade --no-cache && apk add --no-cache wget openssl
+COPY package*.json ./
+RUN npm ci --omit=dev
+# Copy generated Prisma client from builder
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY prisma ./prisma
 COPY src ./src
-COPY package.json ./
 
 EXPOSE 5000
 
