@@ -1,6 +1,7 @@
 ---
 app_demo_dir: /opt/app-demo
 app_demo_domain: "demo.oldevops.fr"
+app_demo_registry: "ghcr.io/hiboops"
 
 # Database
 app_demo_db_name: pricesync_db

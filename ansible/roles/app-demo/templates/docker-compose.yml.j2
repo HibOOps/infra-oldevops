@@ -18,9 +18,7 @@ services:
       retries: 5
 
   backend:
-    build:
-      context: ./backend
-      target: production
+    image: {{ app_demo_registry }}/app-demo-backend:latest
     container_name: pricesync-backend
     restart: unless-stopped
     environment:
@@ -45,9 +43,7 @@ services:
       start_period: 30s
 
   frontend:
-    build:
-      context: ./frontend
-      target: production
+    image: {{ app_demo_registry }}/app-demo-frontend:latest
     container_name: pricesync-frontend
     restart: unless-stopped
     ports:
