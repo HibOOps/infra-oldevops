@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const swaggerUi = require('swagger-ui-express')
 const { errorHandler } = require('./middleware/errorHandler')
+const { metricsMiddleware, register } = require('./middleware/metrics')
 
 const authRoutes = require('./routes/auth')
 const productRoutes = require('./routes/products')
@@ -15,6 +16,13 @@ const app = express()
 
 app.use(cors({ origin: process.env.CORS_ORIGIN || '*' }))
 app.use(express.json())
+app.use(metricsMiddleware)
+
+// Prometheus metrics
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', register.contentType)
+  res.end(await register.metrics())
+})
 
 // Health check
 app.get('/api/health', (req, res) => {

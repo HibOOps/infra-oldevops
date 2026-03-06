@@ -37,6 +37,13 @@ scrape_configs:
           instance: '{{ host }}'
 {% endfor %}
 
+  - job_name: 'pricesync'
+    static_configs:
+      - targets: ['192.168.1.250:5000']
+        labels:
+          instance: '192.168.1.250'
+          service: 'pricesync-api'
+
   - job_name: 'cadvisor'
     static_configs:
 {% for host in groups['all'] | difference(groups.get('proxmox', [])) %}
