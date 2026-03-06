@@ -13,7 +13,7 @@ echo "=== HTTP Health Checks ==="
 
 declare -A HTTP_SERVICES
 HTTP_SERVICES=(
-  ["proxy.oldevops.fr"]="200,301,302,404"   # Traefik dashboard: may redirect HTTP→HTTPS
+  ["proxy.oldevops.fr"]="200,301,302,401,404"   # Traefik dashboard: BasicAuth returns 401
   ["vault.oldevops.fr"]="200,301,302"
   ["status.oldevops.fr"]="200,301,302"      # Uptime Kuma: redirects HTTP→HTTPS
   ["grafana.oldevops.fr"]="200,301,302,502"  # 502 while Grafana is starting
