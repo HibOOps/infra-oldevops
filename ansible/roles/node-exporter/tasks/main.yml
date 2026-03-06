@@ -17,6 +17,9 @@
   changed_when: "'Skipping' not in ufw_docker_result.stdout"
   ignore_errors: true
 
+- name: Remove stale cadvisor container if present
+  shell: docker rm -f cadvisor 2>/dev/null || true
+
 - name: Launch Node Exporter
   shell: docker compose up -d --remove-orphans
   args:
