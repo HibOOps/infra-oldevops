@@ -1,189 +1,133 @@
-# Infra-oldevops
+# Infra-OlDevOps
 
-Infrastructure-as-Code pour le déploiement des services internes sur un serveur Proxmox derrière un routeur Bouygues, utilisant le domaine `oldevops.fr`.
+![Build](https://github.com/olabe/Infra-oldevops/actions/workflows/app-docker.yml/badge.svg)
+![Terraform](https://github.com/olabe/Infra-oldevops/actions/workflows/terraform-validate.yml/badge.svg)
+![Tests](https://github.com/olabe/Infra-oldevops/actions/workflows/app-build.yml/badge.svg)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
-## 🌐 Architecture Globale
+Infrastructure as Code complète déployée sur Proxmox VE bare-metal — Terraform, Ansible, CI/CD GitHub Actions, monitoring full-stack et application de démonstration en production.
 
-### Containers Proxmox
+> **Demo** : [demo.oldevops.fr](https://demo.oldevops.fr) | **Portfolio** : [demo.oldevops.fr/portfolio](https://demo.oldevops.fr/portfolio) | **Status** : [status.oldevops.fr](https://status.oldevops.fr)
 
-| VMID | Hostname | IP | vCPU | RAM | Disk | Rôle | Statut |
-|------|----------|----|------|-----|------|------|--------|
-| 200 | proxy | 192.168.1.200 | 2 | 1 GB | 8 GB | Traefik reverse proxy (SSL, routage) | ✅ Running |
-| 201 | utilities | 192.168.1.201 | 6 | 8 GB | 40 GB | Vaultwarden, Snipe-IT, NetBox | ✅ Running |
-| 210 | ci-runner | 192.168.1.210 | 4 | 4 GB | 30 GB | GitHub Actions Runner auto-hébergé | ✅ Running |
-| 240 | monitoring | 192.168.1.202 | 4 | 6 GB | 50 GB | Prometheus, Grafana, Zabbix, Uptime Kuma | ✅ Running |
-| 250 | app-demo | 192.168.1.250 | 2 | 2 GB | 20 GB | Application de démonstration (Node.js/React/PostgreSQL) | ✅ Running |
+---
 
-### Services Principaux
+## Architecture
 
-| Service | URL | IP | Description |
-|---------|-----|----|-------------|
-| Reverse Proxy | https://proxy.oldevops.fr | 192.168.1.200 | Traefik v3 pour le routage et SSL (DNS-01) |
-| Uptime Kuma | https://status.oldevops.fr | 192.168.1.202 | Surveillance des services et temps de réponse |
-| Snipe-IT | https://inventory.oldevops.fr | 192.168.1.201 | Gestion de parc informatique |
-| Vaultwarden | https://vault.oldevops.fr | 192.168.1.201 | Gestionnaire de mots de passe auto-hébergé |
-| Zabbix | https://monitoring.oldevops.fr | 192.168.1.202 | Surveillance avancée des serveurs et services |
-| NetBox | https://netbox.oldevops.fr | 192.168.1.201 | Documentation réseau et DCIM |
-| Prometheus | https://prometheus.oldevops.fr | 192.168.1.202 | Métriques et monitoring |
-| Grafana | https://grafana.oldevops.fr | 192.168.1.202 | Dashboards de visualisation |
-| App Demo | https://app.oldevops.fr | 192.168.1.250 | Application de démonstration (Story 1.6-1.8) |
-
-## 🛠️ Stack Technique
-
-- **Infrastructure**
-  - Proxmox VE (Virtualisation)
-  - LXC (Conteneurs légers)
-  - Réseau BBox 192.168.1.0/24
-
-- **Outils**
-  - Terraform (Déploiement d'infrastructure)
-  - Ansible (Configuration des services)
-  - Git (Versioning du code)
-
-- **Sécurité**
-  - Traefik v3 (Reverse Proxy + SSL)
-  - OVH DNS-01 (Certificats SSL Let's Encrypt)
-  - Ansible Vault (Gestion des secrets)
-  - .env (Variables d'environnement)
-
-## 📦 Architecture Ansible
-
-Le projet utilise une architecture basée sur des rôles Ansible pour standardiser et simplifier le déploiement des services.
-
-### Rôles disponibles
-
-| Rôle | Description |
-|------|-------------|
-| `common` | Installation de Docker, Docker Compose et dépendances système (utilisé par tous les services) |
-| `traefik` | Déploiement de Traefik v3 avec challenge DNS OVH |
-| `uptime-kuma` | Déploiement d'Uptime Kuma pour la surveillance |
-| `snipeit` | Déploiement de Snipe-IT pour la gestion d'inventaire |
-| `vaultwarden` | Déploiement de Vaultwarden (gestionnaire de mots de passe) |
-| `zabbix-server` | Déploiement du serveur Zabbix |
-| `zabbix-agent` | Installation de l'agent Zabbix sur tous les conteneurs |
-| `ssh-setup` | Configuration sécurisée de SSH |
-
-### Playbooks
-
-Chaque service dispose de son propre playbook qui orchestre les rôles nécessaires :
-- `traefik.yml` - Déploie Traefik (remplace NPM)
-- `uptime-kuma.yml` - Déploie Uptime Kuma
-- `snipeit.yml` - Déploie Snipe-IT
-- `vaultwarden.yml` - Déploie Vaultwarden
-- `zabbix.yml` - Déploie Zabbix (serveur + agents)
-- `bootstrap-lxc.yml` - Bootstrap initial des conteneurs LXC
-- `ssh-setup.yml` - Configuration SSH sécurisée
-
-## 🚀 Déploiement
-
-### Prérequis
-
-1. Un serveur Proxmox installé et configuré
-2. Un domaine configuré (oldevops.fr) avec accès aux enregistrements DNS
-3. Accès API à Proxmox avec les permissions nécessaires
-4. Terraform (>= 1.0.0) et Ansible installés
-
-### Configuration Initiale
-
-1. Cloner le dépôt :
-   ```bash
-   git clone https://github.com/votre-utilisateur/Infra-oldevops.git
-   cd Infra-oldevops/infra-oldevops
-   ```
-
-2. Créer un fichier `terraform/terraform.tfvars` avec vos variables :
-   ```hcl
-   proxmox_host     = "votre-serveur-proxmox.oldevops.fr"
-   proxmox_username = "root@pam"
-   proxmox_password = "votre-mot-de-passe"
-   container_password = "mot-de-passe-securise"
-   email = "votre-email@oldevops.fr"
-   ```
-
-### Déploiement automatisé (recommandé)
-
-Le script `deploy.sh` orchestre automatiquement le déploiement complet (Terraform + Ansible) :
-
-```bash
-# Rendre le script exécutable
-chmod +x deploy.sh
-
-# Lancer le déploiement complet
-./deploy.sh
+```
+                        Internet
+                           │
+                    [Traefik v3]  ── SSL wildcard *.oldevops.fr
+                    192.168.1.200
+                    /     |      \
+         [monitoring] [utilities] [app-demo]  [ci-runner]
+          .202          .201        .250         .210
+     Prometheus      Vaultwarden  PriceSync   GitHub Runner
+     Grafana         Snipe-IT     Node/React
+     Loki            NetBox       PostgreSQL
+     Zabbix
 ```
 
-Ce script effectue les étapes suivantes :
-1. Déploiement de l'infrastructure avec Terraform
-2. Attente de la disponibilité des conteneurs
-3. Bootstrap SSH sur les conteneurs
-4. Configuration sécurisée de SSH
-5. Test de connectivité
+5 containers LXC sur Proxmox VE 8 — Debian 12 — Docker CE 25
 
-### Déploiement manuel avec Terraform
+---
 
-Si vous préférez déployer manuellement :
+## Technologies
+
+**Infrastructure**
+![Proxmox](https://img.shields.io/badge/Proxmox-E57000?logo=proxmox&logoColor=white)
+![Terraform](https://img.shields.io/badge/Terraform-7B42BC?logo=terraform&logoColor=white)
+![Ansible](https://img.shields.io/badge/Ansible-EE0000?logo=ansible&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
+
+**CI/CD & Sécurité**
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?logo=githubactions&logoColor=white)
+![Trivy](https://img.shields.io/badge/Trivy-1904DA?logo=aqua&logoColor=white)
+![Let's Encrypt](https://img.shields.io/badge/Let's_Encrypt-003A70?logo=letsencrypt&logoColor=white)
+
+**Observabilité**
+![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?logo=prometheus&logoColor=white)
+![Grafana](https://img.shields.io/badge/Grafana-F46800?logo=grafana&logoColor=white)
+![Loki](https://img.shields.io/badge/Loki-F7B731?logo=grafana&logoColor=white)
+
+**Application**
+![Node.js](https://img.shields.io/badge/Node.js_20-339933?logo=nodedotjs&logoColor=white)
+![React](https://img.shields.io/badge/React_18-61DAFB?logo=react&logoColor=black)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL_16-4169E1?logo=postgresql&logoColor=white)
+
+---
+
+## Services déployés
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| Reverse Proxy | [proxy.oldevops.fr](https://proxy.oldevops.fr) | Traefik v3 + SSL wildcard DNS-01 |
+| Portfolio / App | [demo.oldevops.fr](https://demo.oldevops.fr) | Homepage + PriceSync app |
+| Grafana | [grafana.oldevops.fr](https://grafana.oldevops.fr) | Dashboards métriques + logs |
+| Uptime Kuma | [status.oldevops.fr](https://status.oldevops.fr) | Monitoring uptime |
+| Vaultwarden | [vault.oldevops.fr](https://vault.oldevops.fr) | Gestionnaire de mots de passe |
+| Snipe-IT | [inventory.oldevops.fr](https://inventory.oldevops.fr) | Gestion de parc ITSM |
+| NetBox | [netbox.oldevops.fr](https://netbox.oldevops.fr) | Documentation réseau DCIM |
+| Prometheus | [prometheus.oldevops.fr](https://prometheus.oldevops.fr) | Métriques infrastructure |
+| Zabbix | [monitoring.oldevops.fr](https://monitoring.oldevops.fr) | Monitoring avancé |
+
+---
+
+## Pipeline CI/CD
+
+```
+Pull Request                    Push main
+──────────────────────          ──────────────────────────────────────
+terraform fmt/validate    →     Build Docker image
+tfsec (IaC security)      →     Push → ghcr.io
+ansible-lint              →     Trivy vulnerability scan
+Jest + Vitest tests        →     SSH deploy → LXC app-demo
+                           →     Health check
+```
+
+---
+
+## Compétences démontrées
+
+- **IaC** : provisioning déclaratif complet (Terraform + Ansible), idempotent et reproductible
+- **CI/CD** : pipeline automatisé de la PR au déploiement en production
+- **Sécurité** : SSL wildcard, firewall UFW, Fail2ban, secrets chiffrés AES-256, scan Trivy
+- **Observabilité** : métriques, logs centralisés, alerting, uptime monitoring
+- **Docker** : images multi-stage, registry privé, orchestration compose
+- **Développement** : application full-stack avec tests, API REST documentée (Swagger)
+
+---
+
+## Quick Start
 
 ```bash
+git clone https://github.com/olabe/Infra-oldevops.git
+cd Infra-oldevops/infra-oldevops
+
+# Infrastructure (Terraform)
 cd terraform
+cp terraform.tfvars.example terraform.tfvars  # remplir les variables
+terraform init && terraform apply
 
-# Initialiser les providers et modules
-terraform init
-
-# Vérifier le plan de déploiement
-terraform plan -out=tfplan
-
-# Appliquer les changements
-terraform apply "tfplan"
+# Configuration (Ansible)
+cd ../ansible
+cp vault/secrets.yml.example vault/secrets.yml
+ansible-vault encrypt vault/secrets.yml
+ansible-playbook -i inventory.ini playbooks/bootstrap-lxc.yml --vault-password-file=.vault_pass
+ansible-playbook -i inventory.ini playbooks/site.yml --vault-password-file=.vault_pass
 ```
 
-### Déploiement des services avec Ansible
+**Prérequis** : Proxmox VE 8, domaine OVH, Terraform ≥ 1.7, Ansible ≥ 2.10
 
-Après le déploiement Terraform, configurez les services :
+---
 
-```bash
-cd ansible
+## Documentation
 
-# Déployer tous les services
-ansible-playbook -i inventory.ini playbooks/traefik.yml --ask-vault-pass
-ansible-playbook -i inventory.ini playbooks/uptime-kuma.yml --ask-vault-pass
-ansible-playbook -i inventory.ini playbooks/snipeit.yml --ask-vault-pass
-ansible-playbook -i inventory.ini playbooks/vaultwarden.yml --ask-vault-pass
-ansible-playbook -i inventory.ini playbooks/zabbix.yml --ask-vault-pass
-```
+- [Architecture complète](docs/architecture.md)
+- [Stack technique](docs/architecture/tech-stack.md)
+- [SHOWCASE — compétences démontrées](SHOWCASE.md)
+- [Screenshots](docs/screenshots/)
+- [Stories / historique](docs/stories/)
 
-### Configuration DNS
+---
 
-Après le déploiement, configurez vos enregistrements DNS pour pointer vers l'IP publique de votre serveur Proxmox :
-
-- A record: `proxy.oldevops.fr` → [VOTRE_IP_PUBLIQUE]
-- CNAME: `*.oldevops.fr` → `proxy.oldevops.fr`
-
-## 🔧 Maintenance
-
-### Sauvegardes
-
-Des sauvegardes automatiques sont configurées pour tous les conteneurs via Proxmox Backup Server (work in progress).
-
-Le fichier d'état Terraform (`tfstate`) est également synchronisé automatiquement dans un bucket S3 OVH pour garantir la pérennité et la restauration de l'infrastructure.
-
-### Mises à jour
-
-1. Mettre à jour le code :
-   ```bash
-   git pull origin main
-   ```
-
-2. Vérifier et appliquer les changements :
-   ```bash
-   cd terraform
-   terraform plan -out=tfplan
-   terraform apply "tfplan"
-   ```
-
-## 🤝 Contribution
-
-Les contributions sont les bienvenues ! Veuillez ouvrir une issue pour discuter des changements proposés.
-
-## 📜 Licence
-
-[LICENSE](LICENSE)
+*Olivier Labé — [github.com/olabe](https://github.com/olabe) — [linkedin.com/in/olivier-labe](https://www.linkedin.com/in/olivier-labe/)*

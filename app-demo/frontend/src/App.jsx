@@ -2,6 +2,10 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './hooks/useAuth'
 import Navbar from './components/Navbar'
 import ProtectedRoute from './components/ProtectedRoute'
+import HomePage from './pages/HomePage'
+import BioPage from './pages/BioPage'
+import ContactPage from './pages/ContactPage'
+import PortfolioPage from './pages/PortfolioPage'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import ProductsPage from './pages/ProductsPage'
@@ -16,8 +20,15 @@ export default function App() {
     <>
       {isAuthenticated && <Navbar user={user} onLogout={logout} />}
       <Routes>
-        <Route path="/login" element={<LoginPage onLogin={login} />} />
-        <Route path="/" element={
+        {/* Public pages */}
+        <Route path="/"          element={<HomePage />} />
+        <Route path="/bio"       element={<BioPage />} />
+        <Route path="/contact"   element={<ContactPage />} />
+        <Route path="/portfolio" element={<PortfolioPage />} />
+        <Route path="/login"     element={<LoginPage onLogin={login} />} />
+
+        {/* Protected PriceSync app */}
+        <Route path="/dashboard" element={
           <ProtectedRoute isAuthenticated={isAuthenticated}>
             <DashboardPage token={token} />
           </ProtectedRoute>
@@ -42,7 +53,8 @@ export default function App() {
             <HistoryPage token={token} />
           </ProtectedRoute>
         } />
-        <Route path="*" element={<Navigate to={isAuthenticated ? '/' : '/login'} replace />} />
+
+        <Route path="*" element={<Navigate to={isAuthenticated ? '/dashboard' : '/'} replace />} />
       </Routes>
     </>
   )

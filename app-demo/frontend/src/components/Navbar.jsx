@@ -25,7 +25,7 @@ export default function Navbar({ user, onLogout }) {
         🏷️ PriceSync
       </span>
       {[
-        { to: '/', label: 'Dashboard' },
+        { to: '/dashboard', label: 'Dashboard' },
         { to: '/products', label: 'Produits' },
         { to: '/prices', label: 'Prix' },
         { to: '/rules', label: 'Règles' },

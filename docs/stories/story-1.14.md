@@ -1,7 +1,7 @@
 # Story 1.14 : README et Portfolio - Transformation en Vitrine Professionnelle
 
 **Epic** : [EPIC 1 - Transformation Portfolio Infrastructure Professionnelle](EPIC.md)
-**Statut** : 📝 Todo
+**Statut** : ✅ Ready for Review
 **Priorité** : P3 (Basse - Polish)
 **Points d'effort** : 5
 **Dépendances** : Toutes les stories précédentes
