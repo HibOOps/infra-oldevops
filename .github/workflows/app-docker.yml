@@ -14,14 +14,15 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  FRONTEND_IMAGE: ghcr.io/${{ github.repository_owner }}/app-demo-frontend
-  BACKEND_IMAGE: ghcr.io/${{ github.repository_owner }}/app-demo-backend
 
 jobs:
   build-and-push:
     name: Build and Push Docker Images
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    outputs:
+      frontend_image: ${{ steps.meta.outputs.frontend_image }}
+      backend_image: ${{ steps.meta.outputs.backend_image }}
 
     steps:
       - name: Checkout code
@@ -37,9 +38,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract Git SHA short
+      - name: Extract Git SHA short and image names
         id: meta
-        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        run: |
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "frontend_image=ghcr.io/${OWNER}/app-demo-frontend" >> $GITHUB_OUTPUT
+          echo "backend_image=ghcr.io/${OWNER}/app-demo-backend" >> $GITHUB_OUTPUT
 
       - name: Build and push Frontend image
         uses: docker/build-push-action@v6
@@ -47,9 +52,9 @@ jobs:
           context: app-demo/frontend
           push: true
           tags: |
-            ${{ env.FRONTEND_IMAGE }}:${{ github.sha }}
-            ${{ env.FRONTEND_IMAGE }}:${{ steps.meta.outputs.sha_short }}
-            ${{ env.FRONTEND_IMAGE }}:latest
+            ${{ steps.meta.outputs.frontend_image }}:${{ github.sha }}
+            ${{ steps.meta.outputs.frontend_image }}:${{ steps.meta.outputs.sha_short }}
+            ${{ steps.meta.outputs.frontend_image }}:latest
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,mode=max,scope=frontend
 
@@ -59,9 +64,9 @@ jobs:
           context: app-demo/backend
           push: true
           tags: |
-            ${{ env.BACKEND_IMAGE }}:${{ github.sha }}
-            ${{ env.BACKEND_IMAGE }}:${{ steps.meta.outputs.sha_short }}
-            ${{ env.BACKEND_IMAGE }}:latest
+            ${{ steps.meta.outputs.backend_image }}:${{ github.sha }}
+            ${{ steps.meta.outputs.backend_image }}:${{ steps.meta.outputs.sha_short }}
+            ${{ steps.meta.outputs.backend_image }}:latest
           cache-from: type=gha,scope=backend
           cache-to: type=gha,mode=max,scope=backend
 
@@ -80,15 +85,15 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull Frontend image
-        run: docker pull ${{ env.FRONTEND_IMAGE }}:${{ github.sha }}
+        run: docker pull ${{ needs.build-and-push.outputs.frontend_image }}:${{ github.sha }}
 
       - name: Pull Backend image
-        run: docker pull ${{ env.BACKEND_IMAGE }}:${{ github.sha }}
+        run: docker pull ${{ needs.build-and-push.outputs.backend_image }}:${{ github.sha }}
 
       - name: Trivy scan - Frontend
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ env.FRONTEND_IMAGE }}:${{ github.sha }}
+          image-ref: ${{ needs.build-and-push.outputs.frontend_image }}:${{ github.sha }}
           format: 'table'
           exit-code: '1'
           severity: 'CRITICAL,HIGH'
@@ -97,7 +102,7 @@ jobs:
       - name: Trivy scan - Backend
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ env.BACKEND_IMAGE }}:${{ github.sha }}
+          image-ref: ${{ needs.build-and-push.outputs.backend_image }}:${{ github.sha }}
           format: 'table'
           exit-code: '1'
           severity: 'CRITICAL,HIGH'
