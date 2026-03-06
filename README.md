@@ -1,8 +1,8 @@
 # Infra-OlDevOps
 
-![Build](https://github.com/olabe/Infra-oldevops/actions/workflows/app-docker.yml/badge.svg)
-![Terraform](https://github.com/olabe/Infra-oldevops/actions/workflows/terraform-validate.yml/badge.svg)
-![Tests](https://github.com/olabe/Infra-oldevops/actions/workflows/app-build.yml/badge.svg)
+![Build](https://github.com/HibOOps/Infra-oldevops/actions/workflows/app-docker.yml/badge.svg)
+![Terraform](https://github.com/HibOOps/Infra-oldevops/actions/workflows/terraform-validate.yml/badge.svg)
+![Tests](https://github.com/HibOOps/Infra-oldevops/actions/workflows/app-build.yml/badge.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 Infrastructure as Code complète déployée sur Proxmox VE bare-metal — Terraform, Ansible, CI/CD GitHub Actions, monitoring full-stack et application de démonstration en production.
@@ -100,7 +100,7 @@ Jest + Vitest tests        →     SSH deploy → LXC app-demo
 ## Quick Start
 
 ```bash
-git clone https://github.com/olabe/Infra-oldevops.git
+git clone https://github.com/HibOOps/Infra-oldevops.git
 cd Infra-oldevops/infra-oldevops
 
 # Infrastructure (Terraform)
@@ -130,4 +130,4 @@ ansible-playbook -i inventory.ini playbooks/site.yml --vault-password-file=.vaul
 
 ---
 
-*Olivier Labé — [github.com/olabe](https://github.com/olabe) — [linkedin.com/in/olivier-labe](https://www.linkedin.com/in/olivier-labe/)*
+*Olivier Labé — [github.com/HibOOps](https://github.com/HibOOps) — [linkedin.com/in/olivier-labe](https://www.linkedin.com/in/olivier-labe/)*

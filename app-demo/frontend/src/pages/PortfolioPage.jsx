@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 
-const GITHUB_URL = 'https://github.com/olabe'
-const GITHUB_REPO_URL = 'https://github.com/olabe/Infra-oldevops'
+const GITHUB_URL = 'https://github.com/HibOOps'
+const GITHUB_REPO_URL = 'https://github.com/HibOOps/Infra-oldevops'
 const LINKEDIN_URL = 'https://www.linkedin.com/in/olivier-labe/'
 
 const SERVICES = [

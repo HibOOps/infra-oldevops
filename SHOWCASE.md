@@ -76,4 +76,4 @@ Démonstration des compétences techniques mises en œuvre dans ce projet.
 
 ---
 
-*Projet réalisé par Olivier Labé — [github.com/olabe](https://github.com/olabe) — [oldevops.fr](https://demo.oldevops.fr)*
+*Projet réalisé par Olivier Labé — [github.com/HibOOps](https://github.com/HibOOps) — [oldevops.fr](https://demo.oldevops.fr)*
