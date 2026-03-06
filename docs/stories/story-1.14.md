@@ -1,7 +1,7 @@
 # Story 1.14 : README et Portfolio - Transformation en Vitrine Professionnelle
 
 **Epic** : [EPIC 1 - Transformation Portfolio Infrastructure Professionnelle](EPIC.md)
-**Statut** : ✅ Ready for Review
+**Statut** : 📝 Todo
 **Priorité** : P3 (Basse - Polish)
 **Points d'effort** : 5
 **Dépendances** : Toutes les stories précédentes
@@ -30,7 +30,7 @@
   - **Documentation** avec liens vers docs détaillées
 
 ### CA14.2 : Application Portfolio
-- Page "Portfolio" dans l'app frontend (`https://app.oldevops.fr`)
+- Page "Portfolio" dans l'app frontend (`https://demo.oldevops.fr`)
 - Contenu :
   - Présentation du projet (objectif, durée, résultats)
   - Architecture interactive (diagramme cliquable)
@@ -66,9 +66,9 @@
   - **Points d'amélioration continue** (roadmap future)
 
 ### CA14.5 : Script Vidéo de Démonstration
-- Fichier `docs/VIDEO.md` contenant :
-  - Script pour vidéo de démonstration (3-5 minutes)
-  - Points clés à couvrir :
+#- Fichier `docs/VIDEO.md` contenant :
+#  - Script pour vidéo de démonstration (3-5 minutes)
+# - Points clés à couvrir :
     - Architecture overview
     - Démonstration CI/CD
     - Démonstration application

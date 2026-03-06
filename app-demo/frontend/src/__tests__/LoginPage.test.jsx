@@ -21,12 +21,6 @@ describe('LoginPage', () => {
     expect(screen.getByPlaceholderText('admin@pricesync.demo')).toBeInTheDocument()
   })
 
-  it('affiche les comptes démo', () => {
-    render(<MemoryRouter><LoginPage onLogin={vi.fn()} /></MemoryRouter>)
-    expect(screen.getByText(/Comptes démo/)).toBeInTheDocument()
-    expect(screen.getByText(/Admin2024/)).toBeInTheDocument()
-  })
-
   it('appelle onLogin et redirige si login réussi', async () => {
     const onLogin = vi.fn()
     global.fetch = vi.fn().mockResolvedValue({

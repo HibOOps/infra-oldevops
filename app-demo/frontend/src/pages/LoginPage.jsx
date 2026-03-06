@@ -20,7 +20,7 @@ export default function LoginPage({ onLogin }) {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Erreur de connexion')
       onLogin(data.token, data.user)
-      navigate('/')
+      navigate('/dashboard')
     } catch (err) {
       setError(err.message)
     } finally {
@@ -71,11 +71,6 @@ export default function LoginPage({ onLogin }) {
             {loading ? 'Connexion...' : 'Se connecter'}
           </button>
         </form>
-        <div style={{ marginTop: '20px', padding: '14px', background: '#f8fafc', borderRadius: '8px', fontSize: '0.78rem', color: '#64748b' }}>
-          <strong>Comptes démo :</strong><br />
-          admin@pricesync.demo / Admin2024!<br />
-          manager@pricesync.demo / Manager2024!
-        </div>
       </div>
     </div>
   )

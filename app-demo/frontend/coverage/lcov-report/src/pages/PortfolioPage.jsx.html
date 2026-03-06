@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>267/267</span>
+                <span class='fraction'>271/271</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>19/19</span>
+                <span class='fraction'>21/21</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>267/267</span>
+                <span class='fraction'>271/271</span>
             </div>
         
             
@@ -379,7 +379,12 @@
 <a name='L314'></a><a href='#L314'>314</a>
 <a name='L315'></a><a href='#L315'>315</a>
 <a name='L316'></a><a href='#L316'>316</a>
-<a name='L317'></a><a href='#L317'>317</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L317'></a><a href='#L317'>317</a>
+<a name='L318'></a><a href='#L318'>318</a>
+<a name='L319'></a><a href='#L319'>319</a>
+<a name='L320'></a><a href='#L320'>320</a>
+<a name='L321'></a><a href='#L321'>321</a>
+<a name='L322'></a><a href='#L322'>322</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -567,6 +572,11 @@
 <span class="cline-any cline-yes">42x</span>
 <span class="cline-any cline-yes">42x</span>
 <span class="cline-any cline-yes">42x</span>
+<span class="cline-any cline-yes">42x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">42x</span>
+<span class="cline-any cline-yes">35x</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">7x</span>
@@ -702,12 +712,12 @@ const GITHUB_REPO_URL = 'https://github.com/olabe/Infra-oldevops'
 const LINKEDIN_URL = 'https://www.linkedin.com/in/olivier-labe/'
 &nbsp;
 const SERVICES = [
-  { icon: '🔀', name: 'Traefik v3', url: 'proxy.oldevops.fr',      desc: 'Reverse proxy + SSL wildcard Let\'s Encrypt via DNS-01 OVH' },
-  { icon: '📊', name: 'Grafana / Prometheus', url: 'grafana.oldevops.fr', desc: 'Dashboards métriques, logs Loki, alerting Alertmanager' },
-  { icon: '🔑', name: 'Vaultwarden', url: 'vault.oldevops.fr',      desc: 'Gestionnaire de mots de passe self-hosted (compatible Bitwarden)' },
-  { icon: '🖥️', name: 'Uptime Kuma', url: 'status.oldevops.fr',    desc: 'Monitoring uptime HTTP de tous les services en temps réel' },
-  { icon: '📦', name: 'Snipe-IT / NetBox', url: 'inventory.oldevops.fr', desc: 'ITSM : gestion de parc et documentation réseau / DCIM' },
-  { icon: '🏃', name: 'GitHub Runner', url: '192.168.1.210',        desc: 'Runner CI/CD auto-hébergé sur LXC dédié (Debian 12 / Docker)' },
+  { icon: '🔀', name: 'Traefik v3',          url: 'proxy.oldevops.fr',      href: 'https://proxy.oldevops.fr',      desc: 'Reverse proxy + SSL wildcard Let\'s Encrypt via DNS-01 OVH' },
+  { icon: '📊', name: 'Grafana / Prometheus', url: 'grafana.oldevops.fr',    href: 'https://grafana.oldevops.fr',    desc: 'Dashboards métriques, logs Loki, alerting Alertmanager' },
+  { icon: '🔑', name: 'Vaultwarden',          url: 'vault.oldevops.fr',      href: 'https://vault.oldevops.fr',      desc: 'Gestionnaire de mots de passe self-hosted (compatible Bitwarden)' },
+  { icon: '🖥️', name: 'Uptime Kuma',          url: 'status.oldevops.fr',     href: 'https://status.oldevops.fr',     desc: 'Monitoring uptime HTTP de tous les services en temps réel' },
+  { icon: '📦', name: 'Snipe-IT / NetBox',    url: 'inventory.oldevops.fr',  href: 'https://inventory.oldevops.fr',  desc: 'ITSM : gestion de parc et documentation réseau / DCIM' },
+  { icon: '🏃', name: 'GitHub Runner',         url: 'ci-runner (LXC .210)',   href: null,                             desc: 'Runner CI/CD auto-hébergé sur LXC dédié (Debian 12 / Docker)' },
 ]
 &nbsp;
 const TECH_STACK = [
@@ -875,15 +885,20 @@ export default function PortfolioPage() {
           &lt;p style={{ fontSize: '0.75rem', color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, marginBottom: '8px' }}&gt;Infrastructure&lt;/p&gt;
           &lt;p style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em', color: '#f8fafc', marginBottom: '28px' }}&gt;Services déployés&lt;/p&gt;
           &lt;div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '14px' }}&gt;
-            {SERVICES.map(svc =&gt; (
-              &lt;div key={svc.name} className="service-card"
-                style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', transition: 'border-color 0.2s, transform 0.2s', cursor: 'default' }}&gt;
-                &lt;div style={{ fontSize: '1.4rem', marginBottom: '10px' }}&gt;{svc.icon}&lt;/div&gt;
-                &lt;div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#f8fafc', marginBottom: '4px' }}&gt;{svc.name}&lt;/div&gt;
-                &lt;div style={{ fontSize: '0.72rem', color: '#6366f1', marginBottom: '8px' }}&gt;{svc.url}&lt;/div&gt;
-                &lt;div style={{ fontSize: '0.78rem', color: '#64748b', lineHeight: 1.5 }}&gt;{svc.desc}&lt;/div&gt;
-              &lt;/div&gt;
-            ))}
+            {SERVICES.map(svc =&gt; {
+              const cardStyle = { background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', transition: 'border-color 0.2s, transform 0.2s', display: 'block', textDecoration: 'none', color: 'inherit' }
+              const inner = (
+                &lt;&gt;
+                  &lt;div style={{ fontSize: '1.4rem', marginBottom: '10px' }}&gt;{svc.icon}&lt;/div&gt;
+                  &lt;div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#f8fafc', marginBottom: '4px' }}&gt;{svc.name}&lt;/div&gt;
+                  &lt;div style={{ fontSize: '0.72rem', color: '#6366f1', marginBottom: '8px' }}&gt;{svc.url}&lt;/div&gt;
+                  &lt;div style={{ fontSize: '0.78rem', color: '#64748b', lineHeight: 1.5 }}&gt;{svc.desc}&lt;/div&gt;
+                &lt;/&gt;
+              )
+              return svc.href
+                ? &lt;a key={svc.name} href={svc.href} target="_blank" rel="noopener noreferrer" className="service-card" style={cardStyle}&gt;{inner}&lt;/a&gt;
+                : &lt;div key={svc.name} className="service-card" style={{ ...cardStyle, cursor: 'default' }}&gt;{inner}&lt;/div&gt;
+            })}
           &lt;/div&gt;
         &lt;/div&gt;
       &lt;/section&gt;
@@ -1018,7 +1033,7 @@ export default function PortfolioPage() {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-06T11:59:31.839Z
+                at 2026-03-06T12:17:12.601Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

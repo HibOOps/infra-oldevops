@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from './hooks/useAuth'
 import Navbar from './components/Navbar'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -13,12 +13,17 @@ import PricesPage from './pages/PricesPage'
 import RulesPage from './pages/RulesPage'
 import HistoryPage from './pages/HistoryPage'
 
+const PUBLIC_PATHS = ['/', '/bio', '/contact', '/portfolio', '/login']
+
 export default function App() {
   const { token, user, login, logout, isAuthenticated } = useAuth()
+  const location = useLocation()
+
+  const showNavbar = isAuthenticated && !PUBLIC_PATHS.includes(location.pathname)
 
   return (
     <>
-      {isAuthenticated && <Navbar user={user} onLogout={logout} />}
+      {showNavbar && <Navbar user={user} onLogout={logout} />}
       <Routes>
         {/* Public pages */}
         <Route path="/"          element={<HomePage />} />

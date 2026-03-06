@@ -5,12 +5,12 @@ const GITHUB_REPO_URL = 'https://github.com/olabe/Infra-oldevops'
 const LINKEDIN_URL = 'https://www.linkedin.com/in/olivier-labe/'
 
 const SERVICES = [
-  { icon: '🔀', name: 'Traefik v3', url: 'proxy.oldevops.fr',      desc: 'Reverse proxy + SSL wildcard Let\'s Encrypt via DNS-01 OVH' },
-  { icon: '📊', name: 'Grafana / Prometheus', url: 'grafana.oldevops.fr', desc: 'Dashboards métriques, logs Loki, alerting Alertmanager' },
-  { icon: '🔑', name: 'Vaultwarden', url: 'vault.oldevops.fr',      desc: 'Gestionnaire de mots de passe self-hosted (compatible Bitwarden)' },
-  { icon: '🖥️', name: 'Uptime Kuma', url: 'status.oldevops.fr',    desc: 'Monitoring uptime HTTP de tous les services en temps réel' },
-  { icon: '📦', name: 'Snipe-IT / NetBox', url: 'inventory.oldevops.fr', desc: 'ITSM : gestion de parc et documentation réseau / DCIM' },
-  { icon: '🏃', name: 'GitHub Runner', url: '192.168.1.210',        desc: 'Runner CI/CD auto-hébergé sur LXC dédié (Debian 12 / Docker)' },
+  { icon: '🔀', name: 'Traefik v3',          url: 'proxy.oldevops.fr',      href: 'https://proxy.oldevops.fr',      desc: 'Reverse proxy + SSL wildcard Let\'s Encrypt via DNS-01 OVH' },
+  { icon: '📊', name: 'Grafana / Prometheus', url: 'grafana.oldevops.fr',    href: 'https://grafana.oldevops.fr',    desc: 'Dashboards métriques, logs Loki, alerting Alertmanager' },
+  { icon: '🔑', name: 'Vaultwarden',          url: 'vault.oldevops.fr',      href: 'https://vault.oldevops.fr',      desc: 'Gestionnaire de mots de passe self-hosted (compatible Bitwarden)' },
+  { icon: '🖥️', name: 'Uptime Kuma',          url: 'status.oldevops.fr',     href: 'https://status.oldevops.fr',     desc: 'Monitoring uptime HTTP de tous les services en temps réel' },
+  { icon: '📦', name: 'Snipe-IT / NetBox',    url: 'inventory.oldevops.fr',  href: 'https://inventory.oldevops.fr',  desc: 'ITSM : gestion de parc et documentation réseau / DCIM' },
+  { icon: '🏃', name: 'GitHub Runner',         url: 'ci-runner (LXC .210)',   href: null,                             desc: 'Runner CI/CD auto-hébergé sur LXC dédié (Debian 12 / Docker)' },
 ]
 
 const TECH_STACK = [
@@ -178,15 +178,20 @@ export default function PortfolioPage() {
           <p style={{ fontSize: '0.75rem', color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, marginBottom: '8px' }}>Infrastructure</p>
           <p style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em', color: '#f8fafc', marginBottom: '28px' }}>Services déployés</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '14px' }}>
-            {SERVICES.map(svc => (
-              <div key={svc.name} className="service-card"
-                style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', transition: 'border-color 0.2s, transform 0.2s', cursor: 'default' }}>
-                <div style={{ fontSize: '1.4rem', marginBottom: '10px' }}>{svc.icon}</div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#f8fafc', marginBottom: '4px' }}>{svc.name}</div>
-                <div style={{ fontSize: '0.72rem', color: '#6366f1', marginBottom: '8px' }}>{svc.url}</div>
-                <div style={{ fontSize: '0.78rem', color: '#64748b', lineHeight: 1.5 }}>{svc.desc}</div>
-              </div>
-            ))}
+            {SERVICES.map(svc => {
+              const cardStyle = { background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', transition: 'border-color 0.2s, transform 0.2s', display: 'block', textDecoration: 'none', color: 'inherit' }
+              const inner = (
+                <>
+                  <div style={{ fontSize: '1.4rem', marginBottom: '10px' }}>{svc.icon}</div>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#f8fafc', marginBottom: '4px' }}>{svc.name}</div>
+                  <div style={{ fontSize: '0.72rem', color: '#6366f1', marginBottom: '8px' }}>{svc.url}</div>
+                  <div style={{ fontSize: '0.78rem', color: '#64748b', lineHeight: 1.5 }}>{svc.desc}</div>
+                </>
+              )
+              return svc.href
+                ? <a key={svc.name} href={svc.href} target="_blank" rel="noopener noreferrer" className="service-card" style={cardStyle}>{inner}</a>
+                : <div key={svc.name} className="service-card" style={{ ...cardStyle, cursor: 'default' }}>{inner}</div>
+            })}
           </div>
         </div>
       </section>
