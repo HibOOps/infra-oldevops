@@ -10,7 +10,7 @@
     - loki
     - grafana
 
-- hosts: all
+- hosts: all:!proxmox
   become: yes
   roles:
     - node-exporter

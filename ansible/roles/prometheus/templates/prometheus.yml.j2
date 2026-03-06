@@ -31,16 +31,16 @@ scrape_configs:
 
   - job_name: 'node_exporter'
     static_configs:
-{% for host in groups['all'] %}
-      - targets: ['{{ host }}:9100']
+{% for host in groups['all'] | difference(groups.get('proxmox', [])) %}
+      - targets: ['{{ "host.docker.internal" if host in groups["monitoring"] else host }}:9100']
         labels:
           instance: '{{ host }}'
 {% endfor %}
 
   - job_name: 'cadvisor'
     static_configs:
-{% for host in groups['all'] %}
-      - targets: ['{{ host }}:8080']
+{% for host in groups['all'] | difference(groups.get('proxmox', [])) %}
+      - targets: ['{{ "host.docker.internal" if host in groups["monitoring"] else host }}:8080']
         labels:
           instance: '{{ host }}'
 {% endfor %}
