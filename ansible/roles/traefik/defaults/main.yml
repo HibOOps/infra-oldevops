@@ -1,0 +1,11 @@
+---
+# IPs autorisées à accéder au dashboard Traefik
+# Le LAN est toujours inclus. Ajouter l'IP WAN dans vault/secrets.yml
+traefik_dashboard_allowed_ips:
+  - "192.168.1.0/24"
+  - "128.78.62.33/32"
+
+# Identifiant BasicAuth dashboard — à définir dans vault/secrets.yml
+# Générer avec : htpasswd -nB admin
+# puis stocker le résultat (ex: admin:$2y$05$xxx...) dans le vault
+traefik_dashboard_basicauth_user: ""

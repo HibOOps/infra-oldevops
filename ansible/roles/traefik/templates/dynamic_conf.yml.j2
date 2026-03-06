@@ -1,5 +1,18 @@
 http:
   middlewares:
+    dashboard-auth:
+      basicAuth:
+        users:
+          - "{{ traefik_dashboard_basicauth_user }}"
+        realm: "oldevops.fr — accès restreint"
+
+    dashboard-ipwhitelist:
+      ipWhiteList:
+        sourceRange:
+{% for ip in traefik_dashboard_allowed_ips %}
+          - "{{ ip }}"
+{% endfor %}
+
     secure-headers:
       headers:
         stsSeconds: 31536000
@@ -128,6 +141,8 @@ http:
       service: api@internal
       middlewares:
         - secure-headers
+        - dashboard-ipwhitelist
+        - dashboard-auth
 
   services:
     vaultwarden:
