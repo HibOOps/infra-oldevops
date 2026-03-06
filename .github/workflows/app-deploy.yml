@@ -56,7 +56,7 @@ jobs:
         id: deploy
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@192.168.1.250 \
-            "cd /opt/app-demo && docker compose up -d"
+            "cd /opt/app-demo && docker compose up -d --remove-orphans"
 
       - name: Wait for services to start
         run: sleep 15
