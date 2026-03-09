@@ -48,7 +48,7 @@ export default function DashboardPage({ token }) {
   const desynced = products.filter(p => getSyncStatus(p.prices, p.referencePrice) === 'desynced')
 
   return (
-    <div style={{ padding: '28px 32px', maxWidth: '1400px', margin: '0 auto' }}>
+    <div className="page-pad">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '28px' }}>
         <div>
           <h1 style={{ margin: 0, fontSize: '1.5rem', color: '#1e293b' }}>Dashboard</h1>
@@ -66,6 +66,7 @@ export default function DashboardPage({ token }) {
             fontWeight: 600,
             cursor: syncing ? 'not-allowed' : 'pointer',
             fontSize: '0.9rem',
+            minHeight: '48px',
           }}
         >
           {syncing ? '⏳ Synchronisation...' : '🔄 Synchroniser tout'}
@@ -79,7 +80,7 @@ export default function DashboardPage({ token }) {
       )}
 
       {/* KPIs */}
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '32px', flexWrap: 'wrap' }} data-testid="kpi-section">
+      <div className="kpi-grid" data-testid="kpi-section">
         <KpiCard label="Produits" value={products.length} color="#6366f1" icon="📦" />
         <KpiCard label="Canaux actifs" value={channels.filter(c => c.isActive).length} color="#0ea5e9" icon="🌐" />
         <KpiCard label="Règles actives" value={rules.filter(r => r.isActive).length} color="#8b5cf6" icon="⚙️" />
@@ -103,39 +104,50 @@ export default function DashboardPage({ token }) {
             ✅ Tous les prix sont synchronisés
           </div>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
-            <thead>
-              <tr style={{ background: '#f8fafc' }}>
-                <th style={thStyle}>SKU</th>
-                <th style={thStyle}>Produit</th>
-                <th style={thStyle}>Catégorie</th>
-                <th style={thStyle}>Prix de référence</th>
-                {channels.map(ch => <th key={ch.id} style={{ ...thStyle, textAlign: 'center' }}>{ch.name}</th>)}
-                <th style={thStyle}>Statut</th>
-              </tr>
-            </thead>
-            <tbody>
-              {desynced.map((p, i) => (
-                <tr key={p.id} style={{ background: i % 2 === 0 ? '#fff' : '#fef2f2', borderBottom: '1px solid #fee2e2' }}>
-                  <td style={tdStyle}><code style={{ fontSize: '0.75rem', color: '#6366f1' }}>{p.sku}</code></td>
-                  <td style={tdStyle}>{p.name}</td>
-                  <td style={tdStyle}><span style={{ fontSize: '0.75rem', background: '#f1f5f9', borderRadius: '4px', padding: '2px 8px' }}>{p.category}</span></td>
-                  <td style={{ ...tdStyle, fontWeight: 600 }}>{parseFloat(p.referencePrice).toFixed(2)} €</td>
-                  {channels.map(ch => {
-                    const priceObj = p.prices?.find(x => x.channelId === ch.id)
-                    return (
-                      <td key={ch.id} style={{ ...tdStyle, textAlign: 'center' }}>
-                        {priceObj ? <strong>{parseFloat(priceObj.price).toFixed(2)} €</strong> : '—'}
-                      </td>
-                    )
-                  })}
-                  <td style={{ ...tdStyle, textAlign: 'center' }}>
-                    <SyncStatusBadge status="desynced" />
-                  </td>
+          <div className="table-scroll-wrap">
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+              <thead>
+                <tr style={{ background: '#f8fafc' }}>
+                  <th style={thStyle}>SKU</th>
+                  <th style={thStyle}>Produit</th>
+                  <th className="table-col-hide-mobile" style={thStyle}>Catégorie</th>
+                  <th className="table-col-hide-mobile" style={thStyle}>Prix de référence</th>
+                  {channels.map(ch => <th key={ch.id} className="table-col-hide-mobile" style={{ ...thStyle, textAlign: 'center' }}>{ch.name}</th>)}
+                  <th style={thStyle}>Delta</th>
+                  <th style={thStyle}>Statut</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {desynced.map((p, i) => {
+                  const ref = parseFloat(p.referencePrice)
+                  const deltas = (p.prices || []).map(x => Math.abs((parseFloat(x.price) - ref) / ref * 100))
+                  const maxDelta = deltas.length > 0 ? Math.max(...deltas).toFixed(1) : null
+                  return (
+                    <tr key={p.id} style={{ background: i % 2 === 0 ? '#fff' : '#fef2f2', borderBottom: '1px solid #fee2e2' }}>
+                      <td style={tdStyle}><code style={{ fontSize: '0.75rem', color: '#6366f1' }}>{p.sku}</code></td>
+                      <td style={tdStyle}>{p.name}</td>
+                      <td className="table-col-hide-mobile" style={tdStyle}><span style={{ fontSize: '0.75rem', background: '#f1f5f9', borderRadius: '4px', padding: '2px 8px' }}>{p.category}</span></td>
+                      <td className="table-col-hide-mobile" style={{ ...tdStyle, fontWeight: 600 }}>{ref.toFixed(2)} €</td>
+                      {channels.map(ch => {
+                        const priceObj = p.prices?.find(x => x.channelId === ch.id)
+                        return (
+                          <td key={ch.id} className="table-col-hide-mobile" style={{ ...tdStyle, textAlign: 'center' }}>
+                            {priceObj ? <strong>{parseFloat(priceObj.price).toFixed(2)} €</strong> : '—'}
+                          </td>
+                        )
+                      })}
+                      <td style={{ ...tdStyle, fontWeight: 600, color: '#ef4444' }} data-testid="delta-cell">
+                        {maxDelta !== null ? `${maxDelta}%` : '—'}
+                      </td>
+                      <td style={{ ...tdStyle, textAlign: 'center' }}>
+                        <SyncStatusBadge status="desynced" />
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

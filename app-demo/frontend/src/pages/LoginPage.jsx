@@ -34,7 +34,7 @@ export default function LoginPage({ onLogin }) {
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <div style={{ fontSize: '2.5rem' }}>🏷️</div>
           <h1 style={{ margin: '8px 0 4px', fontSize: '1.5rem', color: '#1e293b' }}>PriceSync</h1>
-          <p style={{ color: '#64748b', fontSize: '0.9rem', margin: 0 }}>Synchronisation de prix multi-canaux</p>
+          <p style={{ color: '#64748b', fontSize: '1rem', minHeight: '44px', margin: 0 }}>Synchronisation de prix multi-canaux</p>
         </div>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
@@ -45,7 +45,7 @@ export default function LoginPage({ onLogin }) {
               onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
               placeholder="admin@pricesync.demo"
               required
-              style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem', boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '1rem', minHeight: '44px', boxSizing: 'border-box' }}
             />
           </div>
           <div>
@@ -55,7 +55,7 @@ export default function LoginPage({ onLogin }) {
               value={form.password}
               onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
               required
-              style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem', boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '1rem', minHeight: '44px', boxSizing: 'border-box' }}
             />
           </div>
           {error && (

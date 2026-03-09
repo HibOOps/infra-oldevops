@@ -1,7 +1,7 @@
 # Story 1.15 : PriceSync — Optimisation UX/UI Mobile & Navigation Smartphone
 
 **Epic** : [EPIC 1 - Transformation Portfolio Infrastructure Professionnelle](EPIC.md)
-**Statut** : 📝 Todo
+**Statut** : 🔄 In Progress
 **Priorité** : P3 (Basse - Polish)
 **Points d'effort** : 5
 **Dépendances** : Story 1.6 (Application PriceSync développée), Story 1.7 (Traefik + HTTPS)
@@ -205,16 +205,65 @@ Ne pas ajouter de librairie CSS (Bootstrap, Tailwind, Material UI, etc.). Utilis
 ## Dev Agent Record
 
 ### Agent Model Used
-_À compléter lors de l'implémentation_
+claude-sonnet-4-6
 
 ### Debug Log References
-_À compléter lors de l'implémentation_
+- `aria-label` button lookup via `getByRole` failed in JSDOM for PortfolioPage — switched to `data-testid="port-hamburger"`. Root cause: JSDOM doesn't compute `.port-nav-hamburger { display: none }` from `<style>` tag, but the aria accessible name resolution behaved unexpectedly.
+- `<a href="#fragment">` click in JSDOM unreliable for testing state-update on close — replaced with hamburger toggle test.
 
 ### Completion Notes List
-_À compléter lors de l'implémentation_
+- **CA15.1 partiel** : Hamburger menu implémenté sur 2 navs :
+  - **Navbar.jsx** (PriceSync auth) : hamburger `< 768px`, slide-in dropdown avec 5 liens + user + logout, click-outside close, transition ≤300ms CSS
+  - **PortfolioPage.jsx** nav : hamburger `< 768px`, dropdown avec 6 liens sections + GitHub, click-outside close
+  - `index.css` : classes `.navbar-desktop-links`, `.navbar-desktop-user`, `.navbar-hamburger`, `.navbar-mobile-panel`, `.navbar-mobile-link`, `.navbar-mobile-user`
+- **CA15.2 implémenté** :
+  - `index.css` : classe `.table-scroll-wrap` (overflow-x:auto + CSS scroll-shadow left/right via `background-attachment: local/scroll`), `.table-scroll-hint` (masqué sur desktop, flex sur ≤767px), `.table-col-hide-mobile` (display:none sur ≤639px), `.table-sticky-col` (position:sticky left:0 sur ≤639px)
+  - `PriceMatrix.jsx` : scroll wrapper + hint dismissable onScroll, colonnes Catégorie/Réf. masquées mobile, SKU sticky, `inputMode="decimal"` sur input inline, `minHeight: 44px` sur input
+  - `HistoryPage.jsx` : scroll wrapper + hint, colonnes Ancien prix/Modifié par/Source masquées mobile
+  - `ProductsPage.jsx` : scroll wrapper + hint, colonne Catégorie masquée mobile
+- **CA15.3 implémenté** :
+  - `index.css` : `.form-row-2col` (flex → column sur ≤639px), `.form-grid-2col` (2col → 1col sur ≤639px), `.form-actions` (flex-end → column-reverse + buttons 100% sur ≤639px)
+  - `RuleForm.jsx` : `inputStyle` minHeight:44px + fontSize:1rem, row Type+Valeur → `form-row-2col`, boutons → `form-actions`, `inputMode="decimal"` sur champ Valeur
+  - `ProductsPage.jsx` : `inputStyle` minHeight:44px + fontSize:1rem, form → `form-grid-2col`, boutons → `form-actions`, `inputMode="decimal"` sur Prix de référence
+- **CA15.5 implémenté** :
+  - `index.css` : classe `.kpi-grid` (grid auto-fill minmax 160px → 2 colonnes forcées sur ≤639px)
+  - `DashboardPage.jsx` : KPI section → `className="kpi-grid"`, sync button → `minHeight: 48px`, désync table wrappée dans `.table-scroll-wrap`, colonnes Catégorie/Prix de référence/canaux → `table-col-hide-mobile`, colonne Delta ajoutée (max % écart absolu vs prix de référence), affichée sur mobile
+- **CA15.6 implémenté** :
+  - `index.css` : classes `.btn-action` (min-height:44px, inline-flex), `.btn-group` (gap:8px, flex-wrap:wrap sur ≤767px), `.page-pad` (padding:28px 32px → 16px sur ≤767px)
+  - `RulesPage.jsx` : page → `page-pad`, boutons Désactiver/Éditer/Supprimer → `btn-action`, groupe → `btn-group`
+  - `ProductsPage.jsx` : page → `page-pad`, boutons Éditer/Supprimer → `btn-action` dans `btn-group`
+  - `DashboardPage.jsx` : page → `page-pad`
+  - `HistoryPage.jsx` : page → `page-pad`
+- **CA15.7 implémenté** :
+  - `index.html` : balise `<meta name="viewport" content="width=device-width, initial-scale=1.0">` déjà correcte (pas de modification)
+  - `index.css` : `html, body { overflow-x: hidden }`, `#root { max-width: 100%; overflow-x: hidden }`, `input, select, textarea { font-size: 1rem }` (anti-zoom iOS)
+  - `LoginPage.jsx` : inputs email/password → `fontSize: '1rem'`, `minHeight: '44px'`
+  - `HistoryPage.jsx` : inputStyle → `fontSize: '1rem'`, `minHeight: '44px'`
+  - `PriceMatrix.jsx` : inline edit input → `fontSize: '1rem'`
+- CA15.4, CA15.8 : non démarrés
 
 ### File List
-_À compléter lors de l'implémentation_
+- `app-demo/frontend/src/styles/index.css` — Modifié : classes responsive Navbar
+- `app-demo/frontend/src/components/Navbar.jsx` — Modifié : hamburger menu + mobile panel + click-outside
+- `app-demo/frontend/src/pages/PortfolioPage.jsx` — Modifié : hamburger nav + navOpen state + click-outside + padding responsive
+- `app-demo/frontend/src/__tests__/Navbar.test.jsx` — Créé : 11 tests hamburger menu
+- `app-demo/frontend/src/__tests__/PortfolioPage.test.jsx` — Modifié : 4 tests hamburger ajoutés
+- `app-demo/frontend/src/components/PriceMatrix.jsx` — Modifié : scroll wrapper, hint, sticky col, col-hide
+- `app-demo/frontend/src/pages/HistoryPage.jsx` — Modifié : scroll wrapper, hint, col-hide
+- `app-demo/frontend/src/pages/ProductsPage.jsx` — Modifié : scroll wrapper, hint, col-hide
+- `app-demo/frontend/src/__tests__/PriceMatrix.test.jsx` — Modifié : 5 tests scroll/sticky/hint
+- `app-demo/frontend/src/__tests__/HistoryPage.test.jsx` — Modifié : 2 tests scroll/col-hide
+- `app-demo/frontend/src/__tests__/ProductsPage.test.jsx` — Modifié : 5 tests scroll/col-hide/form
+- `app-demo/frontend/src/__tests__/RuleForm.test.jsx` — Modifié : 5 tests form-row/actions/inputMode/minHeight
+- `app-demo/frontend/src/pages/DashboardPage.jsx` — Modifié : kpi-grid class, sync button minHeight 48px, désync table scroll wrapper + col-hide + delta column
+- `app-demo/frontend/src/__tests__/DashboardPage.test.jsx` — Modifié : 4 tests kpi-grid/minHeight/col-hide/delta
+- `app-demo/frontend/src/pages/RulesPage.jsx` — Modifié : page-pad + btn-action/btn-group sur boutons d'action
+- `app-demo/frontend/src/pages/HistoryPage.jsx` — Modifié : page-pad
+- `app-demo/frontend/src/__tests__/RulesPage.test.jsx` — Modifié : 3 tests btn-action/btn-group/page-pad
+- `app-demo/frontend/src/pages/LoginPage.jsx` — Modifié : inputs fontSize 1rem + minHeight 44px
+- `app-demo/frontend/src/pages/HistoryPage.jsx` — Modifié : inputStyle fontSize 1rem + minHeight 44px
+- `app-demo/frontend/src/components/PriceMatrix.jsx` — Modifié : inline edit fontSize 1rem
+- `app-demo/frontend/src/__tests__/LoginPage.test.jsx` — Modifié : 2 tests font-size/minHeight
 
 ---
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import RulesPage from '../pages/RulesPage'
 
@@ -50,5 +50,25 @@ describe('RulesPage', () => {
     render(<MemoryRouter><RulesPage token="tok" /></MemoryRouter>)
     await waitFor(() => screen.getByText('Promo Cordes Web -15%'))
     expect(screen.getByText('-15%')).toBeInTheDocument()
+  })
+
+  it('les boutons action ont la classe btn-action (zone tactile ≥ 44px)', async () => {
+    render(<MemoryRouter><RulesPage token="tok" /></MemoryRouter>)
+    await waitFor(() => screen.getByText('Désactiver'))
+    expect(screen.getByText('Désactiver')).toHaveClass('btn-action')
+    expect(screen.getByText('Éditer')).toHaveClass('btn-action')
+    expect(screen.getByText('Supprimer')).toHaveClass('btn-action')
+  })
+
+  it('les boutons groupés ont la classe btn-group (gap 8px, flex-wrap mobile)', async () => {
+    render(<MemoryRouter><RulesPage token="tok" /></MemoryRouter>)
+    await waitFor(() => screen.getByText('Désactiver'))
+    expect(screen.getByText('Désactiver').closest('.btn-group')).toBeInTheDocument()
+  })
+
+  it('le wrapper de page a la classe page-pad (padding réduit sur mobile)', () => {
+    render(<MemoryRouter><RulesPage token="tok" /></MemoryRouter>)
+    const wrapper = document.querySelector('.page-pad')
+    expect(wrapper).toBeInTheDocument()
   })
 })

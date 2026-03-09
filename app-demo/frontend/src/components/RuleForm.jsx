@@ -31,7 +31,8 @@ export default function RuleForm({ channels, products, onSubmit, onCancel, initi
 
   const inputStyle = {
     width: '100%', padding: '8px 10px', borderRadius: '6px',
-    border: '1px solid #cbd5e1', fontSize: '0.9rem', boxSizing: 'border-box',
+    border: '1px solid #cbd5e1', fontSize: '1rem', boxSizing: 'border-box',
+    minHeight: '44px',
   }
 
   return (
@@ -40,7 +41,7 @@ export default function RuleForm({ channels, products, onSubmit, onCancel, initi
         <label style={{ display: 'block', fontSize: '0.8rem', color: '#64748b', marginBottom: '4px' }}>Nom de la règle *</label>
         <input style={inputStyle} value={form.name} onChange={e => set('name', e.target.value)} placeholder="ex: Promo Cordes Web -15%" required />
       </div>
-      <div style={{ display: 'flex', gap: '12px' }}>
+      <div className="form-row-2col">
         <div style={{ flex: 1 }}>
           <label style={{ display: 'block', fontSize: '0.8rem', color: '#64748b', marginBottom: '4px' }}>Type</label>
           <select style={inputStyle} value={form.type} onChange={e => set('type', e.target.value)}>
@@ -52,7 +53,7 @@ export default function RuleForm({ channels, products, onSubmit, onCancel, initi
           <label style={{ display: 'block', fontSize: '0.8rem', color: '#64748b', marginBottom: '4px' }}>
             Valeur * {form.type === 'percentage' ? '(ex: -15 pour -15%)' : '(ex: -5 pour -5€)'}
           </label>
-          <input style={inputStyle} type="number" step="0.01" value={form.value} onChange={e => set('value', e.target.value)} required />
+          <input style={inputStyle} type="number" step="0.01" inputMode="decimal" value={form.value} onChange={e => set('value', e.target.value)} required />
         </div>
       </div>
       <div>
@@ -94,7 +95,7 @@ export default function RuleForm({ channels, products, onSubmit, onCancel, initi
           </strong>
         </div>
       )}
-      <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+      <div className="form-actions">
         <button type="button" onClick={onCancel} style={{ padding: '8px 18px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#fff', cursor: 'pointer' }}>
           Annuler
         </button>

@@ -54,7 +54,7 @@ export default function RulesPage({ token }) {
   }
 
   return (
-    <div style={{ padding: '28px 32px', maxWidth: '1100px', margin: '0 auto' }}>
+    <div className="page-pad" style={{ maxWidth: '1100px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <h1 style={{ margin: 0, fontSize: '1.5rem', color: '#1e293b' }}>Règles de Pricing</h1>
         <button onClick={() => { setEditing(null); setShowForm(true) }} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: '#6366f1', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>
@@ -115,14 +115,14 @@ export default function RulesPage({ token }) {
                   Créée par {rule.createdBy?.name} · {new Date(rule.createdAt).toLocaleDateString('fr-FR')}
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-                <button onClick={() => handleToggle(rule)} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#fff', cursor: 'pointer', fontSize: '0.8rem' }}>
+              <div className="btn-group">
+                <button onClick={() => handleToggle(rule)} className="btn-action" style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#fff', cursor: 'pointer', fontSize: '0.8rem' }}>
                   {rule.isActive ? 'Désactiver' : 'Activer'}
                 </button>
-                <button onClick={() => openEdit(rule)} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#fff', cursor: 'pointer', fontSize: '0.8rem' }}>
+                <button onClick={() => openEdit(rule)} className="btn-action" style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#fff', cursor: 'pointer', fontSize: '0.8rem' }}>
                   Éditer
                 </button>
-                <button onClick={() => handleDelete(rule.id)} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #fca5a5', background: '#fef2f2', color: '#dc2626', cursor: 'pointer', fontSize: '0.8rem' }}>
+                <button onClick={() => handleDelete(rule.id)} className="btn-action" style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #fca5a5', background: '#fef2f2', color: '#dc2626', cursor: 'pointer', fontSize: '0.8rem' }}>
                   Supprimer
                 </button>
               </div>

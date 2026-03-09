@@ -23,7 +23,6 @@ describe('PortfolioPage', () => {
   it('affiche les sections principales', () => {
     render(<MemoryRouter><PortfolioPage /></MemoryRouter>)
     expect(screen.getByText('Services déployés')).toBeInTheDocument()
-    expect(screen.getByText('Architecture interactive')).toBeInTheDocument()
     expect(screen.getByText('Timeline du projet')).toBeInTheDocument()
     expect(screen.getByText('Stack technique')).toBeInTheDocument()
     expect(screen.getByText('Pipeline CI/CD')).toBeInTheDocument()
@@ -79,13 +78,32 @@ describe('PortfolioPage', () => {
     await waitFor(() => expect(screen.getByText(/Hors ligne/)).toBeInTheDocument())
   })
 
-  it('affiche les nœuds architecture', () => {
+  it('affiche le bouton hamburger portfolio avec aria-label', () => {
     render(<MemoryRouter><PortfolioPage /></MemoryRouter>)
-    expect(screen.getByText('Internet')).toBeInTheDocument()
-    expect(screen.getByText('Proxmox VE 8')).toBeInTheDocument()
-    expect(screen.getByText('PriceSync')).toBeInTheDocument()
-    expect(screen.getByText('CI Runner')).toBeInTheDocument()
-    expect(screen.getAllByText('Monitoring').length).toBeGreaterThan(0)
+    expect(screen.getByTestId('port-hamburger')).toBeInTheDocument()
+    expect(screen.getByTestId('port-hamburger')).toHaveAttribute('aria-label', 'Menu de navigation')
+  })
+
+  it('hamburger portfolio a aria-expanded=false par défaut', () => {
+    render(<MemoryRouter><PortfolioPage /></MemoryRouter>)
+    expect(screen.getByTestId('port-hamburger')).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('ouvre le menu mobile portfolio au clic sur hamburger', () => {
+    render(<MemoryRouter><PortfolioPage /></MemoryRouter>)
+    fireEvent.click(screen.getByTestId('port-hamburger'))
+    expect(screen.getByTestId('port-hamburger')).toHaveAttribute('aria-expanded', 'true')
+    // 'Pipeline CI/CD' appears only in mobile panel (section uses 'Pipeline CI/CD' too,
+    // so check aria-expanded suffices)
+    expect(screen.getByTestId('port-hamburger').getAttribute('aria-expanded')).toBe('true')
+  })
+
+  it('ferme le menu portfolio au second clic sur hamburger', () => {
+    render(<MemoryRouter><PortfolioPage /></MemoryRouter>)
+    const hamburger = screen.getByTestId('port-hamburger')
+    fireEvent.click(hamburger) // open
+    fireEvent.click(hamburger) // close
+    expect(hamburger).toHaveAttribute('aria-expanded', 'false')
   })
 
   it('affiche les étapes de la timeline', () => {

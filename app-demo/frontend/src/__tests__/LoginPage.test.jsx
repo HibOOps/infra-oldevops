@@ -34,6 +34,18 @@ describe('LoginPage', () => {
     await waitFor(() => expect(onLogin).toHaveBeenCalledWith('tok123', { name: 'Alice', role: 'admin' }))
   })
 
+  it('les inputs ont font-size 1rem (pas de zoom iOS)', () => {
+    render(<MemoryRouter><LoginPage onLogin={vi.fn()} /></MemoryRouter>)
+    const emailInput = screen.getByPlaceholderText('admin@pricesync.demo')
+    expect(emailInput.style.fontSize).toBe('1rem')
+  })
+
+  it('les inputs ont minHeight 44px (zone tactile)', () => {
+    render(<MemoryRouter><LoginPage onLogin={vi.fn()} /></MemoryRouter>)
+    const emailInput = screen.getByPlaceholderText('admin@pricesync.demo')
+    expect(emailInput.style.minHeight).toBe('44px')
+  })
+
   it('affiche une erreur si le login échoue', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: false,

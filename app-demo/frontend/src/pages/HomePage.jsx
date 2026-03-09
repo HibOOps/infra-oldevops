@@ -15,43 +15,38 @@ const s = {
   },
   nav: {
     display: 'flex',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
-    padding: '16px 48px',
+    padding: '12px clamp(12px, 4vw, 48px)',
     borderBottom: '1px solid rgba(255,255,255,0.06)',
     background: 'rgba(15,23,42,0.7)',
     backdropFilter: 'blur(16px)',
     position: 'sticky',
     top: 0,
     zIndex: 100,
-  },
-  navBrand: {
-    fontWeight: 700,
-    fontSize: '1.1rem',
-    color: '#f8fafc',
-    letterSpacing: '-0.02em',
+    gap: '6px',
+    flexWrap: 'wrap',
   },
   navRight: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
+    display: 'contents',
   },
   navBtn: {
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '6px',
+    gap: '5px',
     color: '#94a3b8',
     textDecoration: 'none',
-    fontSize: '0.85rem',
+    fontSize: '0.78rem',
     fontWeight: 500,
     background: 'rgba(255,255,255,0.04)',
     border: '1px solid rgba(255,255,255,0.1)',
     borderRadius: '8px',
-    padding: '7px 14px',
+    padding: '6px 10px',
     cursor: 'pointer',
     backdropFilter: 'blur(8px)',
     fontFamily: 'inherit',
     transition: 'background 0.2s, border-color 0.2s, color 0.2s',
+    whiteSpace: 'nowrap',
   },
   hero: {
     flex: 1,
@@ -173,8 +168,6 @@ export default function HomePage() {
       `}</style>
 
       <nav style={s.nav}>
-        <span style={s.navBrand}>oldevops.fr</span>
-
         <div style={s.navRight}>
           {/* Bio */}
           <button

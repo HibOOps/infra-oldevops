@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import ProductsPage from '../pages/ProductsPage'
 
@@ -43,5 +43,37 @@ describe('ProductsPage', () => {
     render(<MemoryRouter><ProductsPage token="tok" /></MemoryRouter>)
     await waitFor(() => expect(screen.getByText('LUT-B001')).toBeInTheDocument())
     expect(screen.getByText('LUT-M001')).toBeInTheDocument()
+  })
+
+  it('affiche le scroll hint par défaut', () => {
+    render(<MemoryRouter><ProductsPage token="tok" /></MemoryRouter>)
+    expect(screen.getByTestId('scroll-hint')).toBeInTheDocument()
+  })
+
+  it('la colonne Catégorie a la classe table-col-hide-mobile', () => {
+    render(<MemoryRouter><ProductsPage token="tok" /></MemoryRouter>)
+    const catHeader = screen.getByText('Catégorie')
+    expect(catHeader.closest('th')).toHaveClass('table-col-hide-mobile')
+  })
+
+  it('le formulaire produit a la classe form-grid-2col (1 colonne sur mobile)', async () => {
+    render(<MemoryRouter><ProductsPage token="tok" /></MemoryRouter>)
+    fireEvent.click(screen.getByText('+ Nouveau produit'))
+    const form = document.querySelector('.form-grid-2col')
+    expect(form).toBeInTheDocument()
+  })
+
+  it('les boutons du formulaire ont la classe form-actions', async () => {
+    render(<MemoryRouter><ProductsPage token="tok" /></MemoryRouter>)
+    fireEvent.click(screen.getByText('+ Nouveau produit'))
+    const cancelBtn = screen.getByText('Annuler')
+    expect(cancelBtn.closest('.form-actions')).toBeInTheDocument()
+  })
+
+  it('le champ prix de référence a inputMode decimal', async () => {
+    render(<MemoryRouter><ProductsPage token="tok" /></MemoryRouter>)
+    fireEvent.click(screen.getByText('+ Nouveau produit'))
+    const priceInput = screen.getAllByRole('spinbutton')[0]
+    expect(priceInput).toHaveAttribute('inputmode', 'decimal')
   })
 })

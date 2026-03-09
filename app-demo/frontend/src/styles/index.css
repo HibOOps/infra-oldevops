@@ -6,13 +6,198 @@ body {
   color: #1e293b;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
 }
 
 button { font-family: inherit; }
-input, select, textarea { font-family: inherit; outline: none; }
+/* font-size ≥ 16px on all inputs prevents iOS auto-zoom on focus (CA15.7) */
+input, select, textarea { font-family: inherit; outline: none; font-size: 1rem; }
 input:focus, select:focus { border-color: #6366f1 !important; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
 a { color: inherit; }
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: #f1f5f9; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+/* ── Form responsive (CA15.3) ── */
+.form-row-2col {
+  display: flex;
+  gap: 12px;
+}
+
+.form-grid-2col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+@media (max-width: 639px) {
+  .form-row-2col {
+    flex-direction: column;
+    gap: 14px;
+  }
+  .form-grid-2col {
+    grid-template-columns: 1fr;
+  }
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+  .form-actions > button {
+    width: 100%;
+    min-height: 44px;
+  }
+}
+
+/* ── Table scroll wrapper ── */
+.table-scroll-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  /* CSS scroll-shadow technique: local = moves with content, scroll = stays fixed */
+  background-image:
+    linear-gradient(to right, #fff 20%, rgba(255,255,255,0)),
+    linear-gradient(to left,  #fff 20%, rgba(255,255,255,0)),
+    linear-gradient(to right, rgba(0,0,0,.07), transparent),
+    linear-gradient(to left,  rgba(0,0,0,.07), transparent);
+  background-position: left center, right center, left center, right center;
+  background-repeat: no-repeat;
+  background-size: 20px 100%, 20px 100%, 10px 100%, 10px 100%;
+  background-attachment: local, local, scroll, scroll;
+}
+
+.table-scroll-hint {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  padding: 6px 14px 2px;
+  user-select: none;
+  pointer-events: none;
+}
+
+.table-col-hide-mobile { /* visible on all sizes */ }
+
+@media (max-width: 767px) {
+  .table-scroll-hint { display: flex; }
+}
+
+@media (max-width: 639px) {
+  .table-col-hide-mobile { display: none; }
+  .table-sticky-col {
+    position: sticky;
+    left: 0;
+    background: inherit;
+    z-index: 1;
+    box-shadow: 2px 0 5px rgba(0,0,0,.06);
+  }
+}
+
+/* ── Touch targets & page padding (CA15.6) ── */
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+}
+
+.btn-group {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.page-pad {
+  padding: 28px 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@media (max-width: 767px) {
+  .page-pad {
+    padding: 16px;
+  }
+  .btn-group {
+    flex-wrap: wrap;
+  }
+}
+
+/* ── KPI grid (CA15.5) ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+@media (max-width: 639px) {
+  .kpi-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ── Navbar responsive (PriceSync authenticated nav) ── */
+.navbar-desktop-links { display: flex; flex: 1; overflow: hidden; }
+.navbar-desktop-user  { display: flex; align-items: center; gap: 12px; margin-left: auto; flex-shrink: 0; }
+.navbar-hamburger     { display: none; }
+
+@media (max-width: 767px) {
+  .navbar-desktop-links { display: none; }
+  .navbar-desktop-user  { display: none; }
+  .navbar-hamburger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    background: transparent;
+    border: 1px solid #475569;
+    color: #94a3b8;
+    border-radius: 6px;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    font-size: 1.3rem;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .navbar-hamburger:hover { border-color: #818cf8; color: #f8fafc; }
+  .navbar-mobile-panel {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #1e293b;
+    border-top: 1px solid #334155;
+    padding: 8px 0 16px;
+    z-index: 99;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .navbar-mobile-link {
+    color: #94a3b8;
+    text-decoration: none;
+    padding: 13px 24px;
+    font-size: 0.95rem;
+    display: block;
+    border-left: 3px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+    min-height: 44px;
+    box-sizing: border-box;
+  }
+  .navbar-mobile-link:hover,
+  .navbar-mobile-link.active { color: #818cf8; border-left-color: #818cf8; }
+  .navbar-mobile-user {
+    border-top: 1px solid #334155;
+    margin-top: 8px;
+    padding: 12px 24px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+}

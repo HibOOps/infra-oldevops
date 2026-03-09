@@ -42,4 +42,19 @@ describe('HistoryPage', () => {
     await waitFor(() => expect(screen.getByText('LUT-B001')).toBeInTheDocument())
     expect(screen.getByText('Manuel')).toBeInTheDocument()
   })
+
+  it('affiche le scroll hint par défaut', () => {
+    render(<MemoryRouter><HistoryPage token="tok" /></MemoryRouter>)
+    expect(screen.getByTestId('scroll-hint')).toBeInTheDocument()
+  })
+
+  it('les colonnes Ancien prix, Modifié par, Source ont la classe table-col-hide-mobile', async () => {
+    render(<MemoryRouter><HistoryPage token="tok" /></MemoryRouter>)
+    const ancienHeader = screen.getByText('Ancien prix')
+    expect(ancienHeader.closest('th')).toHaveClass('table-col-hide-mobile')
+    const modifHeader = screen.getByText('Modifié par')
+    expect(modifHeader.closest('th')).toHaveClass('table-col-hide-mobile')
+    const sourceHeader = screen.getByText('Source')
+    expect(sourceHeader.closest('th')).toHaveClass('table-col-hide-mobile')
+  })
 })

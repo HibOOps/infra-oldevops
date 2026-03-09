@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const GITHUB_URL = 'https://github.com/HibOOps'
@@ -83,15 +83,6 @@ const TIMELINE = [
   { date: 'Mar 2026', label: 'Portfolio', desc: 'Documentation, README, vitrine professionnelle', color: '#10b981' },
 ]
 
-const ARCH_NODES = [
-  { id: 'internet', label: 'Internet', icon: '🌐', href: null, col: 2, row: 1, color: '#334155' },
-  { id: 'traefik', label: 'Traefik v3', sub: '.200 — reverse proxy + SSL', icon: '🔀', href: 'https://proxy.oldevops.fr', col: 2, row: 2, color: '#6366f1' },
-  { id: 'monitoring', label: 'Monitoring', sub: '.202 — Grafana / Prometheus / Loki', icon: '📊', href: 'https://grafana.oldevops.fr', col: 1, row: 3, color: '#10b981' },
-  { id: 'utilities', label: 'Utilities', sub: '.201 — Vault / Snipe-IT / NetBox', icon: '🔑', href: 'https://vault.oldevops.fr', col: 2, row: 3, color: '#22d3ee' },
-  { id: 'app', label: 'PriceSync', sub: '.250 — Node.js / React / PostgreSQL', icon: '🏷️', href: 'https://demo.oldevops.fr', col: 3, row: 3, color: '#6366f1' },
-  { id: 'ci', label: 'CI Runner', sub: '.210 — GitHub Actions self-hosted', icon: '🏃', href: null, col: 4, row: 3, color: '#f59e0b' },
-  { id: 'proxmox', label: 'Proxmox VE 8', sub: '.50 — bare-metal host', icon: '🖥️', href: null, col: 2, row: 4, color: '#475569' },
-]
 
 function pillStyle(accent) {
   const map = {
@@ -112,12 +103,23 @@ function pillStyle(accent) {
 export default function PortfolioPage() {
   const navigate = useNavigate()
   const [apiStatus, setApiStatus] = useState('loading')
+  const [navOpen, setNavOpen] = useState(false)
+  const navRef = useRef(null)
 
   useEffect(() => {
     fetch('/api/health')
       .then(r => r.ok ? setApiStatus('online') : setApiStatus('degraded'))
       .catch(() => setApiStatus('offline'))
   }, [])
+
+  useEffect(() => {
+    if (!navOpen) return
+    function handleOutside(e) {
+      if (navRef.current && !navRef.current.contains(e.target)) setNavOpen(false)
+    }
+    document.addEventListener('mousedown', handleOutside)
+    return () => document.removeEventListener('mousedown', handleOutside)
+  }, [navOpen])
 
   return (
     <div style={{ background: '#0f172a', color: '#f8fafc', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', minHeight: '100vh' }}>
@@ -128,42 +130,108 @@ export default function PortfolioPage() {
         .service-card:hover  { border-color: #6366f1 !important; transform: translateY(-2px); }
         .btn-primary-port:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(99,102,241,0.6) !important; }
         .btn-ghost-port:hover   { border-color: #6366f1 !important; background: rgba(99,102,241,0.08) !important; }
-        .arch-node:hover { transform: translateY(-3px); filter: brightness(1.15); }
-        .arch-node-link:hover { border-color: #6366f1 !important; }
+.port-nav-links { display: flex; gap: 20px; align-items: center; }
+        .port-nav-hamburger { display: none; }
+        @media (max-width: 767px) {
+          .port-nav-links { display: none; }
+          .port-nav-hamburger {
+            display: flex; align-items: center; justify-content: center;
+            margin-left: auto; background: none; border: 1px solid rgba(255,255,255,0.15);
+            color: #94a3b8; border-radius: 6px; width: 40px; height: 40px;
+            cursor: pointer; font-size: 1.3rem; font-family: inherit; flex-shrink: 0;
+            transition: border-color 0.2s, color 0.2s;
+          }
+          .port-nav-hamburger:hover { border-color: #6366f1; color: #f8fafc; }
+          .port-nav-mobile-panel {
+            position: absolute; top: 100%; left: 0; right: 0;
+            background: rgba(10,22,40,0.98); border-bottom: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(16px); z-index: 99;
+            display: flex; flex-direction: column; padding: 8px 0 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+          }
+          .port-nav-mobile-link {
+            color: #94a3b8; text-decoration: none; padding: 13px 20px;
+            font-size: 0.9rem; display: block; border-left: 3px solid transparent;
+            transition: color 0.15s, border-color 0.15s; min-height: 44px;
+          }
+          .port-nav-mobile-link:hover { color: #f8fafc; border-left-color: #6366f1; }
+          .port-nav-mobile-gh {
+            color: #94a3b8; text-decoration: none; padding: 13px 20px;
+            font-size: 0.9rem; display: flex; align-items: center; gap: 8px;
+            border-left: 3px solid transparent; border-top: 1px solid rgba(255,255,255,0.08);
+            margin-top: 4px; min-height: 44px; transition: color 0.15s, border-color 0.15s;
+          }
+          .port-nav-mobile-gh:hover { color: #f8fafc; border-left-color: #6366f1; }
+        }
       `}</style>
 
       {/* ── Nav ── */}
-      <nav style={{
+      <nav ref={navRef} style={{
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '16px 48px',
+        padding: '0 clamp(16px, 4vw, 48px)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
         background: 'rgba(15,23,42,0.95)',
         backdropFilter: 'blur(16px)',
         position: 'sticky', top: 0, zIndex: 100,
+        height: '56px',
+        gap: '12px',
       }}>
         <button
           className="port-nav-back"
           onClick={() => navigate('/')}
-          style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#64748b', background: 'none', border: 'none', fontSize: '0.85rem', cursor: 'pointer', fontFamily: 'inherit' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#64748b', background: 'none', border: 'none', fontSize: '0.85rem', cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
           Accueil
         </button>
-        <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-          {['#services', '#architecture', '#stack', '#cicd', '#metrics'].map(href => (
+
+        {/* Desktop links */}
+        <div className="port-nav-links">
+          {['#services', '#stack', '#cicd', '#metrics'].map(href => (
             <a key={href} href={href} className="port-nav-link"
-              style={{ color: '#64748b', textDecoration: 'none', fontSize: '0.83rem', transition: 'color 0.2s' }}>
-              { { '#services': 'Services', '#architecture': 'Architecture', '#stack': 'Stack', '#cicd': 'CI/CD', '#metrics': 'Métriques' }[href] }
+              style={{ color: '#64748b', textDecoration: 'none', fontSize: '0.83rem', transition: 'color 0.2s', whiteSpace: 'nowrap' }}>
+              { { '#services': 'Services', '#stack': 'Stack', '#cicd': 'CI/CD', '#metrics': 'Métriques' }[href] }
             </a>
           ))}
           <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className="port-nav-gh"
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#94a3b8', textDecoration: 'none', fontSize: '0.83rem', border: '1px solid #334155', borderRadius: '8px', padding: '6px 12px', transition: 'border-color 0.2s, color 0.2s' }}>
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#94a3b8', textDecoration: 'none', fontSize: '0.83rem', border: '1px solid #334155', borderRadius: '8px', padding: '6px 12px', transition: 'border-color 0.2s, color 0.2s', whiteSpace: 'nowrap' }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
             </svg>
             GitHub
           </a>
         </div>
+
+        {/* Hamburger button */}
+        <button
+          className="port-nav-hamburger"
+          onClick={() => setNavOpen(o => !o)}
+          aria-label="Menu de navigation"
+          aria-expanded={navOpen}
+          data-testid="port-hamburger"
+        >
+          {navOpen ? '✕' : '☰'}
+        </button>
+
+        {/* Mobile dropdown panel */}
+        {navOpen && (
+          <div className="port-nav-mobile-panel">
+            {[
+              ['#services', 'Services'],
+              ['#stack', 'Stack technique'],
+              ['#cicd', 'Pipeline CI/CD'],
+              ['#metrics', 'Métriques'],
+            ].map(([href, label]) => (
+              <a key={href} href={href} className="port-nav-mobile-link" onClick={() => setNavOpen(false)}>
+                {label}
+              </a>
+            ))}
+            <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className="port-nav-mobile-gh" onClick={() => setNavOpen(false)}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+              GitHub
+            </a>
+          </div>
+        )}
       </nav>
 
       {/* ── Hero ── */}
@@ -229,8 +297,8 @@ export default function PortfolioPage() {
       <section style={{ maxWidth: '1000px', margin: '0 auto', padding: '60px 48px' }}>
         <p style={{ fontSize: '0.75rem', color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, marginBottom: '8px' }}>Projet phare</p>
         <p style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em', color: '#f8fafc', marginBottom: '24px' }}>Application PriceSync</p>
-        <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '16px', padding: '28px', display: 'grid', gridTemplateColumns: '1fr auto', gap: '20px', alignItems: 'start' }}>
-          <div>
+        <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '16px', padding: '28px', display: 'flex', flexWrap: 'wrap', gap: '20px', alignItems: 'flex-start' }}>
+          <div style={{ flex: '1 1 280px' }}>
             <p style={{ fontSize: '1.15rem', fontWeight: 700, color: '#f8fafc', marginBottom: '10px' }}>Synchronisation de prix multi-canaux</p>
             <p style={{ fontSize: '0.88rem', color: '#94a3b8', lineHeight: 1.7, marginBottom: '16px' }}>
               Application full-stack développée de A à Z : API REST Express + Prisma + PostgreSQL,
@@ -322,78 +390,6 @@ export default function PortfolioPage() {
             </div>
           </div>
         ))}
-      </section>
-
-      {/* ── Architecture ── */}
-      <section id="architecture" style={{ background: '#0a1628', padding: '60px 0' }}>
-        <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 48px' }}>
-          <p style={{ fontSize: '0.75rem', color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, marginBottom: '8px' }}>Infra</p>
-          <p style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em', color: '#f8fafc', marginBottom: '8px' }}>Architecture interactive</p>
-          <p style={{ fontSize: '0.82rem', color: '#64748b', marginBottom: '28px' }}>Cliquez sur un nœud pour ouvrir le service</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', alignItems: 'center' }}>
-            {/* Row 1: Internet (centered col 2) */}
-            <div style={{ gridColumn: '2 / 3', gridRow: '1 / 2', display: 'flex', justifyContent: 'center' }}>
-              <div className="arch-node" style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '10px', padding: '14px 16px', textAlign: 'center', transition: 'transform 0.2s, filter 0.2s', minWidth: '100px' }}>
-                <div style={{ fontSize: '1.3rem', marginBottom: '4px' }}>🌐</div>
-                <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8' }}>Internet</div>
-              </div>
-            </div>
-            {/* Arrow Internet → Traefik */}
-            <div style={{ gridColumn: '2 / 3', gridRow: '2 / 3', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-              <div style={{ color: '#334155', fontSize: '1.2rem', lineHeight: 1 }}>↓</div>
-              {(() => {
-                const n = ARCH_NODES.find(x => x.id === 'traefik')
-                return (
-                  <a href={n.href} target="_blank" rel="noopener noreferrer" className="arch-node arch-node-link"
-                    style={{ background: 'rgba(99,102,241,0.12)', border: `1px solid ${n.color}`, borderRadius: '10px', padding: '14px 16px', textAlign: 'center', textDecoration: 'none', color: 'inherit', display: 'block', transition: 'transform 0.2s, filter 0.2s, border-color 0.2s', width: '100%' }}>
-                    <div style={{ fontSize: '1.3rem', marginBottom: '4px' }}>{n.icon}</div>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#f8fafc', marginBottom: '2px' }}>{n.label}</div>
-                    <div style={{ fontSize: '0.68rem', color: '#64748b' }}>{n.sub}</div>
-                  </a>
-                )
-              })()}
-            </div>
-            {/* Row 3: 4 service nodes */}
-            {[
-              ARCH_NODES.find(x => x.id === 'monitoring'),
-              ARCH_NODES.find(x => x.id === 'utilities'),
-              ARCH_NODES.find(x => x.id === 'app'),
-              ARCH_NODES.find(x => x.id === 'ci'),
-            ].map((n, i) => (
-              <div key={n.id} style={{ gridColumn: `${i + 1} / ${i + 2}`, gridRow: '3 / 4', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                <div style={{ color: '#334155', fontSize: '0.9rem', lineHeight: 1 }}>↓</div>
-                {n.href ? (
-                  <a href={n.href} target="_blank" rel="noopener noreferrer" className="arch-node arch-node-link"
-                    style={{ background: 'rgba(15,23,42,0.8)', border: `1px solid ${n.color}40`, borderRadius: '10px', padding: '12px', textAlign: 'center', textDecoration: 'none', color: 'inherit', display: 'block', transition: 'transform 0.2s, filter 0.2s, border-color 0.2s', width: '100%' }}>
-                    <div style={{ fontSize: '1.1rem', marginBottom: '4px' }}>{n.icon}</div>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: n.color, marginBottom: '2px' }}>{n.label}</div>
-                    <div style={{ fontSize: '0.62rem', color: '#475569', lineHeight: 1.3 }}>{n.sub}</div>
-                  </a>
-                ) : (
-                  <div className="arch-node" style={{ background: 'rgba(15,23,42,0.8)', border: `1px solid ${n.color}40`, borderRadius: '10px', padding: '12px', textAlign: 'center', transition: 'transform 0.2s, filter 0.2s', width: '100%' }}>
-                    <div style={{ fontSize: '1.1rem', marginBottom: '4px' }}>{n.icon}</div>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: n.color, marginBottom: '2px' }}>{n.label}</div>
-                    <div style={{ fontSize: '0.62rem', color: '#475569', lineHeight: 1.3 }}>{n.sub}</div>
-                  </div>
-                )}
-              </div>
-            ))}
-            {/* Row 4: Proxmox base (full width) */}
-            <div style={{ gridColumn: '1 / 5', gridRow: '4 / 5' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#334155', justifyContent: 'center', marginBottom: '4px', fontSize: '0.75rem' }}>
-                <div style={{ flex: 1, height: '1px', background: '#1e293b' }}/>
-                Proxmox VE 8 — bare-metal host (.50)
-                <div style={{ flex: 1, height: '1px', background: '#1e293b' }}/>
-              </div>
-              <div style={{ background: '#1e293b', border: '1px solid #475569', borderRadius: '10px', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '1.1rem' }}>🖥️</span>
-                <div>
-                  <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#64748b' }}>192.168.1.50 — Proxmox VE 8.x — hôte bare-metal</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </section>
 
       {/* ── Metrics ── */}
