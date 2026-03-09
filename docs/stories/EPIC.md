@@ -62,8 +62,9 @@ Ce projet d'infrastructure existe actuellement comme laboratoire de test personn
 | 1.10 | [Monitoring Avancé - Dashboards Grafana Versionnés](story-1.10.md) | ✅ Done | P2 | 1.9 |
 | 1.11 | [Backup et Disaster Recovery Automation](story-1.11.md) | ✅ Done | P2 | - |
 | 1.12 | [Sécurité - Scanning et Hardening Automatisé](story-1.12.md) | ✅ Done | P2 | 1.1 |
-| 1.13 | [Documentation Professionnelle - Architecture et Runbooks](story-1.13.md) | 📝 Todo | P3 | Toutes |
+| 1.13 | [Documentation Professionnelle - Architecture et Runbooks](story-1.13.md) | 🔄 In Review | P3 | Toutes |
 | 1.14 | [README et Portfolio - Transformation en Vitrine Professionnelle](story-1.14.md) | 📝 Todo | P3 | Toutes |
+| 1.15 | [PriceSync — Optimisation UX/UI Mobile & Navigation Smartphone](story-1.15.md) | 📝 Todo | P3 | 1.6, 1.7 |
 
 **Légende des priorités** :
 - **P0** : Bloquant - requis pour la suite
@@ -109,7 +110,7 @@ Ce projet d'infrastructure existe actuellement comme laboratoire de test personn
 - **Phase 2 - Application** (Stories 1.4-1.8) : 2-3 semaines
 - **Phase 3 - Monitoring** (Stories 1.9-1.10) : 1 semaine
 - **Phase 4 - Opérations** (Stories 1.11-1.12) : 1 semaine
-- **Phase 5 - Documentation** (Stories 1.13-1.14) : 1 semaine
+- **Phase 5 - Documentation & Polish** (Stories 1.13-1.15) : 1 semaine
 
 ## Dépendances Externes
 
@@ -127,7 +128,7 @@ Ce projet d'infrastructure existe actuellement comme laboratoire de test personn
 
 ---
 
-**Dernière mise à jour** : 2026-02-20
+**Dernière mise à jour** : 2026-03-09
 **Prochaine revue** : Fin de chaque phase
 
 ## Progression
@@ -138,6 +139,6 @@ Ce projet d'infrastructure existe actuellement comme laboratoire de test personn
 | Phase 2 — Application | 1.4, 1.5, 1.6, 1.7, 1.8 | ✅ Complète (5/5) |
 | Phase 3 — Monitoring | 1.9, 1.10 | ✅ Complète (2/2) |
 | Phase 4 — Opérations | 1.11, 1.12 | ✅ Complète (2/2) |
-| Phase 5 — Documentation | 1.13, 1.14 | 📝 À faire (0/2) |
+| Phase 5 — Documentation & Polish | 1.13, 1.14, 1.15 | 🏗️ En cours (0/3 — 1.13 In Review) |
 
-**Avancement global** : 12 Done · 0 In Progress · 2 Todo
+**Avancement global** : 12 Done · 1 In Review · 2 Todo

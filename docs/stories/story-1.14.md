@@ -1,7 +1,7 @@
 # Story 1.14 : README et Portfolio - Transformation en Vitrine Professionnelle
 
 **Epic** : [EPIC 1 - Transformation Portfolio Infrastructure Professionnelle](EPIC.md)
-**Statut** : 📝 Todo
+**Statut** : ✅ Ready for Review
 **Priorité** : P3 (Basse - Polish)
 **Points d'effort** : 5
 **Dépendances** : Toutes les stories précédentes
@@ -96,14 +96,38 @@
 
 ## Définition of Done
 
-- [ ] Tous les CA validés ✅
-- [ ] README transformé et professionnel
-- [ ] Page portfolio créée dans l'app
-- [ ] Captures d'écran ajoutées
-- [ ] SHOWCASE.md créé
-- [ ] Script vidéo préparé
+- [x] Tous les CA validés ✅ (CA14.1, CA14.2, CA14.4 — CA14.3 et CA14.5 hors scope)
+- [x] README transformé et professionnel
+- [x] Page portfolio créée dans l'app
+- [ ] Captures d'écran ajoutées (CA14.3 — hors scope)
+- [x] SHOWCASE.md créé
+- [ ] Script vidéo préparé (CA14.5 — hors scope)
 - [ ] Revue par un tiers (feedback sur impression)
 - [ ] Tout est à jour et cohérent
+
+---
+
+## Dev Agent Record
+
+### Agent Model Used
+claude-sonnet-4-6
+
+### Completion Notes
+- CA14.1 (README) et CA14.4 (SHOWCASE.md) : déjà complétés avant cette session
+- CA14.3 (screenshots) et CA14.5 (vidéo) : exclus par décision utilisateur
+- CA14.2 : PortfolioPage.jsx existait déjà avec hero, services, stack, CI/CD, métriques. Ajouté :
+  - **Architecture interactive** : diagramme CSS grid 4 colonnes avec nœuds cliquables (Traefik, Monitoring, Utilities, PriceSync, CI Runner, Proxmox)
+  - **Timeline du projet** : 6 jalons de Jan à Mar 2026 avec indicateurs colorés
+  - **Métriques en temps réel** : badge "API PriceSync — En ligne/Hors ligne" via `useEffect` + `fetch('/api/health')`
+  - Nav étendue avec liens #architecture et #timeline
+
+### File List
+- `app-demo/frontend/src/pages/PortfolioPage.jsx` — Modifié (architecture, timeline, live API status)
+- `app-demo/frontend/src/__tests__/PortfolioPage.test.jsx` — Modifié (11 tests couvrant toutes les nouvelles sections)
+
+### Change Log
+- `PortfolioPage.jsx` : ajout useState/useEffect, TIMELINE[], ARCH_NODES[], section Architecture, section Timeline, badge API live dans Metrics
+- `PortfolioPage.test.jsx` : ajout beforeEach mock fetch, 5 nouveaux tests (architecture, timeline, api-status)
 
 ---
 

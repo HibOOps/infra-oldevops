@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const GITHUB_URL = 'https://github.com/HibOOps'
@@ -73,6 +74,25 @@ const PIPELINE_DEPLOY = [
   { label: 'Health check', icon: '❤️' },
 ]
 
+const TIMELINE = [
+  { date: 'Jan 2026', label: 'Fondations', desc: 'Proxmox + Terraform LXC + Ansible base', color: '#6366f1' },
+  { date: 'Fév 2026', label: 'Services', desc: 'Traefik SSL, Vault, Snipe-IT, NetBox', color: '#6366f1' },
+  { date: 'Fév 2026', label: 'App PriceSync', desc: 'API REST + React + PostgreSQL + Tests', color: '#22d3ee' },
+  { date: 'Fév 2026', label: 'CI/CD', desc: 'GitHub Actions, Docker, Trivy, déploiement SSH', color: '#22d3ee' },
+  { date: 'Mar 2026', label: 'Observabilité', desc: 'Prometheus, Grafana, Loki, Alertmanager', color: '#10b981' },
+  { date: 'Mar 2026', label: 'Portfolio', desc: 'Documentation, README, vitrine professionnelle', color: '#10b981' },
+]
+
+const ARCH_NODES = [
+  { id: 'internet', label: 'Internet', icon: '🌐', href: null, col: 2, row: 1, color: '#334155' },
+  { id: 'traefik', label: 'Traefik v3', sub: '.200 — reverse proxy + SSL', icon: '🔀', href: 'https://proxy.oldevops.fr', col: 2, row: 2, color: '#6366f1' },
+  { id: 'monitoring', label: 'Monitoring', sub: '.202 — Grafana / Prometheus / Loki', icon: '📊', href: 'https://grafana.oldevops.fr', col: 1, row: 3, color: '#10b981' },
+  { id: 'utilities', label: 'Utilities', sub: '.201 — Vault / Snipe-IT / NetBox', icon: '🔑', href: 'https://vault.oldevops.fr', col: 2, row: 3, color: '#22d3ee' },
+  { id: 'app', label: 'PriceSync', sub: '.250 — Node.js / React / PostgreSQL', icon: '🏷️', href: 'https://demo.oldevops.fr', col: 3, row: 3, color: '#6366f1' },
+  { id: 'ci', label: 'CI Runner', sub: '.210 — GitHub Actions self-hosted', icon: '🏃', href: null, col: 4, row: 3, color: '#f59e0b' },
+  { id: 'proxmox', label: 'Proxmox VE 8', sub: '.50 — bare-metal host', icon: '🖥️', href: null, col: 2, row: 4, color: '#475569' },
+]
+
 function pillStyle(accent) {
   const map = {
     indigo:  { background: 'rgba(99,102,241,0.1)',  border: '1px solid rgba(99,102,241,0.3)', color: '#818cf8' },
@@ -91,6 +111,13 @@ function pillStyle(accent) {
 
 export default function PortfolioPage() {
   const navigate = useNavigate()
+  const [apiStatus, setApiStatus] = useState('loading')
+
+  useEffect(() => {
+    fetch('/api/health')
+      .then(r => r.ok ? setApiStatus('online') : setApiStatus('degraded'))
+      .catch(() => setApiStatus('offline'))
+  }, [])
 
   return (
     <div style={{ background: '#0f172a', color: '#f8fafc', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', minHeight: '100vh' }}>
@@ -101,6 +128,8 @@ export default function PortfolioPage() {
         .service-card:hover  { border-color: #6366f1 !important; transform: translateY(-2px); }
         .btn-primary-port:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(99,102,241,0.6) !important; }
         .btn-ghost-port:hover   { border-color: #6366f1 !important; background: rgba(99,102,241,0.08) !important; }
+        .arch-node:hover { transform: translateY(-3px); filter: brightness(1.15); }
+        .arch-node-link:hover { border-color: #6366f1 !important; }
       `}</style>
 
       {/* ── Nav ── */}
@@ -121,10 +150,10 @@ export default function PortfolioPage() {
           Accueil
         </button>
         <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-          {['#services', '#stack', '#cicd', '#metrics'].map(href => (
+          {['#services', '#architecture', '#stack', '#cicd', '#metrics'].map(href => (
             <a key={href} href={href} className="port-nav-link"
               style={{ color: '#64748b', textDecoration: 'none', fontSize: '0.83rem', transition: 'color 0.2s' }}>
-              { { '#services': 'Services', '#stack': 'Stack', '#cicd': 'CI/CD', '#metrics': 'Métriques' }[href] }
+              { { '#services': 'Services', '#architecture': 'Architecture', '#stack': 'Stack', '#cicd': 'CI/CD', '#metrics': 'Métriques' }[href] }
             </a>
           ))}
           <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className="port-nav-gh"
@@ -232,6 +261,25 @@ export default function PortfolioPage() {
         </div>
       </section>
 
+      {/* ── Timeline ── */}
+      <section id="timeline" style={{ maxWidth: '1000px', margin: '0 auto', padding: '60px 48px' }}>
+        <p style={{ fontSize: '0.75rem', color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, marginBottom: '8px' }}>Chronologie</p>
+        <p style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em', color: '#f8fafc', marginBottom: '32px' }}>Timeline du projet</p>
+        <div style={{ position: 'relative' }}>
+          <div style={{ position: 'absolute', left: '86px', top: 0, bottom: 0, width: '1px', background: '#1e293b' }} />
+          {TIMELINE.map((item, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '20px', marginBottom: '24px', position: 'relative' }}>
+              <div style={{ width: '80px', flexShrink: 0, textAlign: 'right', fontSize: '0.72rem', color: '#475569', paddingTop: '10px' }}>{item.date}</div>
+              <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: item.color, border: `2px solid ${item.color}40`, flexShrink: 0, marginTop: '10px', zIndex: 1, boxShadow: `0 0 8px ${item.color}60` }} />
+              <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '10px', padding: '10px 16px', flex: 1 }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#f8fafc', marginBottom: '3px' }}>{item.label}</div>
+                <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{item.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ── Tech Stack ── */}
       <section id="stack" style={{ background: '#0a1628', padding: '60px 0' }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 48px' }}>
@@ -276,11 +324,97 @@ export default function PortfolioPage() {
         ))}
       </section>
 
+      {/* ── Architecture ── */}
+      <section id="architecture" style={{ background: '#0a1628', padding: '60px 0' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 48px' }}>
+          <p style={{ fontSize: '0.75rem', color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, marginBottom: '8px' }}>Infra</p>
+          <p style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em', color: '#f8fafc', marginBottom: '8px' }}>Architecture interactive</p>
+          <p style={{ fontSize: '0.82rem', color: '#64748b', marginBottom: '28px' }}>Cliquez sur un nœud pour ouvrir le service</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', alignItems: 'center' }}>
+            {/* Row 1: Internet (centered col 2) */}
+            <div style={{ gridColumn: '2 / 3', gridRow: '1 / 2', display: 'flex', justifyContent: 'center' }}>
+              <div className="arch-node" style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '10px', padding: '14px 16px', textAlign: 'center', transition: 'transform 0.2s, filter 0.2s', minWidth: '100px' }}>
+                <div style={{ fontSize: '1.3rem', marginBottom: '4px' }}>🌐</div>
+                <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8' }}>Internet</div>
+              </div>
+            </div>
+            {/* Arrow Internet → Traefik */}
+            <div style={{ gridColumn: '2 / 3', gridRow: '2 / 3', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+              <div style={{ color: '#334155', fontSize: '1.2rem', lineHeight: 1 }}>↓</div>
+              {(() => {
+                const n = ARCH_NODES.find(x => x.id === 'traefik')
+                return (
+                  <a href={n.href} target="_blank" rel="noopener noreferrer" className="arch-node arch-node-link"
+                    style={{ background: 'rgba(99,102,241,0.12)', border: `1px solid ${n.color}`, borderRadius: '10px', padding: '14px 16px', textAlign: 'center', textDecoration: 'none', color: 'inherit', display: 'block', transition: 'transform 0.2s, filter 0.2s, border-color 0.2s', width: '100%' }}>
+                    <div style={{ fontSize: '1.3rem', marginBottom: '4px' }}>{n.icon}</div>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#f8fafc', marginBottom: '2px' }}>{n.label}</div>
+                    <div style={{ fontSize: '0.68rem', color: '#64748b' }}>{n.sub}</div>
+                  </a>
+                )
+              })()}
+            </div>
+            {/* Row 3: 4 service nodes */}
+            {[
+              ARCH_NODES.find(x => x.id === 'monitoring'),
+              ARCH_NODES.find(x => x.id === 'utilities'),
+              ARCH_NODES.find(x => x.id === 'app'),
+              ARCH_NODES.find(x => x.id === 'ci'),
+            ].map((n, i) => (
+              <div key={n.id} style={{ gridColumn: `${i + 1} / ${i + 2}`, gridRow: '3 / 4', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                <div style={{ color: '#334155', fontSize: '0.9rem', lineHeight: 1 }}>↓</div>
+                {n.href ? (
+                  <a href={n.href} target="_blank" rel="noopener noreferrer" className="arch-node arch-node-link"
+                    style={{ background: 'rgba(15,23,42,0.8)', border: `1px solid ${n.color}40`, borderRadius: '10px', padding: '12px', textAlign: 'center', textDecoration: 'none', color: 'inherit', display: 'block', transition: 'transform 0.2s, filter 0.2s, border-color 0.2s', width: '100%' }}>
+                    <div style={{ fontSize: '1.1rem', marginBottom: '4px' }}>{n.icon}</div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: n.color, marginBottom: '2px' }}>{n.label}</div>
+                    <div style={{ fontSize: '0.62rem', color: '#475569', lineHeight: 1.3 }}>{n.sub}</div>
+                  </a>
+                ) : (
+                  <div className="arch-node" style={{ background: 'rgba(15,23,42,0.8)', border: `1px solid ${n.color}40`, borderRadius: '10px', padding: '12px', textAlign: 'center', transition: 'transform 0.2s, filter 0.2s', width: '100%' }}>
+                    <div style={{ fontSize: '1.1rem', marginBottom: '4px' }}>{n.icon}</div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: n.color, marginBottom: '2px' }}>{n.label}</div>
+                    <div style={{ fontSize: '0.62rem', color: '#475569', lineHeight: 1.3 }}>{n.sub}</div>
+                  </div>
+                )}
+              </div>
+            ))}
+            {/* Row 4: Proxmox base (full width) */}
+            <div style={{ gridColumn: '1 / 5', gridRow: '4 / 5' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#334155', justifyContent: 'center', marginBottom: '4px', fontSize: '0.75rem' }}>
+                <div style={{ flex: 1, height: '1px', background: '#1e293b' }}/>
+                Proxmox VE 8 — bare-metal host (.50)
+                <div style={{ flex: 1, height: '1px', background: '#1e293b' }}/>
+              </div>
+              <div style={{ background: '#1e293b', border: '1px solid #475569', borderRadius: '10px', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '1.1rem' }}>🖥️</span>
+                <div>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#64748b' }}>192.168.1.50 — Proxmox VE 8.x — hôte bare-metal</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Metrics ── */}
       <section id="metrics" style={{ background: '#0a1628', padding: '60px 0' }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 48px' }}>
-          <p style={{ fontSize: '0.75rem', color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, marginBottom: '8px' }}>Résultats mesurables</p>
-          <p style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em', color: '#f8fafc', marginBottom: '28px' }}>Métriques clés</p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '28px' }}>
+            <div>
+              <p style={{ fontSize: '0.75rem', color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, marginBottom: '8px' }}>Résultats mesurables</p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em', color: '#f8fafc' }}>Métriques clés</p>
+            </div>
+            <div data-testid="api-status-badge" style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              background: apiStatus === 'online' ? 'rgba(16,185,129,0.1)' : apiStatus === 'loading' ? 'rgba(99,102,241,0.1)' : 'rgba(239,68,68,0.1)',
+              border: `1px solid ${apiStatus === 'online' ? 'rgba(16,185,129,0.4)' : apiStatus === 'loading' ? 'rgba(99,102,241,0.4)' : 'rgba(239,68,68,0.4)'}`,
+              borderRadius: '20px', padding: '6px 14px', fontSize: '0.78rem', fontWeight: 600,
+              color: apiStatus === 'online' ? '#10b981' : apiStatus === 'loading' ? '#818cf8' : '#ef4444',
+            }}>
+              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'currentColor', display: 'inline-block' }} />
+              API PriceSync — {apiStatus === 'online' ? 'En ligne' : apiStatus === 'loading' ? 'Vérification…' : 'Hors ligne'}
+            </div>
+          </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '14px' }}>
             {METRICS.map(m => (
               <div key={m.label} style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '22px 18px', textAlign: 'center' }}>
