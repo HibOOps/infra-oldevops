@@ -50,3 +50,6 @@ simplification.md
 
 # Claude Code configuration
 .claude/
+
+coverage/
+node_modules/.vite
