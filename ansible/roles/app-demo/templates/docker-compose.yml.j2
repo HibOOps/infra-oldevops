@@ -38,9 +38,9 @@ services:
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:{{ app_demo_backend_port }}/api/health"]
       interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
+      timeout: 10s
+      retries: 8
+      start_period: 60s
 
   frontend:
     image: {{ app_demo_registry }}/app-demo-frontend:latest
