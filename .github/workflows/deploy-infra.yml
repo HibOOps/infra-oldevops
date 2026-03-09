@@ -136,7 +136,10 @@ jobs:
         run: |
           if [ -f playbooks/app-demo.yml ]; then
             echo "Deploying demo application..."
-            ansible-playbook -i inventory.ini playbooks/app-demo.yml 2>&1 | tee app-demo.log
+            ansible-playbook -i inventory.ini playbooks/app-demo.yml \
+              -e "github_token=${{ secrets.GITHUB_TOKEN }}" \
+              -e "github_actor=${{ github.actor }}" \
+              2>&1 | tee app-demo.log
             echo "demo_result<<EOF" >> $GITHUB_OUTPUT
             grep -E "ok=|changed=|failed=|skipped=" app-demo.log | tail -1 >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
