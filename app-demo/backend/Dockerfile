@@ -21,4 +21,4 @@ COPY src ./src
 EXPOSE 5000
 
 # db push applies schema directly (no migration files required)
-CMD ["sh", "-c", "npx prisma db push && (node prisma/seed.js || echo 'Seed skipped (data already exists)') && node src/server.js"]
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss && (node prisma/seed.js || echo 'Seed skipped (data already exists)') && node src/server.js"]

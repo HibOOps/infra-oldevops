@@ -66,11 +66,17 @@
   until: backend_health.stdout == "healthy"
   retries: 35
   delay: 15
+  ignore_errors: yes
 
 - name: Show backend logs if unhealthy
-  command: docker logs --tail 50 pricesync-backend
+  command: docker logs --tail 80 pricesync-backend
+  register: backend_logs
   when: backend_health.stdout != "healthy"
-  ignore_errors: yes
+
+- name: Fail with backend logs
+  fail:
+    msg: "Backend unhealthy after timeout. Logs:\n{{ backend_logs.stdout }}\n{{ backend_logs.stderr }}"
+  when: backend_health.stdout != "healthy"
 
 - name: Wait for pricesync-frontend to be healthy
   command: >
