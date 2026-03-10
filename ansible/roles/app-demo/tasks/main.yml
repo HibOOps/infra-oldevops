@@ -51,6 +51,25 @@
   shell: echo "{{ github_token }}" | docker login ghcr.io -u "{{ github_actor }}" --password-stdin
   no_log: true
 
+- name: Start database service only
+  shell: docker compose -f {{ app_demo_dir }}/docker-compose.yml up -d db
+  args:
+    chdir: "{{ app_demo_dir }}"
+
+- name: Wait for database to be healthy
+  command: >
+    docker inspect --format="{{ '{{' }}.State.Health.Status{{ '}}' }}" pricesync-db
+  register: db_health
+  until: db_health.stdout == "healthy"
+  retries: 10
+  delay: 5
+
+- name: Ensure database user password matches vault
+  shell: >
+    docker exec pricesync-db psql -U {{ app_demo_db_user }} -d {{ app_demo_db_name }}
+    -c "ALTER USER {{ app_demo_db_user }} WITH PASSWORD '{{ app_demo_db_password }}';"
+  no_log: true
+
 - name: Pull and start PriceSync stack
   community.docker.docker_compose_v2:
     project_src: "{{ app_demo_dir }}"
