@@ -64,13 +64,18 @@
     docker inspect --format="{{ '{{' }}.State.Health.Status{{ '}}' }}" pricesync-backend
   register: backend_health
   until: backend_health.stdout == "healthy"
-  retries: 20
-  delay: 10
+  retries: 35
+  delay: 15
+
+- name: Show backend logs if unhealthy
+  command: docker logs --tail 50 pricesync-backend
+  when: backend_health.stdout != "healthy"
+  ignore_errors: yes
 
 - name: Wait for pricesync-frontend to be healthy
   command: >
     docker inspect --format="{{ '{{' }}.State.Health.Status{{ '}}' }}" pricesync-frontend
   register: frontend_health
   until: frontend_health.stdout == "healthy"
-  retries: 12
+  retries: 15
   delay: 10
