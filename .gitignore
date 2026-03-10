@@ -51,5 +51,9 @@ simplification.md
 # Claude Code configuration
 .claude/
 
+# Node.js
+node_modules/
 coverage/
-node_modules/.vite
+dist/
+.env.local
+.env.*.local
