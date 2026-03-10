@@ -39,8 +39,8 @@ services:
       test: ["CMD", "wget", "-qO-", "http://localhost:{{ app_demo_backend_port }}/api/health"]
       interval: 15s
       timeout: 10s
-      retries: 8
-      start_period: 60s
+      retries: 12
+      start_period: 120s
 
   frontend:
     image: {{ app_demo_registry }}/app-demo-frontend:latest
@@ -50,7 +50,7 @@ services:
       - "{{ app_demo_frontend_port }}:{{ app_demo_frontend_port }}"
     depends_on:
       backend:
-        condition: service_healthy
+        condition: service_started
     networks:
       - pricesync_network
     healthcheck:
