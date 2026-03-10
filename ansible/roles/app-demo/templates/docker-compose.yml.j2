@@ -22,7 +22,7 @@ services:
     container_name: pricesync-backend
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://{{ app_demo_db_user }}:{{ app_demo_db_password }}@db:5432/{{ app_demo_db_name }}
+      DATABASE_URL: postgresql://{{ app_demo_db_user }}:{{ app_demo_db_password | urlencode }}@db:5432/{{ app_demo_db_name }}
       JWT_SECRET: {{ app_demo_jwt_secret }}
       JWT_EXPIRES_IN: 24h
       PORT: {{ app_demo_backend_port }}
