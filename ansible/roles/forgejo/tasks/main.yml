@@ -30,13 +30,14 @@
   delay: 15
 
 - name: Check if admin user already exists
-  command: docker exec -u git forgejo forgejo admin user list
+  command: docker exec -u git forgejo forgejo admin user list --config /data/gitea/conf/app.ini
   register: forgejo_user_list
   changed_when: false
 
 - name: Create Forgejo admin user
   command: >
     docker exec -u git forgejo forgejo admin user create
+    --config /data/gitea/conf/app.ini
     --username "{{ forgejo_admin_user }}"
     --password "{{ forgejo_admin_password }}"
     --email "{{ forgejo_admin_email }}"
