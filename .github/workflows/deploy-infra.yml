@@ -78,7 +78,7 @@ jobs:
           TF_VAR_proxmox_username: ${{ secrets.PROXMOX_USERNAME }}
           TF_VAR_container_password: ${{ secrets.CONTAINER_PASSWORD }}
           TF_VAR_proxmox_host: "192.168.1.50"
-          TF_VAR_ssh_public_keys: "[]"
+          TF_VAR_ssh_public_keys: '["${{ secrets.SSH_PUBLIC_KEY }}"]'
 
       # --- Phase 5: Ansible Playbooks ---
       - name: Verify SSH key for Ansible
