@@ -91,6 +91,28 @@ jobs:
             exit 1
           fi
 
+      - name: Bootstrap SSH key on new LXC containers
+        run: |
+          PUBKEY=$(cat /home/runner/.ssh/id_ed25519.pub)
+          # Map of VMID → IP for containers that need SSH bootstrap
+          declare -A CONTAINERS=( ["260"]="192.168.1.203" )
+          for VMID in "${!CONTAINERS[@]}"; do
+            IP="${CONTAINERS[$VMID]}"
+            echo "Checking SSH connectivity to $IP (VMID $VMID)..."
+            if ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no \
+                   -i /home/runner/.ssh/id_ed25519 root@$IP 'exit' 2>/dev/null; then
+              echo "  → SSH already accessible on $IP"
+            else
+              echo "  → Bootstrapping SSH key via Proxmox pct exec (VMID $VMID)..."
+              ssh -o StrictHostKeyChecking=no root@192.168.1.50 \
+                "pct exec $VMID -- sh -c 'mkdir -p /root/.ssh && chmod 700 /root/.ssh && \
+                echo \"$PUBKEY\" >> /root/.ssh/authorized_keys && \
+                sort -u /root/.ssh/authorized_keys -o /root/.ssh/authorized_keys && \
+                chmod 600 /root/.ssh/authorized_keys'"
+              echo "  → SSH key injected on $IP"
+            fi
+          done
+
       - name: Deploy Traefik (Proxy)
         id: ansible_traefik
         working-directory: ansible
