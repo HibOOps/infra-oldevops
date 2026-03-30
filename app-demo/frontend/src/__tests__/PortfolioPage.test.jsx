@@ -46,17 +46,18 @@ describe('PortfolioPage', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/')
   })
 
-  it('affiche les 6 services', () => {
+  it('affiche les 7 services', () => {
     render(<MemoryRouter><PortfolioPage /></MemoryRouter>)
     expect(screen.getAllByText('Traefik v3').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Grafana / Prometheus').length).toBeGreaterThan(0)
     expect(screen.getByText('Vaultwarden')).toBeInTheDocument()
     expect(screen.getByText('GitHub Runner')).toBeInTheDocument()
+    expect(screen.getAllByText('Forgejo').length).toBeGreaterThan(0)
   })
 
   it('affiche les métriques clés', () => {
     render(<MemoryRouter><PortfolioPage /></MemoryRouter>)
-    expect(screen.getByText('5')).toBeInTheDocument()
+    expect(screen.getByText('6')).toBeInTheDocument()
     expect(screen.getByText('99.9%')).toBeInTheDocument()
     expect(screen.getByText('60%+')).toBeInTheDocument()
   })

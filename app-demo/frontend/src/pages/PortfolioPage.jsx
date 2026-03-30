@@ -12,6 +12,7 @@ const SERVICES = [
   { icon: '🖥️', name: 'Uptime Kuma',          url: 'status.oldevops.fr',     href: 'https://status.oldevops.fr',     desc: 'Monitoring uptime HTTP de tous les services en temps réel' },
   { icon: '📦', name: 'Snipe-IT / NetBox',    url: 'inventory.oldevops.fr',  href: 'https://inventory.oldevops.fr',  desc: 'ITSM : gestion de parc et documentation réseau / DCIM' },
   { icon: '🏃', name: 'GitHub Runner',         url: 'ci-runner (LXC .210)',   href: null,                             desc: 'Runner CI/CD auto-hébergé sur LXC dédié (Debian 12 / Docker)' },
+  { icon: '🐙', name: 'Forgejo',               url: 'git.oldevops.fr',        href: 'https://git.oldevops.fr',        desc: 'Forge Git self-hosted — miroir de l\'infra, CI et gestion des dépôts' },
 ]
 
 const TECH_STACK = [
@@ -52,8 +53,8 @@ const TECH_STACK = [
 ]
 
 const METRICS = [
-  { value: '5', label: 'Containers LXC', color: '#6366f1' },
-  { value: '10+', label: 'Services en production', color: '#6366f1' },
+  { value: '6', label: 'Containers LXC', color: '#6366f1' },
+  { value: '11+', label: 'Services en production', color: '#6366f1' },
   { value: '4', label: 'Workflows CI/CD', color: '#22d3ee' },
   { value: '<10min', label: 'Temps de déploiement', color: '#22d3ee' },
   { value: '99.9%', label: 'Uptime cible', color: '#10b981' },
@@ -81,6 +82,7 @@ const TIMELINE = [
   { date: 'Fév 2026', label: 'CI/CD', desc: 'GitHub Actions, Docker, Trivy, déploiement SSH', color: '#22d3ee' },
   { date: 'Mar 2026', label: 'Observabilité', desc: 'Prometheus, Grafana, Loki, Alertmanager', color: '#10b981' },
   { date: 'Mar 2026', label: 'Portfolio', desc: 'Documentation, README, vitrine professionnelle', color: '#10b981' },
+  { date: 'Mar 2026', label: 'Forgejo', desc: 'Forge Git self-hosted, miroir infra + SSH LAN', color: '#10b981' },
 ]
 
 
@@ -247,7 +249,7 @@ export default function PortfolioPage() {
         </p>
         <p style={{ fontSize: '1rem', color: '#94a3b8', lineHeight: 1.75, marginBottom: '36px', maxWidth: '560px', margin: '0 auto 36px' }}>
           Infrastructure complète déployée sur Proxmox bare-metal avec Terraform et Ansible.
-          5 containers LXC, 10+ services en production, pipeline CI/CD complet et observabilité full-stack.
+          6 containers LXC, 11+ services en production, pipeline CI/CD complet et observabilité full-stack.
         </p>
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
           <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer"
