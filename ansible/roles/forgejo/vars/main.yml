@@ -6,4 +6,4 @@ forgejo_data_dir: /opt/forgejo/data
 forgejo_image: codeberg.org/forgejo/forgejo:10
 forgejo_github_repo_url: https://github.com/HibOOps/infra-oldevops
 forgejo_mirror_repo_name: infra-oldevops
-forgejo_mirror_interval: "24h"
+forgejo_mirror_interval: "10m"
