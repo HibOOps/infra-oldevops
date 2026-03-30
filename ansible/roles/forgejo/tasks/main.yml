@@ -1,0 +1,75 @@
+---
+- name: Create Forgejo directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ forgejo_dir }}"
+    - "{{ forgejo_data_dir }}"
+
+- name: Deploy docker-compose.yml
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ forgejo_dir }}/docker-compose.yml"
+    mode: '0644'
+
+- name: Start Forgejo
+  community.docker.docker_compose_v2:
+    project_src: "{{ forgejo_dir }}"
+    state: present
+    pull: always
+  register: forgejo_deploy
+
+- name: Wait for Forgejo to be healthy
+  command: >
+    docker inspect --format="{{ '{{' }}.State.Health.Status{{ '}}' }}" forgejo
+  register: forgejo_health
+  until: forgejo_health.stdout == "healthy"
+  retries: 20
+  delay: 15
+
+- name: Check if admin user already exists
+  command: docker exec forgejo forgejo admin user list
+  register: forgejo_user_list
+  changed_when: false
+
+- name: Create Forgejo admin user
+  command: >
+    docker exec forgejo forgejo admin user create
+    --username "{{ forgejo_admin_user }}"
+    --password "{{ forgejo_admin_password }}"
+    --email "{{ forgejo_admin_email }}"
+    --admin --must-change-password=false
+  when: forgejo_admin_user not in forgejo_user_list.stdout
+  no_log: true
+
+- name: Check if mirror repo already exists
+  uri:
+    url: "http://localhost:{{ forgejo_port }}/api/v1/repos/{{ forgejo_admin_user }}/{{ forgejo_mirror_repo_name }}"
+    method: GET
+    url_username: "{{ forgejo_admin_user }}"
+    url_password: "{{ forgejo_admin_password }}"
+    force_basic_auth: yes
+    status_code: [200, 404]
+  register: mirror_check
+  no_log: true
+
+- name: Create GitHub mirror repository
+  uri:
+    url: "http://localhost:{{ forgejo_port }}/api/v1/repos/migrate"
+    method: POST
+    url_username: "{{ forgejo_admin_user }}"
+    url_password: "{{ forgejo_admin_password }}"
+    force_basic_auth: yes
+    body_format: json
+    body:
+      clone_addr: "{{ forgejo_github_repo_url }}"
+      repo_name: "{{ forgejo_mirror_repo_name }}"
+      mirror: true
+      mirror_interval: "{{ forgejo_mirror_interval }}"
+      private: true
+      uid: 1
+    status_code: 201
+  when: mirror_check.status == 404
+  no_log: true

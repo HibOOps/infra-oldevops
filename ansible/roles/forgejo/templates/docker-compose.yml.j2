@@ -1,0 +1,33 @@
+services:
+  forgejo:
+    image: {{ forgejo_image }}
+    container_name: forgejo
+    restart: unless-stopped
+    environment:
+      USER_UID: "1000"
+      USER_GID: "1000"
+      FORGEJO__server__DOMAIN: "git.{{ domain_name }}"
+      FORGEJO__server__ROOT_URL: "https://git.{{ domain_name }}/"
+      FORGEJO__server__HTTP_PORT: "{{ forgejo_port }}"
+      FORGEJO__server__SSH_DOMAIN: "git.{{ domain_name }}"
+      FORGEJO__server__SSH_PORT: "{{ forgejo_ssh_port }}"
+      FORGEJO__database__DB_TYPE: sqlite3
+      FORGEJO__security__SECRET_KEY: "{{ forgejo_secret_key }}"
+      FORGEJO__security__INTERNAL_TOKEN: "{{ forgejo_internal_token }}"
+      FORGEJO__service__DISABLE_REGISTRATION: "true"
+      FORGEJO__service__REQUIRE_SIGNIN_VIEW: "false"
+      FORGEJO__log__LEVEL: Warn
+      FORGEJO__cron__ENABLED: "true"
+    ports:
+      - "{{ forgejo_port }}:{{ forgejo_port }}"
+      - "{{ forgejo_ssh_port }}:22"
+    volumes:
+      - {{ forgejo_data_dir }}:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:{{ forgejo_port }}/api/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s

@@ -1,0 +1,9 @@
+---
+forgejo_dir: /opt/forgejo
+forgejo_port: 3000
+forgejo_ssh_port: 2222
+forgejo_data_dir: /opt/forgejo/data
+forgejo_image: codeberg.org/forgejo/forgejo:10
+forgejo_github_repo_url: https://github.com/HibOOps/infra-oldevops
+forgejo_mirror_repo_name: infra-oldevops
+forgejo_mirror_interval: "24h"

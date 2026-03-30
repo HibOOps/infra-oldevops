@@ -132,6 +132,15 @@ http:
       middlewares:
         - secure-headers
         - rate-limit
+    forgejo:
+      rule: "Host(`git.{{ domain_name }}`)"
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: ovh
+      service: forgejo
+      middlewares:
+        - rate-limit
     dashboard:
       rule: "Host(`proxy.{{ domain_name }}`)"
       entryPoints:
@@ -189,6 +198,14 @@ http:
           path: /api/health
           interval: 15s
           timeout: 5s
+    forgejo:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.1.203:3000"
+        healthCheck:
+          path: /api/healthz
+          interval: 30s
+          timeout: 10s
 
 tls:
   options:

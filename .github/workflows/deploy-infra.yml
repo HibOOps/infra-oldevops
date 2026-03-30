@@ -150,6 +150,23 @@ jobs:
         env:
           ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
 
+      - name: Deploy Forgejo (if exists)
+        id: ansible_forgejo
+        working-directory: ansible
+        run: |
+          if [ -f playbooks/forgejo.yml ]; then
+            echo "Deploying Forgejo git server..."
+            ansible-playbook -i inventory.ini playbooks/forgejo.yml 2>&1 | tee forgejo.log
+            echo "forgejo_result<<EOF" >> $GITHUB_OUTPUT
+            grep -E "ok=|changed=|failed=|skipped=" forgejo.log | tail -1 >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "No forgejo.yml found, skipping."
+            echo "forgejo_result=skipped" >> $GITHUB_OUTPUT
+          fi
+        env:
+          ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+
       # --- Phase 6: Health Checks ---
       - name: Post-Deployment Health Checks
         id: healthcheck
@@ -245,6 +262,7 @@ jobs:
             | Utilities | ${{ steps.ansible_utilities.outputs.utilities_result || 'N/A' }} |
             | Monitoring | ${{ steps.ansible_monitoring.outputs.monitoring_result || 'N/A' }} |
             | App Demo | ${{ steps.ansible_demo.outputs.demo_result || 'N/A' }} |
+            | Forgejo | ${{ steps.ansible_forgejo.outputs.forgejo_result || 'N/A' }} |
 
             ### Health Checks
             Status: ${healthFailed ? '❌ Échec' : '✅ Succès'}
