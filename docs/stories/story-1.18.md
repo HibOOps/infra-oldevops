@@ -62,12 +62,12 @@ Règles d'alerte créées dans Grafana (provisionnées via Ansible) :
 
 | Alerte | Condition | Sévérité | Canal |
 |--------|-----------|----------|-------|
-| `SecurityBruteForce` | Failed SSH > 10 en 10 min sur un même host | 🔴 Critical | email + (optionnel Slack) |
-| `SecurityPrivEsc` | sudo event auditd sur tout host | 🟡 Warning | email |
-| `SecuritySensitiveFileChange` | Modification `/etc/passwd`, `/etc/shadow`, `/etc/sudoers` | 🔴 Critical | email |
-| `SecurityAuditdDown` | Absence de logs `{job="auditd"}` depuis >30 min sur un host | 🟡 Warning | email |
+| `SecurityBruteForce` | Failed SSH > 10 en 10 min sur un même host | 🔴 Critical | ntfy |
+| `SecurityPrivEsc` | sudo event auditd sur tout host | 🟡 Warning | ntfy |
+| `SecuritySensitiveFileChange` | Modification `/etc/passwd`, `/etc/shadow`, `/etc/sudoers` | 🔴 Critical | ntfy |
+| `SecurityAuditdDown` | Absence de logs `{job="auditd"}` depuis >30 min sur un host | 🟡 Warning | ntfy |
 
-- Canal email configuré via `ansible/roles/grafana/templates/grafana.ini.j2` (SMTP)
+- Canal de notification : **ntfy.sh** webhook → `https://ntfy.sh/homelab-oldevops` (push mobile via app ntfy)
 - Les règles sont des **Grafana Managed Alerts** (pas Prometheus rules) basées sur des datasources Loki
 - Les alertes sont provisionnées en YAML dans `ansible/roles/grafana/templates/alerts/`
 
@@ -95,7 +95,7 @@ Règles d'alerte créées dans Grafana (provisionnées via Ansible) :
 - Les panels chargent sans erreur (même si aucun event de sécurité en cours)
 
 ### VI2 : Test alerte bout-en-bout
-- Déclencher manuellement 11 tentatives SSH échouées → vérifier que l'alerte `SecurityBruteForce` se déclenche et qu'un email est reçu
+- Déclencher manuellement 11 tentatives SSH échouées → vérifier que l'alerte `SecurityBruteForce` se déclenche et qu'une notification ntfy est reçue
 - Vérification en 15 min max
 
 ### VI3 : Idempotence provisionnement
@@ -147,7 +147,8 @@ claude-sonnet-4-6
 - `provisioning/plugins` directory created to suppress Grafana startup warning
 - `security-alerts.yaml.bak` skipped by Grafana (correct behavior, not an issue)
 - Alerting provisioned: `finished to provision alerting` + `finished to provision dashboards` confirmed in logs
-- Email SMTP configured via `grafana.ini` using OVH SMTP credentials from vault (smtp_host, smtp_username, smtp_password, smtp_from)
+- SMTP OVH (port 587) inaccessible depuis le homelab (bloqué par le FAI) → canal ntfy.sh webhook utilisé à la place
+- Contact point `ntfy-ops` provisionné via YAML → `https://ntfy.sh/homelab-oldevops`, notification push testée et reçue sur mobile
 
 ### File List
 - `ansible/roles/grafana/files/dashboards/security-auth.json` — Créé

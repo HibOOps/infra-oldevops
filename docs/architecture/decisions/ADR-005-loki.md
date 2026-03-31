@@ -8,7 +8,7 @@
 
 ## Contexte
 
-L'observabilité nécessite une solution de centralisation des logs pour les 5 containers LXC. Le container monitoring (192.168.1.202) héberge déjà Prometheus + Grafana + Zabbix + Uptime Kuma (4 GB RAM alloués). Une solution de logging doit s'intégrer avec l'existant sans ajouter une charge significative.
+L'observabilité nécessite une solution de centralisation des logs pour les 5 containers LXC. Le container monitoring (192.168.1.202) héberge déjà Prometheus + Grafana + + Uptime Kuma (4 GB RAM alloués). Une solution de logging doit s'intégrer avec l'existant sans ajouter une charge significative.
 
 ## Décision
 

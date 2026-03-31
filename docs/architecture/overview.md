@@ -37,7 +37,7 @@ Cinq containers LXC (Debian 12, mode privilégié + nesting pour Docker) :
 |-----------|------|----|------|-----|------|------|
 | proxy | 200 | 192.168.1.200 | 2 | 1 GB | 8 GB | Traefik v3 — reverse proxy + SSL |
 | utilities | 220 | 192.168.1.201 | 6 | 8 GB | 40 GB | Vaultwarden, Snipe-IT, NetBox |
-| monitoring | 240 | 192.168.1.202 | 4 | 6 GB | 50 GB | Prometheus, Grafana, Loki, Zabbix, Uptime Kuma |
+| monitoring | 240 | 192.168.1.202 | 4 | 6 GB | 50 GB | Prometheus, Grafana, Loki, Uptime Kuma |
 | ci-runner | 210 | 192.168.1.210 | 4 | 4 GB | 30 GB | GitHub Actions self-hosted runner |
 | app-demo | 250 | 192.168.1.250 | 2 | 2 GB | 20 GB | PriceSync (React + Node.js + PostgreSQL) |
 
@@ -54,7 +54,6 @@ Cinq containers LXC (Debian 12, mode privilégié + nesting pour Docker) :
 | Snipe-IT | https://inventory.oldevops.fr | utilities | 8081 |
 | NetBox | https://netbox.oldevops.fr | utilities | 8084 |
 | Uptime Kuma | https://status.oldevops.fr | monitoring | 3001 |
-| Zabbix | https://monitoring.oldevops.fr | monitoring | 8083 |
 | Prometheus | https://prometheus.oldevops.fr | monitoring | 9090 |
 | Grafana | https://grafana.oldevops.fr | monitoring | 3000 |
 | Loki | Interne uniquement | monitoring | 3100 |
@@ -123,7 +122,6 @@ app-deploy.yml      — SSH → 192.168.1.250 → docker compose pull && up -d
 | Dashboards | Grafana | Infrastructure, service health, app metrics, logs |
 | Alerting | Prometheus Alertmanager | Alertes sur seuils critiques |
 | Uptime | Uptime Kuma | Monitoring HTTP externe |
-| Infra | Zabbix | Surveillance infrastructure avancée |
 
 Les dashboards Grafana sont **versionnés en JSON** dans `ansible/roles/grafana/files/`.
 

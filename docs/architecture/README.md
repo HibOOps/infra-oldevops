@@ -123,7 +123,7 @@ This directory contains comprehensive architecture documentation for the brownfi
 **Infrastructure**:
 - 3 LXC containers on Proxmox VE
 - 12 vCPU, 15 GB RAM, 98 GB Disk
-- 8 services running (Traefik, Vaultwarden, Snipe-IT, NetBox, Uptime Kuma, Zabbix, Prometheus, Grafana)
+- 8 services running (Traefik, Vaultwarden, Snipe-IT, NetBox, Uptime Kuma, Prometheus, Grafana)
 
 **Deployment**:
 - Terraform + Ansible (Infrastructure-as-Code)
@@ -183,7 +183,7 @@ This directory contains comprehensive architecture documentation for the brownfi
 |----------|---------|--------|--------------|
 | Infrastructure | 1 (Traefik) | 1 (Traefik) | - |
 | Business Apps | 3 (Vault, Snipe, NetBox) | 3 | - |
-| Monitoring | 4 (Zabbix, Kuma, Prom, Graf) | 5 | +Loki |
+| Monitoring | 4 (Kuma, Prom, Graf) | 5 | +Loki |
 | Demo App | 0 | 3 | +React, +API, +PostgreSQL |
 | **Total** | 8 | 12 | +4 |
 
@@ -225,7 +225,7 @@ This directory contains comprehensive architecture documentation for the brownfi
 ### Observability
 - **Metrics**: Prometheus, Grafana
 - **Logging**: Loki, Promtail (new)
-- **Monitoring**: Zabbix, Uptime Kuma
+- **Monitoring**: Uptime Kuma
 - **Dashboards**: Grafana (versioned as code)
 
 ### Security

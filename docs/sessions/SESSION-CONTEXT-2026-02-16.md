@@ -417,7 +417,6 @@ docs/
 ✅ **loki** - loki:3100
 ✅ **cadvisor** - cadvisor:8080
 ✅ **node_exporter** - 192.168.1.202:9100
-❌ **zabbix** - zabbix-server:10051 (non critique pour MON-001)
 
 **Pass Rate:** 86% (6/7)
 

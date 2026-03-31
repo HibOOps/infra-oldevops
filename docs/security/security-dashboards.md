@@ -55,7 +55,7 @@ Les alertes sont provisionnées dans `/opt/grafana/provisioning/alerting/securit
 | `SecuritySensitiveFileChange` | Modification identity/sudoers en 5 min | 🔴 Critical | Immédiat |
 | `SecurityAuditdDown` | <1 log auditd depuis 30 min sur un host | 🟡 Warning | 30 min |
 
-**Canal de notification** : email configuré via `grafana.ini` (SMTP OVH → `olivier.labe@oldevops.fr`)
+**Canal de notification** : ntfy.sh webhook → `https://ntfy.sh/homelab-oldevops` (push notification mobile via l'app ntfy)
 
 ---
 

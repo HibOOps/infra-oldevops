@@ -63,7 +63,7 @@ Le pipeline exécute dans l'ordre :
 | Terraform Apply | Application des changements infra | ~3-5 min |
 | Ansible Traefik | Déploiement reverse proxy | ~2 min |
 | Ansible Utilities | Vaultwarden, Snipe-IT, NetBox | ~3 min |
-| Ansible Monitoring | Prometheus, Grafana, Zabbix | ~3 min |
+| Ansible Monitoring | Prometheus, Grafana | ~3 min |
 | Ansible App Demo | Application de démo (si présente) | ~2 min |
 | Health Checks | Vérification HTTP/SSH/Docker | ~1 min |
 | Notification | Commentaire sur le commit | ~10s |

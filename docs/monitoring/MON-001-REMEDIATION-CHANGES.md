@@ -150,7 +150,6 @@ This document summarizes the changes made to resolve critical blockers identifie
 ### 5. Monitoring Playbook (`ansible/playbooks/monitoring.yml`)
 
 **Changes Made:**
-- Added `node-exporter` role to `all` hosts (alongside `zabbix-agent`)
 
 **Impact:** Node Exporter will be deployed to all containers (200, 201, 202) for comprehensive resource monitoring.
 

@@ -43,7 +43,7 @@
 | Snipe-IT | https://inventory.oldevops.fr | Gestion des actifs IT |
 | NetBox | https://netbox.oldevops.fr | Documentation réseau & DCIM |
 | Uptime Kuma | https://status.oldevops.fr | Monitoring et uptime des services |
-| Zabbix | https://monitoring.oldevops.fr | Plateforme de monitoring avancée |
+| | https://monitoring.oldevops.fr | Plateforme de monitoring avancée |
 | Prometheus | https://prometheus.oldevops.fr | Collection de métriques |
 | Grafana | https://grafana.oldevops.fr | Visualisation de métriques |
 
@@ -52,7 +52,7 @@
 - **IaC** : Terraform 1.0+, Ansible 2.10+
 - **Containerisation** : Docker CE, Docker Compose
 - **Réseau** : Traefik v3, DNS OVH
-- **Monitoring** : Prometheus, Grafana, Zabbix, Uptime Kuma
+- **Monitoring** : Prometheus, Grafana, Uptime Kuma
 - **Gestion d'état** : OVH S3 (Terraform state)
 
 ### 1.3 Documentation Disponible
@@ -214,7 +214,7 @@ Le projet s'adresse à des recruteurs DevOps/SRE/Platform Engineer cherchant à 
 
 **EC1 - Infrastructure Existante** : Les 3 containers LXC existants (proxy, utilities, monitoring) doivent rester opérationnels pendant la transition, avec migration progressive vers la nouvelle architecture de segmentation.
 
-**EC2 - Services Existants** : Les 8 services actuellement déployés (Traefik, Vaultwarden, Snipe-IT, NetBox, Uptime Kuma, Zabbix, Prometheus, Grafana) doivent continuer à fonctionner avec leurs URLs existantes (*.oldevops.fr).
+**EC2 - Services Existants** : Les 8 services actuellement déployés (Traefik, Vaultwarden, Snipe-IT, NetBox, Uptime Kuma, Prometheus, Grafana) doivent continuer à fonctionner avec leurs URLs existantes (*.oldevops.fr).
 
 **EC3 - Réseau** : La nouvelle segmentation réseau doit être compatible avec la topologie Bbox actuelle (192.168.1.0/24) et ne pas nécessiter de matériel réseau supplémentaire.
 
@@ -411,7 +411,7 @@ infra-oldevops/
 - Scraping Prometheus (métriques)
 - Dashboards Grafana
 - Uptime Kuma (disponibilité)
-- Zabbix (monitoring système)
+- (monitoring système)
 
 **Nouveau** :
 - Loki pour logs centralisés (tous containers → Loki → Grafana)
@@ -527,7 +527,7 @@ infra-oldevops/
 **Objectif de l'Epic** : Transformer l'infrastructure homelab existante en vitrine professionnelle démontrant une maîtrise complète des pratiques DevOps modernes, avec CI/CD automatisé, application de démonstration déployée, monitoring avancé et documentation exhaustive.
 
 **Exigences d'Intégration** :
-- Préserver les 8 services existants fonctionnels (Traefik, Vaultwarden, Snipe-IT, NetBox, Uptime Kuma, Zabbix, Prometheus, Grafana)
+- Préserver les 8 services existants fonctionnels (Traefik, Vaultwarden, Snipe-IT, NetBox, Uptime Kuma, Prometheus, Grafana)
 - Maintenir la compatibilité avec l'infrastructure Proxmox actuelle
 - Assurer la continuité du DNS et des certificats SSL (*.oldevops.fr)
 - Migration incrémentale pour minimiser les risques

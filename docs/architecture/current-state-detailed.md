@@ -104,7 +104,6 @@ Template: Debian 12
 Mode: Privileged (unprivileged: false)
 Features: nesting=true, onboot=true
 Services:
-  - Zabbix (port 8083)
   - Uptime Kuma (port 3001)
   - Prometheus (port 9090)
   - Grafana (port 3000)
@@ -113,7 +112,6 @@ Services:
 **Purpose**: Monitoring, metrics collection, and visualization
 
 **Service Details**:
-- **Zabbix**: Enterprise monitoring (infrastructure metrics, alerts)
 - **Uptime Kuma**: Service uptime monitoring (health checks)
 - **Prometheus**: Time-series metrics database
 - **Grafana**: Metrics visualization and dashboards
@@ -368,17 +366,12 @@ Volume: /opt/uptime-kuma/data
 Monitors: Health checks for all services (HTTP/HTTPS ping)
 ```
 
-#### Zabbix (Infrastructure Monitoring)
 ```yaml
 URL: https://monitoring.oldevops.fr
 Container: monitoring (192.168.1.202)
 Port: 8083
 Components:
-  - Zabbix Server
-  - Zabbix Web Frontend
   - PostgreSQL (database)
-  - Zabbix Agent (on all containers)
-Volume: /opt/zabbix
 ```
 
 #### Prometheus (Metrics Collection)
@@ -416,7 +409,6 @@ Host Container Path         → Container Path
 /opt/snipeit/               → /var/www/html/storage (uploads)
 /opt/netbox/                → /opt/netbox/ (media, scripts)
 /opt/uptime-kuma/data/      → /app/data/ (SQLite)
-/opt/zabbix/                → /var/lib/zabbix/ (database)
 /opt/prometheus/            → /prometheus/ (TSDB)
 /opt/grafana/               → /var/lib/grafana/ (dashboards, datasources)
 ```
@@ -520,8 +512,6 @@ ansible/roles/
 ├── snipeit/            # Snipe-IT deployment (utilities)
 ├── netbox/             # NetBox deployment (utilities)
 ├── uptime-kuma/        # Uptime Kuma deployment (monitoring)
-├── zabbix-server/      # Zabbix server deployment (monitoring)
-├── zabbix-agent/       # Zabbix agent (all containers)
 ├── prometheus/         # Prometheus deployment (monitoring)
 ├── grafana/            # Grafana deployment (monitoring)
 └── ssh-setup/          # SSH hardening (all containers)
@@ -569,7 +559,6 @@ ansible/roles/
    → Deploys Vaultwarden, Snipe-IT, NetBox on utilities
 
 5. ansible-playbook monitoring.yml --ask-vault-pass
-   → Deploys Zabbix, Uptime Kuma, Prometheus, Grafana
 ```
 
 **Deployment Time**: ~10-15 minutes (including container provisioning)
@@ -597,7 +586,6 @@ ansible/roles/
 - **Snipe-IT**: Username + password
 - **NetBox**: Username + password
 - **Uptime Kuma**: Username + password
-- **Zabbix**: Username + password
 - **Grafana**: Username + password
 - **Prometheus**: No authentication (internal only, via Traefik auth if exposed)
 
@@ -702,7 +690,6 @@ netbox_secret_key: "xxx"
 - **Alerting**: Email, Discord, Telegram (needs configuration)
 - **Status Page**: Public or private (needs verification)
 
-**Zabbix**:
 - **Agents**: Deployed on all containers
 - **Triggers**: CPU, RAM, Disk thresholds
 - **Alerting**: Email (needs configuration)
@@ -751,7 +738,6 @@ netbox_secret_key: "xxx"
 ✅ **Production-Ready Services**:
 - 8 services running reliably
 - SSL on all services (Let's Encrypt)
-- Monitoring in place (Prometheus, Grafana, Zabbix, Uptime Kuma)
 
 ✅ **Infrastructure-as-Code**:
 - All configuration in Git
@@ -895,7 +881,6 @@ netbox_secret_key: "xxx"
 - Missing: No CI/CD, no automated rollback
 
 **Monitoring**: ⭐⭐⭐⭐ (4/5)
-- Excellent: Prometheus, Grafana, Zabbix, Uptime Kuma
 - Missing: No centralized logging, dashboards not versioned
 
 **Security**: ⭐⭐ (2/5)
@@ -937,7 +922,6 @@ The current infrastructure is a **solid foundation** for transformation into a p
 **Key Strengths**:
 - Production-ready services (8 services operational)
 - Full IaC implementation (Terraform + Ansible)
-- Monitoring stack in place (Prometheus, Grafana, Zabbix, Uptime Kuma)
 - Automated deployment (deploy.sh)
 
 **Key Gaps**:

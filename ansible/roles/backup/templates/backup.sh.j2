@@ -19,8 +19,6 @@ SNIPEIT_MYSQL_DB='{{ snipeit_mysql_database }}'
 NETBOX_PG_USER='netbox'
 NETBOX_PG_DB='netbox'
 NETBOX_PG_PASS='{{ netbox_db_password }}'
-ZABBIX_MYSQL_DB='{{ zabbix_mysql_database }}'
-ZABBIX_MYSQL_ROOT_PASS='{{ zabbix_mysql_root_password }}'
 
 # Options
 NO_SNAPSHOT=0
@@ -88,18 +86,6 @@ else
   ERRORS=$((ERRORS + 1))
 fi
 
-# Zabbix MySQL (CT 240 — VMID for monitoring IP 192.168.1.202)
-log "  Dumping Zabbix MySQL..."
-if pct exec 240 -- bash -c \
-  "docker exec mysql-server mysqldump -uroot -p${ZABBIX_MYSQL_ROOT_PASS} ${ZABBIX_MYSQL_DB} 2>/dev/null" \
-  > "${BACKUP_DIR}/databases/zabbix-${DATE}.sql" 2>>"${LOG_FILE}"; then
-  gzip -f "${BACKUP_DIR}/databases/zabbix-${DATE}.sql"
-  log "  Zabbix: OK ($(du -sh "${BACKUP_DIR}/databases/zabbix-${DATE}.sql.gz" | cut -f1))"
-else
-  log "  Zabbix: FAILED"
-  rm -f "${BACKUP_DIR}/databases/zabbix-${DATE}.sql"
-  ERRORS=$((ERRORS + 1))
-fi
 
 # ─── 3. Volume Backups ──────────────────────────────────────────────────────
 log "--- [3/5] Volume backups ---"

@@ -76,7 +76,6 @@ Tous les containers communiquent directement via le bridge `vmbr0` — pas de r�
 | 3000 | Grafana | grafana.oldevops.fr |
 | 3001 | Uptime Kuma | status.oldevops.fr |
 | 3100 | Loki | ❌ Interne uniquement |
-| 8083 | Zabbix | monitoring.oldevops.fr |
 | 9090 | Prometheus | prometheus.oldevops.fr |
 | 9100 | Node Exporter | ❌ Interne (scrape Prometheus) |
 
@@ -112,7 +111,6 @@ Pas de Docker socket — configuration statique mise à jour via Ansible.
 | netbox | `Host(\`netbox.oldevops.fr\`)` | http://192.168.1.201:8084 | — |
 | grafana | `Host(\`grafana.oldevops.fr\`)` | http://192.168.1.202:3000 | — |
 | uptime-kuma | `Host(\`status.oldevops.fr\`)` | http://192.168.1.202:3001 | — |
-| zabbix | `Host(\`monitoring.oldevops.fr\`)` | http://192.168.1.202:8083 | — |
 | prometheus | `Host(\`prometheus.oldevops.fr\`)` | http://192.168.1.202:9090 | — |
 | pricesync-api | `Host(\`demo.oldevops.fr\`) && PathPrefix(\`/api\`)` | http://192.168.1.250:5000 | 20 |
 | pricesync-frontend | `Host(\`demo.oldevops.fr\`)` | http://192.168.1.250:80 | 10 |

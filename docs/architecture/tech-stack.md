@@ -131,7 +131,7 @@ ansible/
 | Grafana | 10.x | Dashboards — métriques + logs |
 | Loki | 2.x | Agrégation logs centralisée (7j rétention) |
 | Promtail | 2.x | Agent collecte logs (1 par container) |
-| Zabbix | 6.x | Monitoring infrastructure avancé |
+| | 6.x | Monitoring infrastructure avancé |
 | Uptime Kuma | 1.x | Monitoring uptime services HTTP |
 
 **Dashboards Grafana versionnés** (JSON dans `ansible/roles/grafana/files/`) :
@@ -165,6 +165,6 @@ ansible/
 | Snipe-IT | latest | https://inventory.oldevops.fr |
 | NetBox | 3.x | https://netbox.oldevops.fr |
 | Uptime Kuma | 1.x | https://status.oldevops.fr |
-| Zabbix | 6.x | https://monitoring.oldevops.fr |
+| | 6.x | https://monitoring.oldevops.fr |
 | Prometheus | 2.x | https://prometheus.oldevops.fr |
 | Grafana | 10.x | https://grafana.oldevops.fr |

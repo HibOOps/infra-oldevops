@@ -312,7 +312,7 @@ Une fois le workflow lancé :
 |------|----------|-----|--------|------|
 | 200 | proxy | 192.168.1.200 | ✅ Running | Traefik reverse proxy |
 | 220 | utilities | 192.168.1.201 | ✅ Running | Vaultwarden, Snipe-IT, NetBox |
-| 240 | monitoring | 192.168.1.202 | ✅ Running | Zabbix, Uptime Kuma, Prometheus, Grafana |
+| 240 | monitoring | 192.168.1.202 | ✅ Running | Uptime Kuma, Prometheus, Grafana |
 | 210 | ci-runner | 192.168.1.210 | ✅ Running | GitHub Actions self-hosted runner |
 
 **Note** : VMID dans le code ne correspond pas exactement aux IPs (202 → .201, 204 → .202)

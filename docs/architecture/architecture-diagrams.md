@@ -59,7 +59,6 @@ graph TB
     end
 
     subgraph "monitoring services"
-        Zabbix[Zabbix<br/>:8083]
         Kuma[Uptime Kuma<br/>:3001]
         Prom[Prometheus<br/>:9090]
         Graf[Grafana<br/>:3000]
@@ -69,7 +68,6 @@ graph TB
     Utils --> Vault
     Utils --> Snipe
     Utils --> Netbox
-    Monitor --> Zabbix
     Monitor --> Kuma
     Monitor --> Prom
     Monitor --> Graf
@@ -77,7 +75,6 @@ graph TB
     Traefik -.->|Routes to| Vault
     Traefik -.->|Routes to| Snipe
     Traefik -.->|Routes to| Netbox
-    Traefik -.->|Routes to| Zabbix
     Traefik -.->|Routes to| Kuma
     Traefik -.->|Routes to| Prom
     Traefik -.->|Routes to| Graf
@@ -114,7 +111,6 @@ graph LR
     end
 
     subgraph "Monitoring Container (.202)"
-        ZB[Zabbix:8083<br/>PostgreSQL]
         UK[Uptime Kuma:3001<br/>SQLite]
         PM[Prometheus:9090<br/>TSDB]
         GF[Grafana:3000<br/>SQLite]
@@ -131,7 +127,6 @@ graph LR
     TR --> VW
     TR --> SI
     TR --> NB
-    TR --> ZB
     TR --> UK
     TR --> PM
     TR --> GF
@@ -145,7 +140,6 @@ graph LR
     style VW fill:#99ccff
     style SI fill:#99ccff
     style NB fill:#99ccff
-    style ZB fill:#99ff99
     style UK fill:#99ff99
     style PM fill:#99ff99
     style GF fill:#99ff99
@@ -206,7 +200,6 @@ graph TB
     end
 
     subgraph "monitoring services"
-        Zabbix[Zabbix<br/>:8083]
         Kuma[Uptime Kuma<br/>:3001]
         Prom[Prometheus<br/>:9090]
         Graf[Grafana<br/>:3000]
@@ -227,7 +220,6 @@ graph TB
     Utils --> Snipe
     Utils --> Netbox
     Utils --> Promtail2
-    Monitor --> Zabbix
     Monitor --> Kuma
     Monitor --> Prom
     Monitor --> Graf
@@ -285,7 +277,6 @@ graph LR
     end
 
     subgraph "Monitoring Container (.202)"
-        ZB[Zabbix:8083]
         UK[Uptime Kuma:3001]
         PM[Prometheus:9090]
         GF[Grafana:3000]
@@ -311,7 +302,6 @@ graph LR
     TR --> VW
     TR --> SI
     TR --> NB
-    TR --> ZB
     TR --> UK
     TR --> PM
     TR --> GF

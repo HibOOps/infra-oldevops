@@ -72,7 +72,7 @@ This document outlines the brownfield transformation of an existing homelab infr
 |-----------|------|-----|------|-----|------|----------|
 | proxy | 200 | 192.168.1.200 | 2 | 1 GB | 8 GB | Traefik v3 |
 | utilities | 220 | 192.168.1.201 | 6 | 8 GB | 40 GB | Vaultwarden, Snipe-IT, NetBox |
-| monitoring | 240 | 192.168.1.202 | 4 | 6 GB | 50 GB | Zabbix, Uptime Kuma, Prometheus, Grafana |
+| monitoring | 240 | 192.168.1.202 | 4 | 6 GB | 50 GB | Uptime Kuma, Prometheus, Grafana |
 
 **Total Resources**: 12 vCPU, 15 GB RAM, 98 GB Disk
 
@@ -85,7 +85,7 @@ This document outlines the brownfield transformation of an existing homelab infr
 | Snipe-IT | https://inventory.oldevops.fr | utilities | 8081 | IT asset management |
 | NetBox | https://netbox.oldevops.fr | utilities | 8084 | Network documentation & DCIM |
 | Uptime Kuma | https://status.oldevops.fr | monitoring | 3001 | Service monitoring |
-| Zabbix | https://monitoring.oldevops.fr | monitoring | 8083 | Infrastructure monitoring |
+| | https://monitoring.oldevops.fr | monitoring | 8083 | Infrastructure monitoring |
 | Prometheus | https://prometheus.oldevops.fr | monitoring | 9090 | Metrics collection |
 | Grafana | https://grafana.oldevops.fr | monitoring | 3000 | Metrics visualization |
 
@@ -152,7 +152,7 @@ terraform apply → Ansible playbooks → Service verification
          │  │   .202                       │   │
          │  │   4C/6GB/50GB                │   │
          │  │                              │   │
-         │  │   Zabbix | Uptime Kuma      │   │
+         │  │   | Uptime Kuma      │   │
          │  │   Prometheus | Grafana       │   │
          │  └──────────────────────────────┘   │
          └──────────────────────────────────────┘
@@ -164,7 +164,7 @@ Traffic Flow: Internet → Router → Traefik (.200) → Services (.201/.202)
 
 ✅ **Production-Ready**: 8 services running reliably
 ✅ **Infrastructure-as-Code**: Fully automated with Terraform + Ansible
-✅ **Monitoring**: Prometheus/Grafana/Zabbix stack in place
+✅ **Monitoring**: Prometheus/Grafana/ stack in place
 ✅ **Security**: SSL via Let's Encrypt, SSH key authentication
 ✅ **State Management**: Terraform state in OVH S3
 ✅ **Documentation**: README and MAINTENANCE docs exist
@@ -423,7 +423,7 @@ Recovery Targets:
          │  │ Prometheus   │  │ React Frontend│          │
          │  │ Grafana      │──│ Node.js API  │          │
          │  │ Loki ← NEW   │  │ PostgreSQL   │          │
-         │  │ Zabbix       │  │ Promtail     │          │
+         │  │       │  │ Promtail     │          │
          │  │ Uptime Kuma  │  │              │           │
          │  │ Promtail     │  │              │           │
          │  └──────────────┘  └──────────────┘           │

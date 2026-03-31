@@ -41,7 +41,7 @@ Implémenter un pipeline de déploiement automatisé GitOps avec approbation man
 5. **Terraform Apply** - Application automatique des changements
 6. **Ansible - Traefik** - Déploiement du reverse proxy
 7. **Ansible - Utilities** - Déploiement de Vaultwarden, Snipe-IT, NetBox
-8. **Ansible - Monitoring** - Déploiement de Zabbix, Uptime Kuma, Prometheus, Grafana
+8. **Ansible - Monitoring** - Déploiement de Uptime Kuma, Prometheus, Grafana
 9. **Summary** - Résumé du déploiement
 10. **Notification** - Commentaire sur le commit avec résultats
 

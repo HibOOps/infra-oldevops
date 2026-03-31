@@ -102,7 +102,7 @@
 **Existing Infrastructure:**
 - **Container 200 (proxy)**: 192.168.1.200 - Traefik reverse proxy
 - **Container 201 (utilities)**: 192.168.1.201 - Vaultwarden, Snipe-IT, NetBox
-- **Container 202 (monitoring)**: 192.168.1.202 - Prometheus, Grafana, Zabbix, Uptime Kuma
+- **Container 202 (monitoring)**: 192.168.1.202 - Prometheus, Grafana, Uptime Kuma
 - **Container 210 (app-demo)**: 192.168.1.210 - Future deployment (not in scope for this story)
 
 **Existing Monitoring Stack:**

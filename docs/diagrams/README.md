@@ -42,7 +42,7 @@ graph TB
     subgraph "Proxmox VE — bridge vmbr0 192.168.1.0/24"
         Proxy[proxy .200\nTraefik v3]
         Utils[utilities .201\nVaultwarden · Snipe-IT · NetBox]
-        Monitor[monitoring .202\nPrometheus · Grafana · Loki · Zabbix]
+        Monitor[monitoring .202\nPrometheus · Grafana · Loki ·]
         CIRunner[ci-runner .210\nGitHub Runner]
         AppDemo[app-demo .250\nPriceSync React+API+PG]
     end

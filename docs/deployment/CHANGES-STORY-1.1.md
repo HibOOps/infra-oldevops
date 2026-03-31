@@ -74,7 +74,7 @@ Après déploiement, votre infrastructure comportera :
 | 200  | proxy      | 192.168.1.200   | 2   | 1GB  | 8GB  | Traefik                           |
 | 210  | ci-runner  | 192.168.1.210   | 4   | 4GB  | 30GB | GitHub Actions Runner (NOUVEAU)   |
 | 220  | utilities  | 192.168.1.201   | 6   | 8GB  | 40GB | Snipe-IT, Vaultwarden             |
-| 240  | monitoring | 192.168.1.202   | 4   | 6GB  | 50GB | Zabbix, Uptime Kuma, Grafana      |
+| 240  | monitoring | 192.168.1.202   | 4   | 6GB  | 50GB | Uptime Kuma, Grafana      |
 
 ## 🛠️ Outils Installés sur le Runner
 

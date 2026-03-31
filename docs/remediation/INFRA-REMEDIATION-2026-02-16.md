@@ -216,7 +216,7 @@ Docker Compose version v5.0.2
 |------|----------|-----|------|-----|------|--------|--------|----------|
 | 200 | proxy | 192.168.1.200 | 2 | 1GB | 8GB | ✅ Running | ✅ v29.2.1 | Traefik |
 | 201 | utilities | 192.168.1.201 | 6 | 8GB | 40GB | ✅ Running | ✅ v29.2.1 | Vaultwarden, Snipe-IT, NetBox |
-| 202 | monitoring | 192.168.1.202 | 4 | 6GB | 50GB | ✅ Running | ✅ v29.2.1 | Prometheus, Grafana, Zabbix, Loki |
+| 202 | monitoring | 192.168.1.202 | 4 | 6GB | 50GB | ✅ Running | ✅ v29.2.1 | Prometheus, Grafana, Loki |
 | 210 | ci-runner | 192.168.1.210 | 4 | 4GB | 30GB | ✅ Running | ✅ v29.1.3 | GitHub Actions Runner |
 | 250 | app-demo | 192.168.1.250 | 2 | 2GB | 20GB | ✅ Running | ✅ v29.2.1 | App-Demo (React + Node + PostgreSQL) |
 
@@ -231,7 +231,7 @@ Docker Compose version v5.0.2
 - ✅ `https://inventory.oldevops.fr` → Snipe-IT
 - ✅ `https://netbox.oldevops.fr` → NetBox
 - ✅ `https://status.oldevops.fr` → Uptime Kuma
-- ✅ `https://monitoring.oldevops.fr` → Zabbix
+- ✅ `https://monitoring.oldevops.fr` →
 - ✅ `https://prometheus.oldevops.fr` → Prometheus
 - ✅ `https://grafana.oldevops.fr` → Grafana
 - ✅ `https://proxy.oldevops.fr` → Traefik Dashboard

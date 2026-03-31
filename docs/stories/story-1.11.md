@@ -79,7 +79,6 @@
   - [x] Proxmox snapshots via `pct snapshot` (5 containers: 200, 201, 240, 210, 250)
   - [x] MySQL dump Snipe-IT (CT 201 — `snipeit-db`)
   - [x] PostgreSQL dump NetBox (CT 201 — `netbox-postgres-1`)
-  - [x] MySQL dump Zabbix (CT 240 — `mysql-server`)
   - [x] Volume backup Vaultwarden (CT 201 — `/opt/vaultwarden/vw-data`)
   - [x] Local rotation (7 days, `/var/backups/infra-oldevops/YYYY-MM-DD/`)
   - [x] OVH S3 sync via rclone (conditional on `ovh_s3_access_key`)
@@ -103,7 +102,6 @@
     - [x] All 5 snapshots OK
     - [x] Snipe-IT dump: 467 bytes (empty DB, correct)
     - [x] NetBox dump: 73K OK
-    - [x] Zabbix dump: 4.7M OK
     - [x] Vaultwarden volume: 8.9K OK
   - [x] Restoration test: CT 250 (app-demo) rolled back in 70s — all services healthy
 
@@ -120,7 +118,6 @@ Proxmox host (192.168.1.50)
         ├── databases/
         │   ├── snipeit-YYYY-MM-DD.sql.gz
         │   ├── netbox-YYYY-MM-DD.sql.gz
-        │   └── zabbix-YYYY-MM-DD.sql.gz
         └── volumes/
             └── vaultwarden-YYYY-MM-DD.tar.gz
 ```

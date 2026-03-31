@@ -28,7 +28,7 @@ Ce runbook décrit les procédures de restauration de l'infrastructure oldevops.
 |-----------|------|-----|---------|
 | proxy | 200 | 192.168.1.200 | Traefik |
 | utilities | 201 | 192.168.1.201 | Vaultwarden, Snipe-IT, NetBox |
-| monitoring | 202 | 192.168.1.202 | Prometheus, Grafana, Loki, Zabbix |
+| monitoring | 202 | 192.168.1.202 | Prometheus, Grafana, Loki |
 | ci-runner | 210 | 192.168.1.210 | GitHub Actions Runner |
 | app-demo | 250 | 192.168.1.250 | Application demo |
 
@@ -92,7 +92,6 @@ ssh root@192.168.1.201 "docker exec netbox-postgres-1 pg_isready -U netbox"
    export SNIPEIT_MYSQL_USER=snipeit
    export SNIPEIT_MYSQL_PASS=<from vault>
    export NETBOX_PG_PASS=<from vault>
-   export ZABBIX_MYSQL_ROOT_PASS=<from vault>
    /usr/local/bin/restore.sh --databases-only --date YYYY-MM-DD
    ```
 4. Redémarrer les services et vérifier :
@@ -207,7 +206,7 @@ Après toute procédure de restauration, vérifier les points suivants :
 - [ ] `https://vault.oldevops.fr` — Vaultwarden accessible
 - [ ] `https://snipe.oldevops.fr` — Snipe-IT accessible (connexion DB OK)
 - [ ] `https://netbox.oldevops.fr` — NetBox accessible
-- [ ] `https://monitoring.oldevops.fr` — Zabbix UI
+- [ ] `https://monitoring.oldevops.fr` — UI
 - [ ] `https://grafana.oldevops.fr` — Grafana avec dashboards
 - [ ] `https://status.oldevops.fr` — Uptime Kuma
 
@@ -266,4 +265,4 @@ ssh root@192.168.1.50 "/usr/local/bin/backup-infra.sh --no-snapshot --no-s3"
 | Date | Scénario | VMID | Durée | Résultat | Notes |
 |------|----------|------|-------|----------|-------|
 | 2026-02-18 | Scénario A — rollback CT 250 (app-demo) | 250 | 45s | ✅ OK | Snapshot `daily-2026-02-18`, données intègres post-rollback |
-| 2026-02-18 | DB dump test — Snipe-IT + NetBox + Zabbix | 201, 202 | 2min | ✅ OK | DB dumps créés sans erreur, tailles cohérentes |
+| 2026-02-18 | DB dump test — Snipe-IT + NetBox + | 201, 202 | 2min | ✅ OK | DB dumps créés sans erreur, tailles cohérentes |

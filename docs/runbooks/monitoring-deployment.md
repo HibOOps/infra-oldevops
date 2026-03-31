@@ -70,7 +70,7 @@ curl -s http://192.168.1.202:9090/api/v1/rules | jq '.data.groups | length'
 
 # Check all Prometheus targets
 curl -s http://192.168.1.202:9090/api/v1/targets | jq '.data.activeTargets[].labels.job'
-# Expected: ["prometheus", "alertmanager", "loki", "grafana", "node_exporter", "cadvisor", "zabbix"]
+# Expected: ["prometheus", "alertmanager", "loki", "grafana", "node_exporter", "cadvisor"]
 
 # Check Node Exporter on all containers
 for ip in 192.168.1.200 192.168.1.201 192.168.1.202; do

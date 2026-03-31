@@ -41,7 +41,7 @@ Ce projet d'infrastructure existe actuellement comme laboratoire de test personn
 ## Exigences d'Intégration
 
 **Contraintes critiques** :
-- ✅ Préserver les 8 services existants fonctionnels (Traefik, Vaultwarden, Snipe-IT, NetBox, Uptime Kuma, Zabbix, Prometheus, Grafana)
+- ✅ Préserver les 8 services existants fonctionnels (Traefik, Vaultwarden, Snipe-IT, NetBox, Uptime Kuma, Prometheus, Grafana)
 - ✅ Maintenir la compatibilité avec l'infrastructure Proxmox actuelle
 - ✅ Assurer la continuité du DNS et des certificats SSL (*.oldevops.fr)
 - ✅ Migration incrémentale pour minimiser les risques

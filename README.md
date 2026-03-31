@@ -5,9 +5,9 @@
 ![Tests](https://github.com/HibOOps/Infra-oldevops/actions/workflows/app-build.yml/badge.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
-Infrastructure as Code complète déployée sur Proxmox VE bare-metal — Terraform, Ansible, CI/CD GitHub Actions, monitoring full-stack et application de démonstration en production.
+Infrastructure as Code complète déployée sur Proxmox VE bare-metal — Terraform, Ansible, CI/CD GitHub Actions, monitoring full-stack, sécurité avancée et application de démonstration en production.
 
-> **Demo** : [demo.oldevops.fr](https://demo.oldevops.fr) | **Portfolio** : [demo.oldevops.fr/portfolio](https://demo.oldevops.fr/portfolio) | **Status** : [status.oldevops.fr](https://status.oldevops.fr)
+> **Demo** : [demo.oldevops.fr](https://demo.oldevops.fr) | **Git** : [git.oldevops.fr](https://git.oldevops.fr) | **Status** : [status.oldevops.fr](https://status.oldevops.fr)
 
 ---
 
@@ -17,17 +17,17 @@ Infrastructure as Code complète déployée sur Proxmox VE bare-metal — Terraf
                         Internet
                            │
                     [Traefik v3]  ── SSL wildcard *.oldevops.fr
-                    192.168.1.200
-                    /     |      \
-         [monitoring] [utilities] [app-demo]  [ci-runner]
-          .202          .201        .250         .210
-     Prometheus      Vaultwarden  PriceSync   GitHub Runner
-     Grafana         Snipe-IT     Node/React
-     Loki            NetBox       PostgreSQL
-     Zabbix
+                    192.168.1.200 (unprivileged LXC)
+               /       |        \       \
+    [monitoring]  [utilities]  [app-demo] [forgejo]  [ci-runner]
+       .202          .201         .250       .203        .210
+  Prometheus     Vaultwarden   PriceSync   Forgejo    GitHub Runner
+  Grafana        Snipe-IT      Node/React  git.oldevops.fr
+  Loki           NetBox        PostgreSQL
+  Uptime Kuma
 ```
 
-5 containers LXC sur Proxmox VE 8 — Debian 12 — Docker CE 25
+6 containers LXC sur Proxmox VE 8 — Debian 12 — Docker CE 25
 
 ---
 
@@ -61,14 +61,14 @@ Infrastructure as Code complète déployée sur Proxmox VE bare-metal — Terraf
 | Service | URL | Description |
 |---------|-----|-------------|
 | Reverse Proxy | [proxy.oldevops.fr](https://proxy.oldevops.fr) | Traefik v3 + SSL wildcard DNS-01 |
-| Portfolio / App | [demo.oldevops.fr](https://demo.oldevops.fr) | Homepage + PriceSync app |
-| Grafana | [grafana.oldevops.fr](https://grafana.oldevops.fr) | Dashboards métriques + logs |
-| Uptime Kuma | [status.oldevops.fr](https://status.oldevops.fr) | Monitoring uptime |
+| Portfolio / App | [demo.oldevops.fr](https://demo.oldevops.fr) | Homepage + PriceSync app (React + API) |
+| Git self-hosted | [git.oldevops.fr](https://git.oldevops.fr) | Forgejo — miroir du repo infra |
+| Grafana | [grafana.oldevops.fr](https://grafana.oldevops.fr) | Dashboards métriques + logs + sécurité |
+| Uptime Kuma | [status.oldevops.fr](https://status.oldevops.fr) | Monitoring uptime public |
 | Vaultwarden | [vault.oldevops.fr](https://vault.oldevops.fr) | Gestionnaire de mots de passe |
 | Snipe-IT | [inventory.oldevops.fr](https://inventory.oldevops.fr) | Gestion de parc ITSM |
 | NetBox | [netbox.oldevops.fr](https://netbox.oldevops.fr) | Documentation réseau DCIM |
 | Prometheus | [prometheus.oldevops.fr](https://prometheus.oldevops.fr) | Métriques infrastructure |
-| Zabbix | [monitoring.oldevops.fr](https://monitoring.oldevops.fr) | Monitoring avancé |
 
 ---
 
@@ -86,14 +86,27 @@ Jest + Vitest tests        →     SSH deploy → LXC app-demo
 
 ---
 
+## Sécurité
+
+- **Auditd** déployé sur tous les containers LXC — audit trail kernel (escalades de privilèges, modifications `/etc/passwd`, `/etc/sudoers`, connexions SSH)
+- **Logs centralisés** dans Loki via Promtail (`{job="auditd"}`)
+- **3 dashboards de sécurité** Grafana provisionnés en IaC (auth, modifications système, vue synthèse)
+- **4 alertes** Grafana Unified Alerting : brute force SSH, privesc, modification fichiers sensibles, auditd silencieux
+- **Notifications push** via ntfy.sh (webhook HTTPS, pas de dépendance SMTP)
+- **Containers unprivileged** (.200, .201, .250) — isolation renforcée, mitigation container escape
+- SSL wildcard Let's Encrypt via DNS-01 OVH — certificat automatique `*.oldevops.fr`
+- UFW whitelist `192.168.1.0/24`, Fail2ban SSH, secrets AES-256 Ansible Vault
+
+---
+
 ## Compétences démontrées
 
 - **IaC** : provisioning déclaratif complet (Terraform + Ansible), idempotent et reproductible
 - **CI/CD** : pipeline automatisé de la PR au déploiement en production
-- **Sécurité** : SSL wildcard, firewall UFW, Fail2ban, secrets chiffrés AES-256, scan Trivy
-- **Observabilité** : métriques, logs centralisés, alerting, uptime monitoring
+- **Sécurité** : audit trail kernel, dashboards détection d'incidents, containers unprivileged, secrets chiffrés
+- **Observabilité** : métriques, logs centralisés, 7 dashboards Grafana versionnés en JSON, alerting
 - **Docker** : images multi-stage, registry privé, orchestration compose
-- **Développement** : application full-stack avec tests, API REST documentée (Swagger)
+- **Développement** : application full-stack (React + Node.js + PostgreSQL) avec tests, API REST
 
 ---
 
@@ -122,10 +135,11 @@ ansible-playbook -i inventory.ini playbooks/site.yml --vault-password-file=.vaul
 
 ## Documentation
 
-- [Architecture complète](docs/architecture.md)
 - [Stack technique](docs/architecture/tech-stack.md)
+- [Runbooks opérationnels](docs/runbooks/)
+- [Plan de remédiation sécurité](docs/security/security-remediation-plan-2026-02-14.md)
+- [Dashboards sécurité](docs/security/security-dashboards.md)
 - [SHOWCASE — compétences démontrées](SHOWCASE.md)
-- [Screenshots](docs/screenshots/)
 - [Stories / historique](docs/stories/)
 
 ---

@@ -236,11 +236,8 @@ if [[ "${MODE}" =~ ^(full|databases)$ ]]; then
       : "${SNIPEIT_MYSQL_USER:?Set SNIPEIT_MYSQL_USER}"
       : "${SNIPEIT_MYSQL_PASS:?Set SNIPEIT_MYSQL_PASS}"
       : "${NETBOX_PG_PASS:?Set NETBOX_PG_PASS}"
-      : "${ZABBIX_MYSQL_ROOT_PASS:?Set ZABBIX_MYSQL_ROOT_PASS}"
-
       restore_db_mysql 201 "snipeit-db" "snipeit" "${SNIPEIT_MYSQL_USER}" "${SNIPEIT_MYSQL_PASS}" || ERRORS=$((ERRORS + 1))
       restore_db_postgres 201 "netbox-postgres-1" "netbox" "netbox" "${NETBOX_PG_PASS}" || ERRORS=$((ERRORS + 1))
-      restore_db_mysql 202 "mysql-server" "zabbix" "root" "${ZABBIX_MYSQL_ROOT_PASS}" || ERRORS=$((ERRORS + 1))
     }
   fi
 fi

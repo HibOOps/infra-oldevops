@@ -11,7 +11,7 @@
 |------|----------|-----|----------|--------|
 | 200 | proxy | 192.168.1.200 | Traefik | `ssh root@192.168.1.200` |
 | 201 | utilities | 192.168.1.201 | Vaultwarden, Snipe-IT, NetBox | `ssh root@192.168.1.201` |
-| 202 | monitoring | 192.168.1.202 | Prometheus, Grafana, Zabbix, Loki | `ssh root@192.168.1.202` |
+| 202 | monitoring | 192.168.1.202 | Prometheus, Grafana, Loki | `ssh root@192.168.1.202` |
 | 210 | ci-runner | 192.168.1.210 | GitHub Actions Runner | `ssh root@192.168.1.210` |
 | 250 | app-demo | 192.168.1.250 | React App, Node.js API, PostgreSQL | `ssh root@192.168.1.250` |
 
@@ -27,7 +27,7 @@
 | Snipe-IT | https://inventory.oldevops.fr | utilities |
 | NetBox | https://netbox.oldevops.fr | utilities |
 | Uptime Kuma | https://status.oldevops.fr | monitoring |
-| Zabbix | https://monitoring.oldevops.fr | monitoring |
+| | https://monitoring.oldevops.fr | monitoring |
 | Prometheus | https://prometheus.oldevops.fr | monitoring |
 | Grafana | https://grafana.oldevops.fr | monitoring |
 | Traefik Dashboard | https://proxy.oldevops.fr | proxy |

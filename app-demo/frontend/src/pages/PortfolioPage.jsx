@@ -41,7 +41,6 @@ const TECH_STACK = [
     { text: 'Grafana 10', accent: 'green' },
     { text: 'Loki', accent: 'green' },
     { text: 'Uptime Kuma', accent: 'green' },
-    { text: 'Zabbix 6', accent: 'green' },
   ]},
   { label: 'App PriceSync', pills: [
     { text: 'Node.js 20', accent: 'indigo' },

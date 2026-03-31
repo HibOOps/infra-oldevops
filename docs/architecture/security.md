@@ -87,7 +87,7 @@ X-Permitted-Cross-Domain-Policies : none
 Permissions-Policy        : camera=(), microphone=(), geolocation=()
 ```
 
-**Appliqué sur** : tous les routers (app, vault, snipeit, netbox, zabbix, grafana, prometheus, status, proxy dashboard)
+**Appliqué sur** : tous les routers (app, vault, snipeit, netbox, grafana, prometheus, status, proxy dashboard)
 
 #### Rate Limiting
 - **Middleware** : `rate-limit` (1000 req/min average, burst 500)
