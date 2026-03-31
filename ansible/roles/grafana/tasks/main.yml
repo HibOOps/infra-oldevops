@@ -9,6 +9,8 @@
     - /opt/grafana/provisioning
     - /opt/grafana/provisioning/dashboards
     - /opt/grafana/provisioning/datasources
+    - /opt/grafana/provisioning/alerting
+    - /opt/grafana/provisioning/plugins
     - /opt/grafana/dashboards
 
 - name: Create grafana-data directory with correct ownership
@@ -18,6 +20,14 @@
     owner: "472"
     group: "472"
     mode: '0755'
+
+- name: Deploy grafana.ini (SMTP + alerting config)
+  template:
+    src: grafana.ini.j2
+    dest: /opt/grafana/grafana.ini
+    owner: root
+    group: root
+    mode: '0644'
 
 - name: Deploy docker-compose.yml
   template:
@@ -46,6 +56,15 @@
     - infrastructure.json
     - application.json
     - logs-explorer.json
+    - security-auth.json
+    - security-changes.json
+    - security-overview.json
+
+- name: Deploy alert provisioning rules
+  copy:
+    src: provisioning/alerting/security-alerts.yaml
+    dest: /opt/grafana/provisioning/alerting/security-alerts.yaml
+    mode: '0644'
 
 - name: Launch Grafana
   shell: docker compose up -d

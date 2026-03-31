@@ -14,7 +14,7 @@ module "proxy" {
   storage         = var.storage_pool
   tags            = local.common_tags
   ssh_public_keys = var.ssh_public_keys
-  unprivileged    = false
+  unprivileged    = true # Story 1.19 — mitigation CRIT-001 container escape
 
   # Resources
   cores  = 2
@@ -39,7 +39,7 @@ module "utilities" {
   storage         = var.storage_pool
   tags            = "${local.common_tags};utilities"
   ssh_public_keys = var.ssh_public_keys
-  unprivileged    = false
+  unprivileged    = true # Story 1.19 — mitigation CRIT-001 container escape
 
   # Resources
   cores  = 6

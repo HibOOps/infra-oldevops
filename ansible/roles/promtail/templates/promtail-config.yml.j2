@@ -47,3 +47,17 @@ scrape_configs:
       labels:
         host: {{ inventory_hostname }}
         job: journal
+
+  - job_name: auditd
+    static_configs:
+      - labels:
+          host: {{ inventory_hostname }}
+          job: auditd
+          env: homelab
+          __path__: /var/log/audit/audit.log
+    pipeline_stages:
+      - regex:
+          expression: 'type=(?P<audit_type>\w+).*\bkey="(?P<key>[^"]+)"'
+      - labels:
+          audit_type:
+          key:

@@ -1,0 +1,14 @@
+[server]
+root_url = https://grafana.oldevops.fr
+
+[smtp]
+enabled = true
+host = {{ smtp_host }}
+user = {{ smtp_username }}
+password = {{ smtp_password }}
+from_address = {{ smtp_from }}
+from_name = Grafana oldevops
+startTLS_policy = MandatoryStartTLS
+
+[unified_alerting]
+enabled = true

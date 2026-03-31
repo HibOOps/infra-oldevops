@@ -7,6 +7,7 @@ services:
       - ./grafana-data:/var/lib/grafana
       - ./provisioning:/etc/grafana/provisioning
       - ./dashboards:/var/lib/grafana/dashboards
+      - ./grafana.ini:/etc/grafana/grafana.ini:ro
     restart: always
     ports:
       - "3000:3000"

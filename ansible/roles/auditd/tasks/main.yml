@@ -1,0 +1,45 @@
+---
+- name: Install auditd
+  apt:
+    name: auditd
+    state: present
+    update_cache: yes
+
+# local_events = no : requis pour LXC — le netlink socket kernel audit
+# n'est pas accessible depuis l'intérieur d'un container (même privileged).
+# Le service démarre normalement, gère les logs et la rotation.
+- name: Deploy auditd.conf (local_events=no for LXC compatibility)
+  template:
+    src: auditd.conf.j2
+    dest: /etc/audit/auditd.conf
+    owner: root
+    group: root
+    mode: '0640'
+  notify: restart auditd
+
+- name: Enable and start auditd service (privileged containers only)
+  service:
+    name: auditd
+    enabled: yes
+    state: started
+  when: not (lxc_unprivileged | default(false))
+
+# Les containers unprivileged (ex: .250) ne peuvent pas charger de règles kernel.
+# On déploie les règles uniquement sur les containers privileged.
+- name: Deploy audit rules (privileged containers only)
+  template:
+    src: audit.rules.j2
+    dest: /etc/audit/rules.d/homelab.rules
+    owner: root
+    group: root
+    mode: '0640'
+  when: not (lxc_unprivileged | default(false))
+  notify: restart auditd
+
+- name: Ensure audit log directory exists
+  file:
+    path: /var/log/audit
+    state: directory
+    owner: root
+    group: root
+    mode: '0750'

@@ -1,5 +1,5 @@
 ---
-- hosts: all:!ci_runner
+- hosts: all:!proxmox:!ci_runner
   become: yes
   roles:
     - promtail

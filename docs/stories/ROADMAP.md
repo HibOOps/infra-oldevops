@@ -18,15 +18,13 @@ Ce document trace la progression de la transformation de l'infrastructure homela
 
 | Métrique | Valeur | Cible |
 |----------|--------|-------|
-| Stories complétées | 12 / 15 | 15 |
-| Stories en revue | 1 / 15 | - |
-| Progression | ~80% | 100% |
-| Phase actuelle | Phase 5 — Documentation & Polish | Phase 5 |
-| Durée estimée restante | ~1 semaine | - |
+| Stories complétées | 19 / 19 | 19 |
+| Progression | 100% | 100% |
+| Phase actuelle | Phase 6 — Sécurité Avancée | Phase 6 ✅ |
+| Durée estimée restante | 0 | - |
 
-**Dernière story complétée** : [Story 1.8 - Pipeline CI/CD App](story-1.8.md)
-**En revue** : [Story 1.13 - Documentation](story-1.13.md)
-**Prochaine action** : Merger 1.13, démarrer 1.14 et 1.15
+**Dernière story complétée** : Story 1.18 (Dashboards & Alertes Sécurité)
+**Prochaine action** : Epic terminé — validation finale et revue portfolio
 
 ---
 
@@ -109,26 +107,47 @@ Ce document trace la progression de la transformation de l'infrastructure homela
 
 ---
 
-### 📚 Phase 5 : Documentation et Polish 🏗️ En cours
+### 📚 Phase 5 : Documentation et Polish ✅ Complète
 
 **Objectif** : Finaliser la vitrine professionnelle
 
 | Story | Priorité | Effort | Statut | Notes |
 |-------|----------|--------|--------|-------|
-| [1.13 - Documentation Professionnelle - Architecture et Runbooks](story-1.13.md) | P3 | 8 | 🔄 In Review | Docs exhaustives |
-| [1.14 - README et Portfolio - Transformation en Vitrine Professionnelle](story-1.14.md) | P3 | 5 | 📝 Todo | README + portfolio |
-| [1.15 - PriceSync — Optimisation UX/UI Mobile & Navigation Smartphone](story-1.15.md) | P3 | 5 | 📝 Todo | Responsive + hamburger + tactile |
+| [1.13 - Documentation Professionnelle - Architecture et Runbooks](story-1.13.md) | P3 | 8 | ✅ Done | Docs exhaustives |
+| [1.14 - README et Portfolio - Transformation en Vitrine Professionnelle](story-1.14.md) | P3 | 5 | ✅ Done | README + portfolio |
+| [1.15 - PriceSync — Optimisation UX/UI Mobile & Navigation Smartphone](story-1.15.md) | P3 | 5 | ✅ Done | Responsive + hamburger + tactile |
+| [1.16 - Forgejo — Hébergement Git self-hosted & miroir](story-1.16.md) | P2 | 5 | ✅ Done | git.oldevops.fr |
 
 **Critères de validation Phase 5** :
-- [ ] Documentation complète (architecture + runbooks + guides)
-- [ ] README transformé en vitrine professionnelle
-- [ ] Page portfolio créée dans l'app
-- [ ] SHOWCASE.md créé
-- [ ] Script vidéo préparé
-- [ ] Application PriceSync utilisable sur smartphone (demo.oldevops.fr)
+- [x] Documentation complète (architecture + runbooks + guides)
+- [x] README transformé en vitrine professionnelle
+- [x] Page portfolio créée dans l'app
+- [x] Application PriceSync utilisable sur smartphone (demo.oldevops.fr)
+- [x] Forgejo self-hosted opérationnel (git.oldevops.fr)
 
-**Risques Phase 5** :
-- 🟢 Documentation obsolète → Mitigation : Revue régulière + CI/CD checks
+---
+
+### 🔐 Phase 6 : Sécurité Avancée 📝 À faire
+
+**Objectif** : Implémenter la détection d'incidents et réduire la surface d'attaque
+
+| Story | Priorité | Effort | Statut | Notes |
+|-------|----------|--------|--------|-------|
+| [1.17 - Sécurité — Déploiement Auditd](story-1.17.md) | P2 | 5 | ✅ Done | Audit trail kernel sur tous les LXC |
+| [1.18 - Sécurité — Dashboards & Alertes Grafana](story-1.18.md) | P2 | 5 | ✅ Done | 3 dashboards sécurité + 4 alertes SMTP |
+| [1.19 - Sécurité — LXC Unprivileged (.200 + .201)](story-1.19.md) | P2 | 5 | ✅ Done | Mitigation CRIT-001 container escape |
+
+**Critères de validation Phase 6** :
+- [x] Auditd déployé sur .200, .201, .202, .210 (logs dans Loki)
+- [x] 3 dashboards sécurité opérationnels dans Grafana
+- [x] Alertes configurées (SecurityBruteForce, PrivEsc, SensitiveFile, AuditdDown)
+- [x] Containers .200 et .201 convertis en unprivileged
+- [x] Docker fonctionnel post-conversion sur .200 et .201
+- [x] Tous les services applicatifs toujours accessibles
+
+**Risques Phase 6** :
+- 🟡 Conversion unprivileged casse Docker sur .200 → Mitigation : snapshot pré-migration + rollback Terraform
+- 🟢 Auditd charge CPU → Mitigation : règles minimales + monitoring charge
 
 ---
 
@@ -176,6 +195,12 @@ graph TD
 
     A & B & D & E & F & G & I & H & J & K & M[1.11 Backup] & L --> N[1.13 Documentation]
     N --> O[1.14 README Portfolio]
+    O --> Q[1.15 UX Mobile]
+    G & I --> Q
+    Q --> R[1.16 Forgejo]
+    J --> S[1.17 Auditd]
+    S --> T[1.18 Dashboards Sécurité]
+    E & F --> U[1.19 LXC Unprivileged]
 ```
 
 ---
@@ -220,7 +245,8 @@ graph TD
 ## Prochaines Actions
 
 ### Immédiat
-1. 🎯 Merger la PR en revue : 1.13 (Documentation)
+1. 🎯 Démarrer Story 1.17 : Auditd (rôle Ansible)
+2. 🎯 Démarrer Story 1.18 : Dashboards + Alertes sécurité (en parallèle de 1.17)
 
 ### Court terme
 1. Démarrer Story 1.14 : README et Portfolio

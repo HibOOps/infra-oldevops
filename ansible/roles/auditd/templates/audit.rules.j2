@@ -1,0 +1,31 @@
+## Managed by Ansible — do not edit manually
+## Story 1.17 — Security audit rules
+
+# Effacer les règles existantes
+-D
+# Buffer size
+-b 8192
+# Failure mode : 1 = log (2 = kernel panic si buffer plein)
+-f 1
+
+# Escalade de privilèges
+-a always,exit -F arch=b64 -S execve -F euid=0 -F auid!=0 -k privilege_escalation
+-w /bin/su -p x -k privilege_escalation
+-w /usr/bin/sudo -p x -k privilege_escalation
+
+# Modifications de fichiers sensibles
+-w /etc/passwd -p wa -k identity
+-w /etc/shadow -p wa -k identity
+-w /etc/group -p wa -k identity
+-w /etc/sudoers -p wa -k sudoers
+-w /etc/ssh/sshd_config -p wa -k sshd_config
+
+# Connexions réseau sortantes inhabituelles
+-a always,exit -F arch=b64 -S connect -k outbound_connections
+
+# Chargement de modules kernel
+-w /sbin/insmod -p x -k module_insertion
+-w /sbin/modprobe -p x -k module_insertion
+
+# Accès aux logs d'audit eux-mêmes
+-w /var/log/audit/ -p wa -k audit_log_access

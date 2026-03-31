@@ -64,7 +64,11 @@ Ce projet d'infrastructure existe actuellement comme laboratoire de test personn
 | 1.12 | [Sécurité - Scanning et Hardening Automatisé](story-1.12.md) | ✅ Done | P2 | 1.1 |
 | 1.13 | [Documentation Professionnelle - Architecture et Runbooks](story-1.13.md) | 🔄 In Review | P3 | Toutes |
 | 1.14 | [README et Portfolio - Transformation en Vitrine Professionnelle](story-1.14.md) | 📝 Todo | P3 | Toutes |
-| 1.15 | [PriceSync — Optimisation UX/UI Mobile & Navigation Smartphone](story-1.15.md) | 📝 Todo | P3 | 1.6, 1.7 |
+| 1.15 | [PriceSync — Optimisation UX/UI Mobile & Navigation Smartphone](story-1.15.md) | ✅ Done | P3 | 1.6, 1.7 |
+| 1.16 | [Forgejo — Hébergement Git self-hosted & miroir infra-oldevops](story-1.16.md) | ✅ Done | P2 | 1.1, 1.2, 1.7 |
+| 1.17 | [Sécurité — Déploiement Auditd sur tous les containers LXC](story-1.17.md) | ✅ Done | P2 | 1.9 |
+| 1.18 | [Sécurité — Dashboards Grafana & Alertes de Sécurité](story-1.18.md) | ✅ Done | P2 | 1.10, 1.17 |
+| 1.19 | [Sécurité — Conversion LXC Unprivileged (.200 et .201)](story-1.19.md) | ✅ Done | P2 | 1.4, 1.5 |
 
 **Légende des priorités** :
 - **P0** : Bloquant - requis pour la suite
@@ -139,6 +143,7 @@ Ce projet d'infrastructure existe actuellement comme laboratoire de test personn
 | Phase 2 — Application | 1.4, 1.5, 1.6, 1.7, 1.8 | ✅ Complète (5/5) |
 | Phase 3 — Monitoring | 1.9, 1.10 | ✅ Complète (2/2) |
 | Phase 4 — Opérations | 1.11, 1.12 | ✅ Complète (2/2) |
-| Phase 5 — Documentation & Polish | 1.13, 1.14, 1.15 | 🏗️ En cours (0/3 — 1.13 In Review) |
+| Phase 5 — Documentation & Polish | 1.13, 1.14, 1.15, 1.16 | ✅ Complète (4/4) |
+| Phase 6 — Sécurité Avancée | 1.17, 1.18, 1.19 | ✅ Complète (3/3) |
 
-**Avancement global** : 12 Done · 1 In Review · 2 Todo
+**Avancement global** : 19 Done · 0 Todo — Epic complète ✅

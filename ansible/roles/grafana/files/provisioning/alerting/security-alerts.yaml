@@ -1,0 +1,192 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: security-alerts
+    folder: Security
+    interval: 1m
+    rules:
+
+      - uid: security-brute-force
+        title: SecurityBruteForce
+        condition: C
+        for: 0s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Brute force SSH détecté sur {{ $labels.host }}"
+          description: "Plus de 10 tentatives SSH échouées en 10 minutes sur {{ $labels.host }}"
+        data:
+          - refId: A
+            datasourceUid: loki
+            queryType: range
+            relativeTimeRange:
+              from: 600
+              to: 0
+            model:
+              expr: 'sum by (host) (count_over_time({job=~"syslog|auditd"} |~ "Failed password|Invalid user" [10m]))'
+              intervalMs: 60000
+              maxDataPoints: 43200
+              queryType: range
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: [10]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              refId: C
+              type: threshold
+
+      - uid: security-priv-esc
+        title: SecurityPrivEsc
+        condition: C
+        for: 0s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Escalade de privilèges détectée sur {{ $labels.host }}"
+          description: "Un événement sudo/su a été détecté sur {{ $labels.host }}"
+        data:
+          - refId: A
+            datasourceUid: loki
+            queryType: range
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              expr: 'sum by (host) (count_over_time({job="auditd"} |= "privilege_escalation" [5m]))'
+              intervalMs: 60000
+              maxDataPoints: 43200
+              queryType: range
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: [0]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              refId: C
+              type: threshold
+
+      - uid: security-sensitive-file
+        title: SecuritySensitiveFileChange
+        condition: C
+        for: 0s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Modification fichier sensible sur {{ $labels.host }}"
+          description: "Un fichier sensible (/etc/passwd, /etc/shadow, /etc/sudoers) a été modifié sur {{ $labels.host }}"
+        data:
+          - refId: A
+            datasourceUid: loki
+            queryType: range
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              expr: 'sum by (host) (count_over_time({job="auditd"} |~ "key=\"identity\"|key=\"sudoers\"" [5m]))'
+              intervalMs: 60000
+              maxDataPoints: 43200
+              queryType: range
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: [0]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              refId: C
+              type: threshold
+
+      - uid: security-auditd-down
+        title: SecurityAuditdDown
+        condition: C
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Auditd silencieux sur {{ $labels.host }}"
+          description: "Aucun log auditd depuis 30 minutes sur {{ $labels.host }} — service peut-être arrêté"
+        data:
+          - refId: A
+            datasourceUid: loki
+            queryType: range
+            relativeTimeRange:
+              from: 1800
+              to: 0
+            model:
+              expr: 'sum by (host) (count_over_time({job="auditd"} [30m]))'
+              intervalMs: 60000
+              maxDataPoints: 43200
+              queryType: range
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: [1]
+                    type: lt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              refId: C
+              type: threshold
+
+contact_points:
+  - orgId: 1
+    name: ntfy-ops
+    receivers:
+      - uid: ntfy-ops-receiver
+        type: webhook
+        settings:
+          url: https://ntfy.sh/homelab-oldevops
+          httpMethod: POST
+          title: "[ALERT] {{ .GroupLabels.alertname }}"
+          message: "{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}"
